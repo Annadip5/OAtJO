@@ -17,6 +17,7 @@ class BowlRace {
     camera;
     light;
     player;
+    player2;
     arena;
     piste;
 
@@ -54,11 +55,13 @@ class BowlRace {
         /*const race = await SceneLoader.ImportMeshAsync("", "", pisteCourseUrl, this.scene);
         this.piste = race.meshes[0];*/
         console.log(this.piste.checkCollisions);
-        //this.piste.physicsAggregate = new PhysicsAggregate(this.piste, PhysicsShapeType.BOX, { mass: 0, friction: 0, restitution: .5 }, this.scene);
+        this.piste.physicsAggregate = new PhysicsAggregate(this.piste, PhysicsShapeType.BOX, { mass: 0, friction: 0, restitution: .5 }, this.scene);
 
         //this.piste.physicsImpostor = new PhysicsImpostor(this.piste, PhysicsImpostor.BoxImpostor, { mass: 0, friction: 0, restitution: .5 });
         this.player = new BowlPlayer(this.scene, this.pseudo, this.gameType, this.idCountryFlag);
         await this.player.init();
+        this.player2 = new BowlPlayer(this.scene, "test", this.gameType, 3);
+        await this.player2.init();
         this.arena = new PistCourse(0, 1, 0, this.scene);
         await this.arena.init();
         console.log(this.scene);
