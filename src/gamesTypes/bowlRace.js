@@ -47,7 +47,9 @@ class BowlRace {
     async initGame() {
         await this.createScene();
         //this.scene.debugLayer.show();
-        this.scene.enablePhysics(new Vector3(0, -9.81, 0), new HavokPlugin(undefined, await Havok()));
+        this.scene.enablePhysics(new Vector3(0, -9.81, 0), new CannonJSPlugin(true));
+
+        //this.scene.enablePhysics(new Vector3(0, -9.81, 0), new HavokPlugin(undefined, await Havok()));
         this.piste = MeshBuilder.CreateGround("ground", { width: 64, height: 64 }, this.scene);
         this.piste.position = new Vector3(0, -0.1, 0);
 
@@ -56,11 +58,11 @@ class BowlRace {
         console.log(this.piste.checkCollisions);
         //this.piste.physicsAggregate = new PhysicsAggregate(this.piste, PhysicsShapeType.BOX, { mass: 0, friction: 0, restitution: .5 }, this.scene);
 
-        //this.piste.physicsImpostor = new PhysicsImpostor(this.piste, PhysicsImpostor.BoxImpostor, { mass: 0, friction: 0, restitution: .5 });
+        this.piste.physicsImpostor = new PhysicsImpostor(this.piste, PhysicsImpostor.BoxImpostor, { mass: 0, friction: 0, restitution: .5 });
         this.player = new BowlPlayer(this.scene, this.pseudo, this.gameType, this.idCountryFlag);
         await this.player.init();
-        this.arena = new PistCourse(0, 1, 0, this.scene);
-        await this.arena.init();
+        //this.arena = new PistCourse(0, 1, 0, this.scene);
+        //await this.arena.init();
         console.log(this.scene);
         console.log(this.player);
         await this.createCamera();

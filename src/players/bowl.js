@@ -55,9 +55,9 @@ class BowlPlayer {
         meshMaterial.diffuseTexture = new Texture("../../assets/images/drapeaux/" + this.skins[this.idCountryFlag]);
         this.mesh.material = meshMaterial;
         this.mesh.position = new Vector3(this.x, this.y, this.z);
-        // this.mesh.physicsImpostor = new PhysicsImpostor(this.mesh, PhysicsImpostor.SphereImpostor, { mass: 1, friction: 0, restitution: 0 });
+        this.mesh.physicsImpostor = new PhysicsImpostor(this.mesh, PhysicsImpostor.SphereImpostor, { mass: 1, friction: 0, restitution: 0 });
 
-        this.meshAggregate = new PhysicsAggregate(this.mesh, PhysicsShapeType.SPHERE, { mass: 1, friction: 0, restitution: 0 });
+        /*this.meshAggregate = new PhysicsAggregate(this.mesh, PhysicsShapeType.SPHERE, { mass: 1, friction: 0, restitution: 0 });
         this.mesh.PhysicsAggregate = this.meshAggregate;
         this.meshAggregate.body.setMotionType(PhysicsMotionType.DYNAMIC);
         this.meshAggregate.body.disablePreStep = false;
@@ -75,7 +75,7 @@ class BowlPlayer {
         console.log(this.meshAggregate.body.getLinearVelocity())
         this.mesh.scaling.scaleInPlace(1);
         this.mesh.checkCollisions = true;
-
+*/
         await this.createLabel();
 
     }

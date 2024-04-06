@@ -29,7 +29,7 @@ class KeyboardInputHandler {
     }
 
     handleInput() {
-        let currentVelocity = this.hero.meshAggregate.body.getLinearVelocity();
+        //let currentVelocity = this.hero.meshAggregate.body.getLinearVelocity();
         var forwardDirection = this.camera1.getForwardRay().direction;
         forwardDirection.y = 0; // Keep the character at ground level
         //forwardDirection.normalize();
@@ -41,7 +41,9 @@ class KeyboardInputHandler {
             console.log(this.hero.mesh.position);
 
             // Avancer
-            this.hero.mesh.moveWithCollisions(forwardDirection.scale(0.1));
+            this.hero.mesh.physicsImpostor.setLinearVelocity(forwardDirection);
+
+            //this.hero.mesh.moveWithCollisions(forwardDirection.scale(0.1));
             this.hero.mesh.rotate(new Vector3(1, 0, 0), 0.1);
             keydown = true;
 
@@ -76,9 +78,9 @@ class KeyboardInputHandler {
             this.hero.mesh.lookAt(this.hero.mesh.position.add(forwardDirection));
         }
 
-        if (this.inputMap[" "] && currentVelocity.y == 0) {
-            console.log(currentVelocity);
-            this.hero.meshAggregate.body.applyImpulse(new Vector3(0, this.JUMP_INPULSE, 0), new Vector3(0, 0, 0));
+        if (this.inputMap[" "] /*&& currentVelocity.y == 0*/) {
+            //console.log(currentVelocity);
+            //this.hero.meshAggregate.body.applyImpulse(new Vector3(0, this.JUMP_INPULSE, 0), new Vector3(0, 0, 0));
             //this.jumping = true;
             //this.hero.jump();
             /*this.jump().then(() => {
