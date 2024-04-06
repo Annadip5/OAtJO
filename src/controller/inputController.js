@@ -1,17 +1,19 @@
-import { ActionManager, Axis, ExecuteCodeAction, Vector3 } from "@babylonjs/core";
-let JUMP_IMPULSE = 6;
+import { ActionManager, Axis, ExecuteCodeAction, Ray, Vector3 } from "@babylonjs/core";
 class KeyboardInputHandler {
+    _jumpImpulse = 5;
     scene;
+    arena;
     hero;
     camera1;
     inputMap = {};
     jumping = false;
     jumpHeight = 4;
     jumpSpeed = 0.1;
-    constructor(scene, hero, camera1) {
+    constructor(scene, hero, camera1, arena) {
         this.scene = scene;
         this.hero = hero;
         this.camera1 = camera1;
+        this.arena = arena
 
 
         this.registerInputActions();
@@ -75,51 +77,42 @@ class KeyboardInputHandler {
             keydown = true;
             this.hero.mesh.lookAt(this.hero.mesh.position.add(forwardDirection));
         }
+        let auSol = this.estAuSol(this.hero.mesh, this.arena.gameObject, this.scene);
 
-        if (this.inputMap[" "] && currentVelocity.y == 0) {
-            console.log(currentVelocity);
-            this.hero.meshAggregate.body.applyImpulse(new Vector3(0, this.JUMP_INPULSE, 0), new Vector3(0, 0, 0));
-            //this.jumping = true;
-            //this.hero.jump();
-            /*this.jump().then(() => {
-                this.jumping = false;
-            });*/
+        if (this.inputMap[" "] && currentVelocity.y == 0 && auSol) {
+            this.jump();
+
         }
 
-        // Reset keydown state
         if (!keydown) {
             this.inputMap = {};
         }
     }
-
     jump() {
         return new Promise(resolve => {
-            var jumpInterval = setInterval(() => {
-                if (this.hero.position.y < this.jumpHeight) {
-                    this.hero.position.y += this.jumpSpeed;
-                } else {
-                    clearInterval(jumpInterval);
-                    this.fall().then(() => {
-                        resolve();
-                    });
-                }
-            }, 10);
+            this.hero.meshAggregate.body.applyImpulse(new Vector3(0, this._jumpImpulse, 0), this.hero.mesh.position);
+
+            resolve();
         });
     }
 
-    fall() {
-        return new Promise(resolve => {
-            var fallInterval = setInterval(() => {
-                if (this.hero.position.y > 1) {
-                    this.hero.position.y -= this.jumpSpeed;
-                } else {
-                    clearInterval(fallInterval);
-                    resolve();
-                }
-            }, 10);
-        });
+
+    estAuSol(sphereMesh, groundMesh, scene) {
+        //console.log(groundMesh);
+        var ray = new Ray(sphereMesh.position, new Vector3(0, -1, 0));
+
+        var pickInfo = scene.pickWithRay(ray, function (mesh) { return mesh === groundMesh; });
+        /* console.log(pickInfo);
+         console.log(pickInfo.distance);
+         console.log(pickInfo.distance <= sphereMesh.scaling.y);*/
+
+        if (/*pickInfo.hit && */pickInfo.distance <= sphereMesh.scaling.y) {
+            return true;
+        } else {
+            return false;
+        }
     }
+
 }
 export default KeyboardInputHandler;
-// Example usage:
-// var keyboardInputHandler = new KeyboardInputHandler(scene, hero, camera1);
+

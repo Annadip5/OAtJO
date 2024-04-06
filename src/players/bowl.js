@@ -1,4 +1,4 @@
-import { MeshBuilder, PhysicsAggregate, PhysicsImpostor, PhysicsMotionType, PhysicsShapeType, Quaternion, StandardMaterial, Texture, Vector3 } from "@babylonjs/core";
+import { MeshBuilder, PhysicsAggregate, PhysicsImpostor, PhysicsMotionType, PhysicsShapeType, Quaternion, Ray, StandardMaterial, Texture, Vector3 } from "@babylonjs/core";
 import { AdvancedDynamicTexture, TextBlock } from "@babylonjs/gui";
 
 const USE_FORCES = false;
@@ -36,11 +36,14 @@ class BowlPlayer {
     speedX = 0.0;
     speedY = 0.0;
     speedZ = 0.0;
-    constructor(scene, pseudo, gameType, idCountryFlag) {
+    constructor(scene, pseudo, gameType, idCountryFlag, x, y, z) {
         this.scene = scene;
         this.pseudo = pseudo;
         this.gameType = gameType;
         this.idCountryFlag = idCountryFlag;
+        this.x = x || 0;
+        this.y = y || 1;
+        this.z = z || 0;
 
 
         /*if (USE_FORCES) {
@@ -91,29 +94,9 @@ class BowlPlayer {
         this.label.linkOffsetY = this.linkOffsetYlabel;
     }
 
-    checkGround() {
-        let ret = false;
 
-        var rayOrigin = this.transform.absolutePosition;
-        var ray1Dir = Vector3.Down();
-        var ray1Len = (1 / 2) + 0.1;
-        var ray1Dest = rayOrigin.add(ray1Dir.scale(ray1Len));
 
-        const raycastResult = this.scene.getPhysicsEngine().raycast(rayOrigin, ray1Dest, 2);
-        if (raycastResult.hasHit) {
-            //console.log("Collision at ", raycastResult.hitPointWorld);
-            if (!this.bOnGround)
-                console.log("Grounded");
-            ret = true;
-        }
-        /*
-                var ray1 = new Ray(rayOrigin, ray1Dir, ray1Len);
-                var ray1Helper = new RayHelper(ray1);
-                ray1Helper.show(GlobalManager.scene, new Color3(1, 1, 0));
-        */
 
-        return ret;
-    }
 
 }
 export default BowlPlayer

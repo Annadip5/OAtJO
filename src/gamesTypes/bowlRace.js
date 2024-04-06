@@ -60,7 +60,7 @@ class BowlRace {
         //this.piste.physicsImpostor = new PhysicsImpostor(this.piste, PhysicsImpostor.BoxImpostor, { mass: 0, friction: 0, restitution: .5 });
         this.player = new BowlPlayer(this.scene, this.pseudo, this.gameType, this.idCountryFlag);
         await this.player.init();
-        this.player2 = new BowlPlayer(this.scene, "test", this.gameType, 3);
+        this.player2 = new BowlPlayer(this.scene, "test", this.gameType, 3, 1, 0);
         await this.player2.init();
         this.arena = new PistCourse(0, 1, 0, this.scene);
         await this.arena.init();
@@ -70,7 +70,7 @@ class BowlRace {
         console.log(this.camera);
         this.createLight(this.scene, 0.6);
         this.reglageScene();
-        this.keyboard = new KeyboardInputHandler(this.scene, this.player, this.camera);
+        this.keyboard = new KeyboardInputHandler(this.scene, this.player, this.camera, this.arena);
         console.log(this.piste);
 
 
