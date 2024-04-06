@@ -1,9 +1,9 @@
-import { CannonJSPlugin, MeshBuilder, PhysicsAggregate, PhysicsImpostor, PhysicsShapeType, StandardMaterial, Texture, Vector3 } from "@babylonjs/core";
+import { MeshBuilder, PhysicsAggregate, PhysicsImpostor, PhysicsMotionType, PhysicsShapeType, Quaternion, StandardMaterial, Texture, Vector3 } from "@babylonjs/core";
 import { AdvancedDynamicTexture, TextBlock } from "@babylonjs/gui";
 
 const USE_FORCES = false;
 let RUNNING_SPEED = 8;
-let JUMP_IMPULSE = 10;
+let JUMP_IMPULSE = 6;
 
 class BowlPlayer {
     scene;
@@ -14,13 +14,28 @@ class BowlPlayer {
     mesh;
     label;
     linkOffsetYlabel = -65;
+    //Position dans le monde
+    transform;
+    meshAggregate;
 
     points = 0;
     skins = ["AfriqueSud.png", "Allemagne.png", "Angleterre.png", "Bresil.png", "Cameroun.png", "Canada.png", "Chine.png", "Espagne.png", "EtatUnis.png", "France.png", "Italie.png", "Russie.png", "Ukraine.png"];
+    bWalking = false;
+    bOnGround = false;
+    bFalling = false;
+    bJumping = false;
 
-    x = 1;
-    y = 1;
-    z = 0;
+    moveDir = Vector3.Zero();
+    jumpImpulse = new Vector3(0, JUMP_IMPULSE, 0);
+    directionXZ = Vector3.Zero();
+
+    x = 0.0;
+    y = 1.0;
+    z = 0.0;
+
+    speedX = 0.0;
+    speedY = 0.0;
+    speedZ = 0.0;
     constructor(scene, pseudo, gameType, idCountryFlag) {
         this.scene = scene;
         this.pseudo = pseudo;
@@ -28,9 +43,9 @@ class BowlPlayer {
         this.idCountryFlag = idCountryFlag;
 
 
-        if (USE_FORCES) {
+        /*if (USE_FORCES) {
             RUNNING_SPEED *= 2;
-        }
+        }*/
     }
 
     async init() {
@@ -41,7 +56,23 @@ class BowlPlayer {
         this.mesh.material = meshMaterial;
         this.mesh.position = new Vector3(this.x, this.y, this.z);
         // this.mesh.physicsImpostor = new PhysicsImpostor(this.mesh, PhysicsImpostor.SphereImpostor, { mass: 1, friction: 0, restitution: 0 });
-        this.mesh.PhysicsAggregate = new PhysicsAggregate(this.mesh, PhysicsShapeType.SPHERE, { mass: 1, friction: 0, restitution: 0.3, linearDamping: 0.5, angularDamping: 0.5 });
+
+        this.meshAggregate = new PhysicsAggregate(this.mesh, PhysicsShapeType.SPHERE, { mass: 1, friction: 0, restitution: 0 });
+        this.mesh.PhysicsAggregate = this.meshAggregate;
+        this.meshAggregate.body.setMotionType(PhysicsMotionType.DYNAMIC);
+        this.meshAggregate.body.disablePreStep = false;
+
+        this.meshAggregate.body.setMassProperties({
+            inertia: new Vector3(0, 0, 0),
+            centerOfMass: new Vector3(0, 1 / 2, 0),
+            mass: 1,
+            inertiaOrientation: new Quaternion(0, 0, 0, 1)
+        });
+
+        console.log(this.meshAggregate);
+        console.log("*************************");
+        console.log("*************************");
+        console.log(this.meshAggregate.body.getLinearVelocity())
         this.mesh.scaling.scaleInPlace(1);
         this.mesh.checkCollisions = true;
 
@@ -53,11 +84,35 @@ class BowlPlayer {
         var advancedTexture = AdvancedDynamicTexture.CreateFullscreenUI("UI");
         this.label = new TextBlock();
         this.label.text = this.pseudo;
-        this.label.color = "white";
+        this.label.color = "orange";
         this.label.fontSize = 30;
         advancedTexture.addControl(this.label);
         this.label.linkWithMesh(this.mesh);
         this.label.linkOffsetY = this.linkOffsetYlabel;
+    }
+
+    checkGround() {
+        let ret = false;
+
+        var rayOrigin = this.transform.absolutePosition;
+        var ray1Dir = Vector3.Down();
+        var ray1Len = (1 / 2) + 0.1;
+        var ray1Dest = rayOrigin.add(ray1Dir.scale(ray1Len));
+
+        const raycastResult = this.scene.getPhysicsEngine().raycast(rayOrigin, ray1Dest, 2);
+        if (raycastResult.hasHit) {
+            //console.log("Collision at ", raycastResult.hitPointWorld);
+            if (!this.bOnGround)
+                console.log("Grounded");
+            ret = true;
+        }
+        /*
+                var ray1 = new Ray(rayOrigin, ray1Dir, ray1Len);
+                var ray1Helper = new RayHelper(ray1);
+                ray1Helper.show(GlobalManager.scene, new Color3(1, 1, 0));
+        */
+
+        return ret;
     }
 
 }

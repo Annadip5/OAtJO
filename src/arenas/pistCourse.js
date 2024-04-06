@@ -28,7 +28,7 @@ class PistCourse {
         this.gameObject.scaling.scaleInPlace(2.5);
         for (let childMesh of result.meshes) {
             if (childMesh.getTotalVertices() > 0) {
-                const meshAggregate = new PhysicsAggregate(childMesh, PhysicsShapeType.MESH, { mass: 0, friction: 0, restitution: 0.1 });
+                const meshAggregate = new PhysicsAggregate(childMesh, PhysicsShapeType.MESH, { mass: 0, friction: 0, restitution: 0 });
                 meshAggregate.body.setMotionType(PhysicsMotionType.STATIC);
             }
         }

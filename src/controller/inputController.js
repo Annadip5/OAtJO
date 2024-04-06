@@ -1,4 +1,4 @@
-import { ActionManager, ExecuteCodeAction } from "@babylonjs/core";
+import { ActionManager, Axis, ExecuteCodeAction, Vector3 } from "@babylonjs/core";
 
 class KeyboardInputHandler {
     scene;
@@ -29,18 +29,21 @@ class KeyboardInputHandler {
     }
 
     handleInput() {
-        //let currentVelocity = this.heroRigidBody.body.getLinearVelocity();
+        let currentVelocity = this.hero.meshAggregate.body.getLinearVelocity();
         var forwardDirection = this.camera1.getForwardRay().direction;
         forwardDirection.y = 0; // Keep the character at ground level
-        forwardDirection.normalize();
+        //forwardDirection.normalize();
         var keydown = false;
+        var direction = new Vector3(forwardDirection.x, forwardDirection.y, forwardDirection.z);
 
         // Manage the movements of the character
         if (this.inputMap["z"]) {
             console.log("avant");
             console.log(this.hero.mesh.position);
+            this.hero.mesh.moveWithCollisions(forwardDirection.scale(0.1));
 
-            this.hero.mesh.position.addInPlace(forwardDirection.scale(0.1));
+            //this.hero.mesh.position.addInPlace(direction.scale(0.1));
+            this.hero.mesh.rotate(direction, 0.1);
             keydown = true;
         }
         if (this.inputMap["s"]) {
