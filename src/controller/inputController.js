@@ -39,9 +39,6 @@ class KeyboardInputHandler {
         var direction = new Vector3(forwardDirection.x, forwardDirection.y, forwardDirection.z);
 
         if (this.inputMap["z"]) {
-            console.log("avant");
-            console.log(this.hero.mesh.position);
-
             // Avancer
             this.hero.mesh.moveWithCollisions(forwardDirection.scale(0.1));
             this.hero.mesh.rotate(new Vector3(1, 0, 0), 0.1);

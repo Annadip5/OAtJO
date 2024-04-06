@@ -94,7 +94,10 @@ class BowlPlayer {
         this.label.linkOffsetY = this.linkOffsetYlabel;
     }
 
-
+    performSpecialMovement() {
+        console.log("in function");
+        this.meshAggregate.body.applyImpulse(new Vector3(0, 2, 0), this.mesh.position);
+    }
 
 
 

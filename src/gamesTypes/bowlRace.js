@@ -79,6 +79,7 @@ class BowlRace {
     async gameLoop() {
 
         this.engine.runRenderLoop(() => {
+            this.checkPlayerIntersection();
 
             this.scene.render();
         });
@@ -117,7 +118,12 @@ class BowlRace {
         var light2 = new DirectionalLight("dir01", new Vector3(0, -0.5, -1.0), scene);
         light2.position = new Vector3(0, 5, 5);
     }
-
+    checkPlayerIntersection() {
+        if (this.player.mesh.intersectsMesh(this.player2.mesh)) {
+            console.log("Player intersects Player2!");
+            this.player2.performSpecialMovement();
+        }
+    }
 
 }
 export default BowlRace;
