@@ -1,5 +1,5 @@
 import { ActionManager, Axis, ExecuteCodeAction, Vector3 } from "@babylonjs/core";
-
+let JUMP_IMPULSE = 6;
 class KeyboardInputHandler {
     scene;
     hero;
@@ -36,33 +36,49 @@ class KeyboardInputHandler {
         var keydown = false;
         var direction = new Vector3(forwardDirection.x, forwardDirection.y, forwardDirection.z);
 
-        // Manage the movements of the character
         if (this.inputMap["z"]) {
             console.log("avant");
             console.log(this.hero.mesh.position);
-            this.hero.mesh.moveWithCollisions(forwardDirection.scale(0.1));
 
-            //this.hero.mesh.position.addInPlace(direction.scale(0.1));
-            this.hero.mesh.rotate(direction, 0.1);
+            // Avancer
+            this.hero.mesh.moveWithCollisions(forwardDirection.scale(0.1));
+            this.hero.mesh.rotate(new Vector3(1, 0, 0), 0.1);
             keydown = true;
+
+            // Tourner le mesh de votre héros vers la direction de déplacement
+            //this.hero.mesh.lookAt(this.hero.mesh.position.add(forwardDirection));
         }
+
         if (this.inputMap["s"]) {
             console.log(this.hero.mesh.position);
 
+            // Reculer
             this.hero.mesh.position.addInPlace(forwardDirection.scale(-0.05));
+            this.hero.mesh.rotate(new Vector3(-1, 0, 0), 0.1);
             keydown = true;
+
+            // Tourner le mesh de votre héros vers la direction de déplacement inverse
         }
+
         if (this.inputMap["q"]) {
+            // Tourner à gauche
             this.camera1.alpha += 0.05;
+            this.hero.mesh.rotate(Vector3.Up(), 0.05);
             keydown = true;
+            this.hero.mesh.lookAt(this.hero.mesh.position.add(forwardDirection));
         }
+
         if (this.inputMap["d"]) {
+            // Tourner à droite
             this.camera1.alpha -= 0.05;
+            this.hero.mesh.rotate(new Vector3(0, -1, 0), 0.05);
             keydown = true;
+            this.hero.mesh.lookAt(this.hero.mesh.position.add(forwardDirection));
         }
 
-        if (this.inputMap[" "] && !this.jumping) {
-
+        if (this.inputMap[" "] && currentVelocity.y == 0) {
+            console.log(currentVelocity);
+            this.hero.meshAggregate.body.applyImpulse(new Vector3(0, this.JUMP_INPULSE, 0), new Vector3(0, 0, 0));
             //this.jumping = true;
             //this.hero.jump();
             /*this.jump().then(() => {
