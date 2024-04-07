@@ -1,85 +1,107 @@
-import { MeshBuilder, PhysicsAggregate, PhysicsImpostor, PhysicsMotionType, PhysicsShapeType, Quaternion, Ray, StandardMaterial, Texture, Vector3 } from "@babylonjs/core";
-import { AdvancedDynamicTexture, TextBlock } from "@babylonjs/gui";
+import { Matrix, Mesh, MeshBuilder, Physics6DoFConstraint, PhysicsAggregate, PhysicsConstraintAxis, PhysicsMotionType, PhysicsShapeType, Quaternion, Ray, SceneLoader, StandardMaterial, Texture, TransformNode, Vector3 } from "@babylonjs/core";
 
+//import girlModelUrl from "../assets/models/girl1.glb";
+import Arena from "../arenas/pistCourse";
+import { AdvancedDynamicTexture } from "@babylonjs/gui/2D/advancedDynamicTexture";
+import { TextBlock } from "@babylonjs/gui/2D/controls/textBlock";
 const USE_FORCES = false;
-let RUNNING_SPEED = 8;
-let JUMP_IMPULSE = 6;
+let RUNNING_SPEED = 14;
+let JUMP_IMPULSE = 8;
+const PLAYER_HEIGHT = 1;
+const PLAYER_RADIUS = 0.4;
 
-class BowlPlayer {
+class Player {
+
     scene;
-
-    pseudo;
-    gameType;
-    idCountryFlag;
-    mesh;
-    label;
-    linkOffsetYlabel = -65;
     //Position dans le monde
     transform;
-    meshAggregate;
+    //Mesh
+    gameObject;
+    arena;
+    //Physic
+    capsuleAggregate;
 
-    points = 0;
-    skins = ["AfriqueSud.png", "Allemagne.png", "Angleterre.png", "Bresil.png", "Cameroun.png", "Canada.png", "Chine.png", "Espagne.png", "EtatUnis.png", "France.png", "Italie.png", "Russie.png", "Ukraine.png"];
     bWalking = false;
     bOnGround = false;
     bFalling = false;
     bJumping = false;
 
-    moveDir = Vector3.Zero();
-    jumpImpulse = new Vector3(0, JUMP_IMPULSE, 0);
-    directionXZ = Vector3.Zero();
+    idleAnim;
+    runAnim;
+    walkAnim;
+
 
     x = 0.0;
-    y = 1.0;
+    y = 0.0;
     z = 0.0;
 
     speedX = 0.0;
     speedY = 0.0;
     speedZ = 0.0;
-    constructor(scene, pseudo, gameType, idCountryFlag, x, y, z) {
+
+    pseudo;
+    gameType;
+    idCountryFlag;
+    label;
+    linkOffsetYlabel = -105;
+    points = 0;
+    skins = ["AfriqueSud.png", "Allemagne.png", "Angleterre.png", "Bresil.png", "Cameroun.png", "Canada.png", "Chine.png", "Espagne.png", "EtatUnis.png", "France.png", "Italie.png", "Russie.png", "Ukraine.png"];
+
+    constructor(x, y, z, scene, arena, pseudo, gameType, idCountryFlag) {
+
         this.scene = scene;
         this.pseudo = pseudo;
         this.gameType = gameType;
         this.idCountryFlag = idCountryFlag;
-        this.x = x || 0;
-        this.y = y || 1;
-        this.z = z || 0;
-
-
-        /*if (USE_FORCES) {
-            RUNNING_SPEED *= 2;
-        }*/
+        this.x = x || 0.0;
+        this.y = y || 0.0;
+        this.z = z || 0.0;
+        this.arena = arena || undefined;
+        this.transform = new MeshBuilder.CreateCapsule("player", { height: PLAYER_HEIGHT, radius: PLAYER_RADIUS }, this.scene);
+        this.transform.visibility = 0.0;
+        this.transform.position = new Vector3(this.x, this.y, this.z);
+        if (USE_FORCES) {
+            RUNNING_SPEED += 2;
+        }
     }
 
     async init() {
+        //On cré le mesh et on l'attache à notre parent
         const result = await MeshBuilder.CreateSphere("sphere", { diameter: 1 }, this.scene);
-        this.mesh = result;
+        this.gameObject = result;
         const meshMaterial = new StandardMaterial("mesh");
-        meshMaterial.diffuseTexture = new Texture("../../assets/images/drapeaux/" + this.skins[this.idCountryFlag]);
-        this.mesh.material = meshMaterial;
-        this.mesh.position = new Vector3(this.x, this.y, this.z);
-        // this.mesh.physicsImpostor = new PhysicsImpostor(this.mesh, PhysicsImpostor.SphereImpostor, { mass: 1, friction: 0, restitution: 0 });
+        meshMaterial.diffuseTexture = new Texture("../assets/images/drapeaux/" + this.skins[this.idCountryFlag]);
+        this.gameObject.material = meshMaterial;
 
-        this.meshAggregate = new PhysicsAggregate(this.mesh, PhysicsShapeType.SPHERE, { mass: 1, friction: 0, restitution: 0 });
-        this.mesh.PhysicsAggregate = this.meshAggregate;
-        this.meshAggregate.body.setMotionType(PhysicsMotionType.DYNAMIC);
-        this.meshAggregate.body.disablePreStep = false;
+        this.gameObject.scaling = new Vector3(1, 1, 1);
+        this.gameObject.position = new Vector3(0, 0, 0);
+        this.gameObject.rotate(Vector3.UpReadOnly, Math.PI);
+        this.gameObject.bakeCurrentTransformIntoVertices();
+        this.gameObject.checkCollisions = true;
 
-        this.meshAggregate.body.setMassProperties({
+        this.capsuleAggregate = new PhysicsAggregate(this.transform, PhysicsShapeType.CAPSULE, { mass: 1, friction: 1, restitution: 0.2 }, this.scene);
+        this.capsuleAggregate.body.setMotionType(PhysicsMotionType.DYNAMIC);
+
+        //On bloque les rotations avec cette méthode, à vérifier.
+        this.capsuleAggregate.body.setMassProperties({
             inertia: new Vector3(0, 0, 0),
-            centerOfMass: new Vector3(0, 1 / 2, 0),
-            mass: 1,
-            inertiaOrientation: new Quaternion(0, 0, 0, 1)
+            centerOfMass: new Vector3(0, PLAYER_HEIGHT / 2, 0),
+            mass: 1
         });
+        if (USE_FORCES) {
+            this.capsuleAggregate.body.setLinearDamping(0.8);
+            this.capsuleAggregate.body.setAngularDamping(10.0);
 
-        console.log(this.meshAggregate);
-        console.log("*************************");
-        console.log("*************************");
-        console.log(this.meshAggregate.body.getLinearVelocity())
-        this.mesh.scaling.scaleInPlace(1);
-        this.mesh.checkCollisions = true;
+        }
+        else {
+            this.capsuleAggregate.body.setLinearDamping(0.5);
+            this.capsuleAggregate.body.setAngularDamping(0.5);
+        }
 
+
+        this.gameObject.parent = this.transform;
         await this.createLabel();
+
 
     }
 
@@ -90,16 +112,126 @@ class BowlPlayer {
         this.label.color = "orange";
         this.label.fontSize = 30;
         advancedTexture.addControl(this.label);
-        this.label.linkWithMesh(this.mesh);
+        this.label.linkWithMesh(this.gameObject);
         this.label.linkOffsetY = this.linkOffsetYlabel;
     }
 
-    performSpecialMovement() {
-        console.log("in function");
-        this.meshAggregate.body.applyImpulse(new Vector3(0, 2, 0), this.mesh.position);
+    //Pour le moment on passe les events clavier ici, on utilisera un InputManager plus tard
+    update(inputMap, actions, delta, camera1) {
+        let currentVelocity = this.capsuleAggregate.body.getLinearVelocity();
+        var forwardDirection = camera1.getForwardRay().direction;
+
+        //Inputs 
+        //q
+        if (inputMap["KeyA"])
+            //this.speedX = RUNNING_SPEED;
+            camera1.alpha += 0.015;
+        //d
+        else if (inputMap["KeyD"])
+            //this.speedX = -RUNNING_SPEED;
+            camera1.alpha -= 0.015;
+
+        else {
+            if (USE_FORCES)
+                this.speedX = 0;
+            else
+                //Frottements
+                this.speedX += (-12.0 * this.speedX * delta);
+        }
+
+        //z
+        if (inputMap["KeyW"]) {
+            //this.speedZ = -RUNNING_SPEED;
+            this.speedZ = forwardDirection.z * RUNNING_SPEED;
+            this.speedX = forwardDirection.x * RUNNING_SPEED;
+
+        }
+        //s
+        else if (inputMap["KeyS"]) {
+            //this.speedZ = RUNNING_SPEED;
+
+            this.speedZ = -forwardDirection.z * RUNNING_SPEED * 0.7;
+            this.speedX = -forwardDirection.x * RUNNING_SPEED * 0.7;
+        }
+        else {
+            if (USE_FORCES)
+                this.speedZ = 0;
+            else
+                //Frottements
+                this.speedZ += (-12.0 * this.speedZ * delta);
+        }
+        if (USE_FORCES) {
+            //console.log(currentVelocity.y);
+            if (actions["Space"] && currentVelocity.y == 0) {
+                //Pas de delta ici, c'est une impulsion non dépendante du temps (pas d'ajout)
+                this.capsuleAggregate.body.applyImpulse(new Vector3(0, JUMP_IMPULSE, 0), new Vector3(0, 0, 0));
+
+            }
+            this.capsuleAggregate.body.applyForce(new Vector3(this.speedX, 0, this.speedZ), new Vector3(0, 0, 0));
+        }
+        else {
+            let impulseY = 0;
+            if (actions["Space"] && currentVelocity.y == 0) {
+                //Pas de delta ici, c'est une impulsion non dépendante du temps (pas d'ajout)
+                impulseY = JUMP_IMPULSE;
+            }
+            //Gravity 
+            currentVelocity = new Vector3(this.speedX, impulseY + currentVelocity.y, this.speedZ);
+
+            //Position update
+            this.capsuleAggregate.body.setLinearVelocity(currentVelocity);
+        }
+
+
+
+        //Orientation
+        let directionXZ = new Vector3(this.speedX, 0, this.speedZ);
+
+
+        //Animations
+        if (directionXZ.length() > 2.5) {
+            /* Autre tentative de  rotation autour de l'axe Z uniquement
+                const lookAt = Matrix.LookAtLH(
+                Vector3.Zero,
+                directionXZ,
+                Vector3.UpReadOnly
+            ).invert();
+            this.gameObject.rotationQuaternion = Quaternion.FromRotationMatrix( lookAt );*/
+
+            this.gameObject.lookAt(directionXZ.normalize());
+
+            if (!this.bWalking) {
+                //this.runAnim.start(true, 1.0, this.runAnim.from, this.runAnim.to, false);
+                this.bWalking = true;
+            }
+        }
+        else {
+            if (this.bWalking) {
+                //    this.runAnim.stop();
+                //this.idleAnim.start(true, 1.0, this.idleAnim.from, this.idleAnim.to, false);
+                this.bWalking = false;
+            }
+        }
     }
 
 
 
+    estAuSol(sphereMesh, groundMesh, scene) {
+        console.log(groundMesh);
+        var ray = new Ray(sphereMesh.position, new Vector3(0, -1, 0));
+
+        var pickInfo = scene.pickWithRay(ray, function (mesh) { return mesh === groundMesh; });
+        /* console.log(pickInfo);
+         console.log(pickInfo.distance);
+         console.log(pickInfo.distance <= sphereMesh.scaling.y);*/
+
+        if (/*pickInfo.hit && */pickInfo.distance <= sphereMesh.scaling.y) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
 }
-export default BowlPlayer
+
+export default Player;
