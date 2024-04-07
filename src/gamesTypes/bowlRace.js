@@ -26,6 +26,7 @@ class Game {
     actions = {};
 
     #player;
+    #player2;
     #arena;
     #urlParams;
     #pseudo;
@@ -106,6 +107,8 @@ class Game {
         await this.#arena.init();
         this.#player = new Player(3, 10, 3, this.#gameScene, this.#arena, this.#pseudo, this.#gameType, this.#idCountryFlag);
         await this.#player.init();
+        this.#player2 = new Player(6, 13, 3, this.#gameScene, this.#arena, "2 eme player", this.#gameType, 5);
+        await this.#player2.init();
         // this.#gameCamera.lockedTarget = this.#player.transform;
         this.#shadowGenerator.addShadowCaster(this.#player.gameObject, true);
         await this.createCamera();
