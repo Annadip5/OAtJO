@@ -113,6 +113,11 @@ class Game {
 
 
         this.initInput();
+        this.#arena.setCollisionZones(this.#player.gameObject);
+        console.log("------------");
+        console.log(this.#arena.setCollisionZones(this.#player.gameObject));
+
+        console.log("------------");
     }
     async createCamera() {
         this.#gameCamera = await new ArcRotateCamera("camera", Math.PI / 2, Math.PI / 4, 10, this.#player.gameObject.position.subtract(new Vector3(0, -3, -2)), this.scene);

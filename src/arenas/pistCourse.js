@@ -1,4 +1,4 @@
-import { NativeXRFrame, PhysicsAggregate, PhysicsMotionType, PhysicsShapeType, SceneLoader, TransformNode, Vector3 } from "@babylonjs/core";
+import { ActionManager, Color3, ExecuteCodeAction, NativeXRFrame, PhysicsAggregate, PhysicsMotionType, PhysicsShapeType, SceneLoader, StandardMaterial, TransformNode, Vector3 } from "@babylonjs/core";
 
 import arenaModelUrl from "../../assets/models/piste_course2.glb";
 
@@ -10,7 +10,7 @@ class Arena {
 
     gameObject;
     meshAggregate
-
+    zoneSable;
     zoneA;
     zoneB;
 
@@ -33,13 +33,32 @@ class Arena {
         this.gameObject.name = "arena";
         this.gameObject.setParent(null);
         this.gameObject.scaling.scaleInPlace(1.5);
-
+        var i = 0;
         for (let childMesh of result.meshes) {
+            i++;
+            //console.log(childMesh);
             if (childMesh.getTotalVertices() > 0) {
+                if (i == 6 || i == 4)
+                    childMesh.isVisible = false;
+                else if (i == 5) {
+                    this.zoneSable = childMesh;
+                    this.zoneSable.name = "zoneSable";
+
+                }
+
+
                 const meshAggregate = new PhysicsAggregate(childMesh, PhysicsShapeType.MESH, { mass: 0, friction: 0.2, restitution: 0 });
                 meshAggregate.body.setMotionType(PhysicsMotionType.STATIC);
             }
         }
+
+        console.log("sable : ");
+        console.log(this.zoneSable);
+        let zoneMat = new StandardMaterial("zoneSable", this.scene);
+
+        zoneMat.diffuseColor = Color3.Gray;
+        this.zoneSable.material = zoneMat;
+
         /*
         this.#zoneA = MeshBuilder.CreateBox("zoneA", { width: 8, height: 0.2, depth: 8 }, scene);
         let zoneMat = new StandardMaterial("zoneA", scene);
@@ -57,6 +76,27 @@ class Arena {
         this.#zoneB.position = new Vector3(-12, 0.1, -12);
         */
     }
+
+    setCollisionZones(playerMesh) {
+        this.zoneSable.actionManager = new ActionManager(this.scene);
+        this.zoneSable.actionManager.registerAction(
+            new ExecuteCodeAction(
+                {
+                    trigger: ActionManager.OnIntersectionEnterTrigger,
+                    parameter: playerMesh,
+                },
+                (actionEv) => {
+                    this.actionOnPlayer(playerMesh);
+                }
+            )
+        );
+    }
+    actionOnPlayer(playerMesh) {
+        console.log("collision detected");
+        playerMesh.speedZ = 0;
+        playerMesh.speedX = 0;
+    }
+
 
     update(delta) {
 

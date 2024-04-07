@@ -8,7 +8,7 @@ const USE_FORCES = false;
 let RUNNING_SPEED = 14;
 let JUMP_IMPULSE = 8;
 const PLAYER_HEIGHT = 1;
-const PLAYER_RADIUS = 0.4;
+const PLAYER_RADIUS = 0.5;
 
 class Player {
 
@@ -79,15 +79,15 @@ class Player {
         this.gameObject.bakeCurrentTransformIntoVertices();
         this.gameObject.checkCollisions = true;
 
-        this.capsuleAggregate = new PhysicsAggregate(this.transform, PhysicsShapeType.CAPSULE, { mass: 1, friction: 1, restitution: 0.2 }, this.scene);
+        this.capsuleAggregate = new PhysicsAggregate(this.transform, PhysicsShapeType.CAPSULE, { mass: 1, friction: 1, restitution: 0.2, inertia: 0 }, this.scene);
         this.capsuleAggregate.body.setMotionType(PhysicsMotionType.DYNAMIC);
 
         //On bloque les rotations avec cette méthode, à vérifier.
-        this.capsuleAggregate.body.setMassProperties({
-            inertia: new Vector3(0, 0, 0),
-            centerOfMass: new Vector3(0, PLAYER_HEIGHT / 2, 0),
-            mass: 1
-        });
+        /*  this.capsuleAggregate.body.setMassProperties({
+             inertia: new Vector3(0, 0, 0),
+             centerOfMass: new Vector3(0, PLAYER_HEIGHT / 2, 0),
+             mass: 1
+         }); */
         if (USE_FORCES) {
             this.capsuleAggregate.body.setLinearDamping(0.8);
             this.capsuleAggregate.body.setAngularDamping(10.0);
@@ -142,8 +142,24 @@ class Player {
         //z
         if (inputMap["KeyW"]) {
             //this.speedZ = -RUNNING_SPEED;
+            console.log(this.arena.zoneSable);
+            console.log(this.estAuSol(this.gameObject, this.arena.zoneSable, this.scene));
+            this.arena.setCollisionZones(this.gameObject)
+            if (this.arena.zoneSable.intersectsMesh(this.transform)) {
+                /*this.speedZ = 0;
+                this.speedX = 0;*/
+                console.log("collision detected");
+            }
+
             this.speedZ = forwardDirection.z * RUNNING_SPEED;
             this.speedX = forwardDirection.x * RUNNING_SPEED;
+            //console.log(currentVelocity.y);
+
+
+
+
+
+            //this.gameObject.rotate(new Vector3(1, 0, 0), 0.1);
 
         }
         //s
@@ -152,6 +168,8 @@ class Player {
 
             this.speedZ = -forwardDirection.z * RUNNING_SPEED * 0.7;
             this.speedX = -forwardDirection.x * RUNNING_SPEED * 0.7;
+            //this.gameObject.rotate(new Vector3(-1, 0, 0), 0.1);
+
         }
         else {
             if (USE_FORCES)
@@ -171,7 +189,7 @@ class Player {
         }
         else {
             let impulseY = 0;
-            if (actions["Space"] && currentVelocity.y == 0) {
+            if (actions["Space"] && this.gameObject.getAbsolutePosition().y < PLAYER_HEIGHT / 2 + 0.1) {
                 //Pas de delta ici, c'est une impulsion non dépendante du temps (pas d'ajout)
                 impulseY = JUMP_IMPULSE;
             }
