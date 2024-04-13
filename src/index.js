@@ -1,5 +1,6 @@
 import Accueil from "./accueilClass";
 
+
 const accueil = new Accueil();
 
 console.log(accueil.pseudo);

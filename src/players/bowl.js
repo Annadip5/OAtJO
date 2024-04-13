@@ -46,9 +46,9 @@ class Player {
     linkOffsetYlabel = -105;
     points = 0;
     skins = ["AfriqueSud.png", "Allemagne.png", "Angleterre.png", "Bresil.png", "Cameroun.png", "Canada.png", "Chine.png", "Espagne.png", "EtatUnis.png", "France.png", "Italie.png", "Russie.png", "Ukraine.png"];
-
-    constructor(x, y, z, scene, arena, pseudo, gameType, idCountryFlag) {
-
+    clientId;
+    constructor(x, y, z, scene, arena, pseudo, gameType, idCountryFlag, clientId) {
+        this.clientId = clientId;
         this.scene = scene;
         this.pseudo = pseudo;
         this.gameType = gameType;

@@ -6,6 +6,7 @@ import Player from "../players/bowl";
 import Arena from "../arenas/pistCourse";
 
 class Game {
+    #room;
 
     #canvas;
     #engine;
@@ -33,7 +34,9 @@ class Game {
     #gameType;
     #idCountryFlag;
 
-    constructor(canvas, engine) {
+    constructor(canvas, engine, room) {
+
+        this.#room = room
         this.#canvas = canvas;
         this.#engine = engine;
         this.#urlParams = new URLSearchParams(window.location.search);
