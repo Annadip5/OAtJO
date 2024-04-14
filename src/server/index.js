@@ -1,5 +1,6 @@
 const { Server, Room } = require('colyseus');
-import Player from '../players/bowl';
+const { MyRoomState, Player } = require('./schema/myRoomState.ts')
+//import { State, Player } from './schema/myRoomState';
 
 class MyRoom extends Room {
     constructor() {
@@ -8,11 +9,18 @@ class MyRoom extends Room {
     }
     onCreate(options) {
         console.log("My room created!", options);
+        this.setState(new MyRoomState)
+
     }
 
     onJoin(client) {
         console.log("Client joined!", client.sessionId);
-        this.players[client.sessionId] = new Player(client.sessionId);
+        //this.players[client.sessionId] = new Player(client.sessionId);
+        const player = new Player(client.sessionId);
+
+        this.state.players.set(client.sessionId, player);
+
+        console.log("new player =>", player.toJSON());
 
     }
 

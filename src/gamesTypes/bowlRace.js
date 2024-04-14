@@ -25,7 +25,7 @@ class Game {
 
     inputMap = {};
     actions = {};
-
+    #playerEntities = {};
     #player;
     #player2;
     #arena;
@@ -108,8 +108,20 @@ class Game {
         this.#gameScene = this.createScene();
         this.#arena = new Arena(3, 10, 3, this.#gameScene);
         await this.#arena.init();
-        this.#player = new Player(3, 10, 3, this.#gameScene, this.#arena, this.#pseudo, this.#gameType, this.#idCountryFlag);
-        await this.#player.init();
+        console.log(this.#room);
+        this.#room.state.players.onAdd((player, sessionId) => {
+            const isCurrentPlayer = (sessionId === this.#room.sessionId);
+            if (isCurrentPlayer) {
+                this.#player = new Player(3, 10, 3, this.#gameScene, this.#arena, this.#pseudo, this.#gameType, this.#idCountryFlag);
+            }
+            else {
+                this.#player = new Player(3, 11, 4, this.#gameScene, this.#arena, "adversaire", this.#gameType, 6);
+            }
+            this.#player.init();
+            this.#playerEntities[sessionId] = this.#player;
+            console.log(this.#playerEntities)
+
+        })
         this.#player2 = new Player(6, 13, 3, this.#gameScene, this.#arena, "2 eme player", this.#gameType, 5);
         await this.#player2.init();
         // this.#gameCamera.lockedTarget = this.#player.transform;
@@ -126,7 +138,8 @@ class Game {
         console.log("------------");
     }
     async createCamera() {
-        this.#gameCamera = await new ArcRotateCamera("camera", Math.PI / 2, Math.PI / 4, 10, this.#player.gameObject.position.subtract(new Vector3(0, -3, -2)), this.scene);
+        console.log(this.#playerEntities)
+        this.#gameCamera = await new ArcRotateCamera("camera", Math.PI / 2, Math.PI / 4, 10, this.#playerEntities[this.#room.sessionId].gameObject.position.subtract(new Vector3(0, -3, -2)), this.scene);
         this.reglageCamera(2, 10, 0.05, 1000);
         this.reglageScene();
 
@@ -138,7 +151,7 @@ class Game {
         this.#gameCamera.wheelDeltaPercentage = wheelDeltaPercentage;
         this.#gameCamera.angularSensibility = angularSensibility;
         console.log(this.#player.gameObject.position);
-        this.#gameCamera.target = this.#player.gameObject;
+        this.#gameCamera.target = this.#playerEntities[this.#room.sessionId].gameObject;
         console.log(this.#gameCamera.target);
         //2, 10, 0.05, 1000
     }
@@ -196,7 +209,7 @@ class Game {
 
         let delta = this.#engine.getDeltaTime() / 1000.0;
 
-        this.#player.update(this.inputMap, this.actions, delta, this.#gameCamera);
+        this.#playerEntities[this.#room.sessionId].update(this.inputMap, this.actions, delta, this.#gameCamera);
 
         //Animation
         this.#phase += this.#vitesseY * delta;
