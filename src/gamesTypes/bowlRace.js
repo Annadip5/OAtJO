@@ -26,6 +26,7 @@ class Game {
     inputMap = {};
     actions = {};
     #playerEntities = {};
+    #playerNextPosition = {};
     #player;
     #player2;
     #arena;
@@ -43,6 +44,16 @@ class Game {
         this.#pseudo = this.#urlParams.get('pseudo');
         this.#gameType = this.#urlParams.get('type');
         this.#idCountryFlag = this.#urlParams.get('indice');
+    }
+
+    updatePlayerPosition(sessionId, x, y, z) {
+        if (this.#playerEntities[sessionId]) {
+            console.log("update Player position");
+            // Si le joueur existe dans la liste des entités
+            this.#playerEntities[sessionId].gameObject.position.x = x;
+            this.#playerEntities[sessionId].gameObject.position.y = y;
+            this.#playerEntities[sessionId].gameObject.position.z = z;
+        }
     }
 
     async start() {
@@ -111,17 +122,39 @@ class Game {
         console.log(this.#room);
         this.#room.state.players.onAdd((player, sessionId) => {
             const isCurrentPlayer = (sessionId === this.#room.sessionId);
+            const { x, y, z } = player;
+
             if (isCurrentPlayer) {
-                this.#player = new Player(3, 10, 3, this.#gameScene, this.#arena, this.#pseudo, this.#gameType, this.#idCountryFlag);
+
+                this.#player = new Player(x, y, z, this.#gameScene, this.#arena, this.#pseudo, this.#gameType, this.#idCountryFlag);
+
+
             }
             else {
-                this.#player = new Player(3, 11, 4, this.#gameScene, this.#arena, "adversaire", this.#gameType, 6);
+                this.#player = new Player(x, y, z, this.#gameScene, this.#arena, "adversaire", this.#gameType, 6);
             }
             this.#player.init();
             this.#playerEntities[sessionId] = this.#player;
             console.log(this.#playerEntities)
+            player.onChange(function () {
+                this.#playerEntities[sessionId].position.set(player.x, player.y, player.z);
+            });
+
 
         })
+        this.#room.onMessage("removePlayer", (message) => {
+            const playerId = message.sessionId;
+            const playerEntity = this.#playerEntities[playerId];
+            if (playerEntity) {
+                playerEntity.removeFromScene();
+                delete this.#playerEntities[playerId];
+            }
+        });
+        this.#room.onMessage("updatePlayerPosition", (message) => {
+            const { sessionId, x, y, z } = message;
+            this.updatePlayerPosition(sessionId, x, y, z);
+        });
+
         this.#player2 = new Player(6, 13, 3, this.#gameScene, this.#arena, "2 eme player", this.#gameType, 5);
         await this.#player2.init();
         // this.#gameCamera.lockedTarget = this.#player.transform;
@@ -139,7 +172,7 @@ class Game {
     }
     async createCamera() {
         console.log(this.#playerEntities)
-        this.#gameCamera = await new ArcRotateCamera("camera", Math.PI / 2, Math.PI / 4, 10, this.#playerEntities[this.#room.sessionId].gameObject.position.subtract(new Vector3(0, -3, -2)), this.scene);
+        this.#gameCamera = await new ArcRotateCamera("camera", Math.PI / 2, Math.PI / 4, 20, this.#playerEntities[this.#room.sessionId].gameObject.position.subtract(new Vector3(0, -3, -2)), this.scene);
         this.reglageCamera(2, 10, 0.05, 1000);
         this.reglageScene();
 
@@ -187,6 +220,8 @@ class Game {
         this.#engine.runRenderLoop(() => {
 
             this.updateGame();
+
+
 
 
             //Debug

@@ -74,7 +74,7 @@ class Player {
         this.gameObject.material = meshMaterial;
 
         this.gameObject.scaling = new Vector3(1, 1, 1);
-        this.gameObject.position = new Vector3(0, 0, 0);
+        //this.gameObject.position = new Vector3(0, 0, 0);
         this.gameObject.rotate(Vector3.UpReadOnly, Math.PI);
         this.gameObject.bakeCurrentTransformIntoVertices();
         this.gameObject.checkCollisions = true;
@@ -249,6 +249,31 @@ class Player {
             return false;
         }
     }
+    async removeFromScene() {
+        // Supprimer le gameObject du joueur de la scène
+        if (this.gameObject) {
+            this.gameObject.dispose();
+        }
+
+        // Supprimer le label du joueur de la scène
+        if (this.label) {
+            this.label.dispose();
+        }
+
+        // Supprimer le transform du joueur de la scène
+        if (this.transform) {
+            this.transform.dispose();
+        }
+
+        // Supprimer toutes les références
+        this.scene = null;
+        this.arena = null;
+        this.capsuleAggregate = null;
+        this.idleAnim = null;
+        this.runAnim = null;
+        this.walkAnim = null;
+    }
+
 
 }
 
