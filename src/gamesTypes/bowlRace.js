@@ -138,40 +138,14 @@ class Game {
             const { x, y, z, idCountryFlag, pseudo } = player;
 
             // Créer un joueur
-            console.log("4444444444444444")
-
-            console.log(player);
-            console.log(player.idCountryFlag);
-            console.log(player.pseudo)
-
-            console.log("4444444444444444")
-
-            this.#urlParams = new URLSearchParams(window.location.search);
-
-            this.#pseudo = this.#urlParams.get('pseudo');
-            this.#gameType = this.#urlParams.get('type');
-            this.#idCountryFlag = this.#urlParams.get('indice');
-
-            //if (isCurrentPlayer) {
 
             this.#player = new Player(x, y, z, this.#gameScene, this.#arena, pseudo, this.#gameType, idCountryFlag);
 
 
-            //}
-            /*else {
-                this.#player = new Player(x, y, z, this.#gameScene, this.#arena, "adversaire", this.#gameType, 6);
-            }*/
+
             this.#player.init();
             this.#playerEntities[sessionId] = this.#player;
             console.log(this.#playerEntities[sessionId])
-
-            /*player.onChange(function () {
-                console.log("player change")
-                this.#playerEntities[sessionId].x = player.x;
-                this.#playerEntities[sessionId].y = player.y;
-                this.#playerEntities[sessionId].z = player.z;
-            });*/
-
 
 
         })
