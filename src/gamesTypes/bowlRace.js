@@ -22,7 +22,7 @@ class Game {
 
     #phase = 0.0;
     #vitesseY = 1.8;
-
+    #playerInfo = {};
     inputMap = {};
     actions = {};
     #playerEntities = {};
@@ -40,10 +40,8 @@ class Game {
         this.#room = room
         this.#canvas = canvas;
         this.#engine = engine;
-        this.#urlParams = new URLSearchParams(window.location.search);
-        this.#pseudo = this.#urlParams.get('pseudo');
-        this.#gameType = this.#urlParams.get('type');
-        this.#idCountryFlag = this.#urlParams.get('indice');
+
+
     }
 
     updatePlayerPosition(sessionId, x, y, z) {
@@ -114,34 +112,78 @@ class Game {
         return await HavokPhysics();
     }
 
+
+    async syncUrlParams() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const pseudo = urlParams.get('pseudo');
+        const type = urlParams.get('type');
+        const indice = parseInt(urlParams.get('indice'));
+
+        this.#room.send("updateUrlParams", { pseudo, type, indice });
+    }
+
     async initGame() {
         this.#havokInstance = await this.getInitializedHavok();
         this.#gameScene = this.createScene();
         this.#arena = new Arena(3, 10, 3, this.#gameScene);
         await this.#arena.init();
         console.log(this.#room);
+        await this.syncUrlParams();
+        console.log("333333333333333333")
+        console.log(this.#playerInfo);
+        console.log("333333333333333333")
+
         this.#room.state.players.onAdd((player, sessionId) => {
             const isCurrentPlayer = (sessionId === this.#room.sessionId);
-            const { x, y, z } = player;
+            const { x, y, z, idCountryFlag, pseudo } = player;
 
-            if (isCurrentPlayer) {
+            // Créer un joueur
+            console.log("4444444444444444")
 
-                this.#player = new Player(x, y, z, this.#gameScene, this.#arena, this.#pseudo, this.#gameType, this.#idCountryFlag);
+            console.log(player);
+            console.log(player.idCountryFlag);
+            console.log(player.pseudo)
+
+            console.log("4444444444444444")
+
+            this.#urlParams = new URLSearchParams(window.location.search);
+
+            this.#pseudo = this.#urlParams.get('pseudo');
+            this.#gameType = this.#urlParams.get('type');
+            this.#idCountryFlag = this.#urlParams.get('indice');
+
+            //if (isCurrentPlayer) {
+
+            this.#player = new Player(x, y, z, this.#gameScene, this.#arena, pseudo, this.#gameType, idCountryFlag);
 
 
-            }
-            else {
+            //}
+            /*else {
                 this.#player = new Player(x, y, z, this.#gameScene, this.#arena, "adversaire", this.#gameType, 6);
-            }
+            }*/
             this.#player.init();
             this.#playerEntities[sessionId] = this.#player;
-            console.log(this.#playerEntities)
-            player.onChange(function () {
-                this.#playerEntities[sessionId].position.set(player.x, player.y, player.z);
-            });
+            console.log(this.#playerEntities[sessionId])
+
+            /*player.onChange(function () {
+                console.log("player change")
+                this.#playerEntities[sessionId].x = player.x;
+                this.#playerEntities[sessionId].y = player.y;
+                this.#playerEntities[sessionId].z = player.z;
+            });*/
+
 
 
         })
+        this.#room.onMessage("updatePlayerParams", (message) => {
+            const { sessionId, pseudo, idCountryFlag } = message;
+            this.updatePlayerParams(sessionId, pseudo, idCountryFlag);
+        });
+
+
+
+
+        console.log(this.#playerNextPosition[this.#room.sessionId])
         this.#room.onMessage("removePlayer", (message) => {
             const playerId = message.sessionId;
             const playerEntity = this.#playerEntities[playerId];
@@ -177,7 +219,18 @@ class Game {
         this.reglageScene();
 
     }
+    updatePlayerParams(sessionId, pseudo, idCountryFlag) {
+        if (this.#playerEntities[sessionId]) {
+            console.log("update Player params");
+            // Si le joueur existe dans la liste des entités
+            this.#playerEntities[sessionId].pseudo = pseudo;
+            this.#playerEntities[sessionId].idCountryFlag = idCountryFlag;
+            // Mettre à jour le texte du pseudo dans la scène
+            this.#playerEntities[sessionId].updatePseudo(pseudo);
+            this.#playerEntities[sessionId].updateIdCountryFlag(idCountryFlag);
 
+        }
+    }
     reglageCamera(lowerRadiusLimit, upperRadiusLimit, wheelDeltaPercentage, angularSensibility) {
         this.#gameCamera.lowerRadiusLimit = lowerRadiusLimit;
         this.#gameCamera.upperRadiusLimit = upperRadiusLimit;
@@ -244,7 +297,12 @@ class Game {
 
         let delta = this.#engine.getDeltaTime() / 1000.0;
 
-        this.#playerEntities[this.#room.sessionId].update(this.inputMap, this.actions, delta, this.#gameCamera);
+        this.#playerEntities[this.#room.sessionId].update(this.inputMap, this.actions, delta, this.#gameCamera, this.#room);
+        const playerPosition = this.#playerEntities[this.#room.sessionId].gameObject.position;
+
+        // Envoyer la position mise à jour au serveur
+        //this.#room.send("updatePosition", { sessionId: this.#room.sessionId, x: playerPosition.x, y: playerPosition.y, z: playerPosition.z });
+
 
         //Animation
         this.#phase += this.#vitesseY * delta;

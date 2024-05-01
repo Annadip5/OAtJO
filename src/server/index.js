@@ -18,6 +18,19 @@ class MyRoom extends Room {
     onCreate(options) {
         console.log("My room created!", options);
         this.setState(new MyRoomState)
+        this.onMessage("updateUrlParams", (client, data) => {
+            // Mettre à jour les paramètres du joueur
+            const player = this.state.players.get(client.sessionId);
+            if (player) {
+                player.pseudo = data.pseudo;
+                player.idCountryFlag = data.indice;
+                console.log(player.pseudo);
+                console.log(player.idCountryFlag);
+                this.state.players.set(client.sessionId, player);
+                this.broadcast("updatePlayerParams", { sessionId: client.sessionId, pseudo: data.pseudo, idCountryFlag: data.indice });
+
+            }
+        });
 
         this.onMessage("updatePosition", (client, data) => {
             console.log("update received -> ");
@@ -26,15 +39,23 @@ class MyRoom extends Room {
             player.x = data["x"];
             player.y = data['y'];
             player.z = data["z"];
-            this.state.players.set(client.sessionId, player);
-            this.broadcast("updatePlayerPosition", { sessionId: client.sessionId, x: data.x, y: data.y, z: data.z });
+            //this.state.players.set(client.sessionId, player);
+            //this.broadcast("updatePlayerPosition", { sessionId: client.sessionId, x: data.x, y: data.y, z: data.z });
 
         });
 
     }
 
-    onJoin(client) {
+    onJoin(client, options) {
         console.log("Client joined!", client.sessionId);
+        const queryString = options.query || "";
+
+        const urlParams = new URLSearchParams(queryString);
+
+        const pseudo = urlParams.get('pseudo');
+        const type = urlParams.get('type');
+        const indice = parseInt(urlParams.get('indice'));
+
         const player = new Player(client.sessionId);
         const playerIndex = this.state.players.size;
         console.log(playerIndex)
@@ -43,13 +64,14 @@ class MyRoom extends Room {
             player.x = initialPosition.x;
             player.y = initialPosition.y;
             player.z = initialPosition.z;
+            /*player.pseudo = pseudo;
+            player.type = type;
+            player.indice = indice;*/
 
             this.state.players.set(client.sessionId, player);
 
             console.log("new player =>", player.toJSON());
-            console.log(player.x);
-            console.log(player.y);
-            console.log(player.z);
+
         }
         else {
             console.log("Vous ne pouvez plus entrer");
@@ -57,10 +79,6 @@ class MyRoom extends Room {
 
     }
 
-    onMessage(client, data) {
-        console.log("Message received from", client.sessionId, ":", data);
-
-    }
 
     onLeave(client) {
         console.log("Client left!", client.sessionId);

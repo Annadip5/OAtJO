@@ -64,6 +64,26 @@ class Player {
             RUNNING_SPEED += 2;
         }
     }
+    async updatePseudo(pseudo) {
+        // Mettre à jour le pseudo
+        this.pseudo = pseudo;
+
+        // Mettre à jour le texte de l'étiquette du pseudo
+        if (this.label) {
+            this.label.text = pseudo;
+        }
+    }
+    async updateIdCountryFlag(idCountryFlag) {
+        // Mettre à jour l'ID du drapeau
+        this.idCountryFlag = idCountryFlag;
+
+        // Mettre à jour la texture du mesh avec le nouveau drapeau
+        if (this.gameObject) {
+            const meshMaterial = new StandardMaterial("mesh");
+            meshMaterial.diffuseTexture = new Texture("../assets/images/drapeaux/" + this.skins[this.idCountryFlag]);
+            this.gameObject.material = meshMaterial;
+        }
+    }
 
     async init() {
         //On cré le mesh et on l'attache à notre parent
@@ -117,7 +137,7 @@ class Player {
     }
 
     //Pour le moment on passe les events clavier ici, on utilisera un InputManager plus tard
-    update(inputMap, actions, delta, camera1) {
+    update(inputMap, actions, delta, camera1, room) {
         let currentVelocity = this.capsuleAggregate.body.getLinearVelocity();
         var forwardDirection = camera1.getForwardRay().direction;
 
@@ -204,7 +224,15 @@ class Player {
 
         //Orientation
         let directionXZ = new Vector3(this.speedX, 0, this.speedZ);
-
+        /*let velo = this.capsuleAggregate.body.getLinearVelocity();
+        console.log("ppppppppppppppppppppp")
+        console.log(velo)
+        room.send("updatePosition", {
+            x: this.speedX,
+            y: this.speedY,
+            z: this.speedZ,
+        });
+        console.log("ok")*/
 
         //Animations
         if (directionXZ.length() > 2.5) {
