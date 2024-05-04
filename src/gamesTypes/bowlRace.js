@@ -4,6 +4,7 @@ import HavokPhysics from "@babylonjs/havok";
 
 import Player from "../players/bowl";
 import Arena from "../arenas/pistCourse";
+import Decors from "../arenas/decors";
 import { AdvancedDynamicTexture, TextBlock } from "@babylonjs/gui";
 
 class Game {
@@ -33,7 +34,8 @@ class Game {
     #player2;
     #arena;
     #gameType;
-    delta
+    delta;
+    #decors
 
     constructor(canvas, engine, room) {
 
@@ -129,6 +131,8 @@ class Game {
         this.#gameScene = this.createScene();
         this.#arena = new Arena(3, 10, 3, this.#gameScene);
         await this.#arena.init();
+        this.#decors = new Decors(this.#gameScene)
+        await this.#decors.init();
         console.log(this.#room);
         await this.syncUrlParams();
 
