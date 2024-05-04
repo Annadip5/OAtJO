@@ -24,12 +24,48 @@ class MyRoom extends Room {
             if (player) {
                 player.pseudo = data.pseudo;
                 player.idCountryFlag = data.indice;
-                console.log(player.pseudo);
-                console.log(player.idCountryFlag);
                 this.state.players.set(client.sessionId, player);
                 this.broadcast("updatePlayerParams", { sessionId: client.sessionId, pseudo: data.pseudo, idCountryFlag: data.indice });
 
             }
+        });
+        this.onMessage("playerInput", (client, data) => {
+            // Récupérer le joueur correspondant au client
+            const player = this.state.players.get(client.sessionId);
+
+            if (player) {
+                player.inputMap = data.inputMap;
+                player.actions = data.actions;
+
+                this.state.players.set(client.sessionId, player);
+                console.log(player.sessionId, " update Movement -> ", data);
+                this.broadcast("updatePlayerInput", { sessionId: client.sessionId, input: data.inputMap, action: data.actions });
+            }
+        });
+        this.onMessage("updateMovement", (client, data) => {
+            console.log("update move received -> ", client.sessionId);
+            const player = this.state.players.get(client.sessionId);
+
+            if (player) {
+                player.x = data.position._x;
+                player.y = data.position._y;
+                player.z = data.position._z;
+                player.veloX = data.velocity._x;
+                player.veloY = data.velocity._y;
+                player.veloZ = data.velocity._z;
+                player.quaterX = data.rotation._x;
+                player.quaterY = data.rotation._y;
+                player.quaterZ = data.rotation._z;
+                player.quaterW = data.rotation._w;
+
+                this.broadcast("updatePlayerMove", { sessionId: client.sessionId, position: data.position, velocity: data.velocity, rotation: data.rotation }, { except: client.sessionId });
+
+                console.log("position : ", data.position._x, " /", data.position._y, " /", data.position._z);
+                console.log("velocity : ", data.velocity._x, " /", data.velocity._y, " /", data.velocity._z);
+                console.log("rotation : ", data.rotation._x, " /", data.rotation._y, " /", data.rotation._z, " /", data.rotation._w);
+
+            }
+
         });
 
         this.onMessage("updatePosition", (client, data) => {
@@ -64,9 +100,7 @@ class MyRoom extends Room {
             player.x = initialPosition.x;
             player.y = initialPosition.y;
             player.z = initialPosition.z;
-            /*player.pseudo = pseudo;
-            player.type = type;
-            player.indice = indice;*/
+
 
             this.state.players.set(client.sessionId, player);
 

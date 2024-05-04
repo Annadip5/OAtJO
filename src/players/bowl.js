@@ -1,4 +1,4 @@
-import { Matrix, Mesh, MeshBuilder, Physics6DoFConstraint, PhysicsAggregate, PhysicsConstraintAxis, PhysicsMotionType, PhysicsShapeType, Quaternion, Ray, SceneLoader, StandardMaterial, Texture, TransformNode, Vector3 } from "@babylonjs/core";
+import { ArcRotateCamera, Matrix, Mesh, MeshBuilder, Physics6DoFConstraint, PhysicsAggregate, PhysicsConstraintAxis, PhysicsMotionType, PhysicsShapeType, Quaternion, Ray, SceneLoader, StandardMaterial, Texture, TransformNode, Vector3 } from "@babylonjs/core";
 
 //import girlModelUrl from "../assets/models/girl1.glb";
 import Arena from "../arenas/pistCourse";
@@ -11,6 +11,7 @@ const PLAYER_HEIGHT = 1;
 const PLAYER_RADIUS = 0.5;
 
 class Player {
+    previousMovementData = null;
 
     scene;
     //Position dans le monde
@@ -47,6 +48,8 @@ class Player {
     points = 0;
     skins = ["AfriqueSud.png", "Allemagne.png", "Angleterre.png", "Bresil.png", "Cameroun.png", "Canada.png", "Chine.png", "Espagne.png", "EtatUnis.png", "France.png", "Italie.png", "Russie.png", "Ukraine.png"];
     clientId;
+
+    camera;
     constructor(x, y, z, scene, arena, pseudo, gameType, idCountryFlag, clientId) {
         this.clientId = clientId;
         this.scene = scene;
@@ -63,6 +66,37 @@ class Player {
         if (USE_FORCES) {
             RUNNING_SPEED += 2;
         }
+    }
+    sendMovementDataToServer(room) {
+        // Créer un objet contenant les attributs modifiés lors du mouvement
+        const movementData = {
+            position: this.transform.position.clone(), // Position du joueur
+            rotation: this.gameObject.rotationQuaternion.clone(), // Rotation du joueur
+            velocity: this.capsuleAggregate.body.getLinearVelocity().clone(), // Vélocité du joueur
+            isWalking: this.bWalking,
+        };
+        if (this.previousMovementData === null || !this.areMovementDataEqual(this.previousMovementData, movementData)) {
+            // Envoyer les données de mouvement au serveur
+            room.send("updateMovement", movementData);
+            // Mettre à jour les données de mouvement précédentes
+            this.previousMovementData = movementData;
+        }
+
+        // Envoyer les données de mouvement au serveur
+        //room.send("updateMovement", movementData);
+    }
+    areMovementDataEqual(data1, data2) {
+        return (
+            data1.position.equals(data2.position) &&
+            data1.rotation.equals(data2.rotation) &&
+            data1.velocity.equals(data2.velocity) &&
+            data1.isWalking === data2.isWalking
+        );
+    }
+
+    updateVisualPosition(position) {
+        this.transform.position = position
+
     }
     async updatePseudo(pseudo) {
         // Mettre à jour le pseudo
@@ -120,9 +154,24 @@ class Player {
 
 
         this.gameObject.parent = this.transform;
+        await this.createCamera();
         await this.createLabel();
 
 
+    }
+    async createCamera() {
+        this.camera = await new ArcRotateCamera("cameraJoueur", Math.PI / 2, Math.PI / 4, 20, this.gameObject.position.subtract(new Vector3(0, -3, -2)), this.scene);
+        await this.reglageCamera();
+        //this.reglageScene();
+
+    }
+    async reglageCamera(lowerRadiusLimit, upperRadiusLimit, wheelDeltaPercentage, angularSensibility) {
+        this.camera.lowerRadiusLimit = lowerRadiusLimit;
+        this.camera.upperRadiusLimit = upperRadiusLimit;
+        this.camera.wheelDeltaPercentage = wheelDeltaPercentage;
+        this.camera.angularSensibility = angularSensibility;
+        this.camera.target = this.gameObject;
+        console.log(this.camera.target);
     }
 
     async createLabel() {
@@ -137,19 +186,23 @@ class Player {
     }
 
     //Pour le moment on passe les events clavier ici, on utilisera un InputManager plus tard
-    update(inputMap, actions, delta, camera1, room) {
+    update(inputMap, actions, delta, room) {
         let currentVelocity = this.capsuleAggregate.body.getLinearVelocity();
+        const camera1 = this.camera;
         var forwardDirection = camera1.getForwardRay().direction;
 
         //Inputs 
         //q
-        if (inputMap["KeyA"])
+        if (inputMap["KeyA"]) {
             //this.speedX = RUNNING_SPEED;
             camera1.alpha += 0.015;
+        }
+
         //d
-        else if (inputMap["KeyD"])
+        else if (inputMap["KeyD"]) {
             //this.speedX = -RUNNING_SPEED;
             camera1.alpha -= 0.015;
+        }
 
         else {
             if (USE_FORCES)
@@ -162,7 +215,7 @@ class Player {
         //z
         if (inputMap["KeyW"]) {
             //this.speedZ = -RUNNING_SPEED;
-            console.log(this.arena.zoneSable);
+            console.log(this.transform.position);
             console.log(this.estAuSol(this.gameObject, this.arena.zoneSable, this.scene));
             this.arena.setCollisionZones(this.gameObject)
             if (this.arena.zoneSable.intersectsMesh(this.transform)) {
@@ -170,7 +223,6 @@ class Player {
                 this.speedX = 0;*/
                 console.log("collision detected");
             }
-
             this.speedZ = forwardDirection.z * RUNNING_SPEED;
             this.speedX = forwardDirection.x * RUNNING_SPEED;
             //console.log(currentVelocity.y);
@@ -188,6 +240,7 @@ class Player {
 
             this.speedZ = -forwardDirection.z * RUNNING_SPEED * 0.7;
             this.speedX = -forwardDirection.x * RUNNING_SPEED * 0.7;
+
             //this.gameObject.rotate(new Vector3(-1, 0, 0), 0.1);
 
         }
@@ -212,37 +265,28 @@ class Player {
             if (actions["Space"] && this.gameObject.getAbsolutePosition().y < PLAYER_HEIGHT / 2 + 0.1) {
                 //Pas de delta ici, c'est une impulsion non dépendante du temps (pas d'ajout)
                 impulseY = JUMP_IMPULSE;
+
             }
             //Gravity 
             currentVelocity = new Vector3(this.speedX, impulseY + currentVelocity.y, this.speedZ);
 
             //Position update
             this.capsuleAggregate.body.setLinearVelocity(currentVelocity);
+
+            this.sendMovementDataToServer(room);
+
+
         }
 
 
 
         //Orientation
         let directionXZ = new Vector3(this.speedX, 0, this.speedZ);
-        /*let velo = this.capsuleAggregate.body.getLinearVelocity();
-        console.log("ppppppppppppppppppppp")
-        console.log(velo)
-        room.send("updatePosition", {
-            x: this.speedX,
-            y: this.speedY,
-            z: this.speedZ,
-        });
-        console.log("ok")*/
+
 
         //Animations
         if (directionXZ.length() > 2.5) {
-            /* Autre tentative de  rotation autour de l'axe Z uniquement
-                const lookAt = Matrix.LookAtLH(
-                Vector3.Zero,
-                directionXZ,
-                Vector3.UpReadOnly
-            ).invert();
-            this.gameObject.rotationQuaternion = Quaternion.FromRotationMatrix( lookAt );*/
+
 
             this.gameObject.lookAt(directionXZ.normalize());
 
@@ -258,6 +302,8 @@ class Player {
                 this.bWalking = false;
             }
         }
+
+
     }
 
 
@@ -300,6 +346,22 @@ class Player {
         this.idleAnim = null;
         this.runAnim = null;
         this.walkAnim = null;
+    }
+    updateMoveVelo(message) {
+        const x = message.velocity._x;
+        const y = message.velocity._y;
+        const z = message.velocity._z;
+        const posX = message.position._x;
+        const posY = message.position._y;
+        const posZ = message.position._z;
+
+        //const pos = this.gameObject.position.subtract(new Vector3(posX, posY, posZ));
+        const currentVelocity = new Vector3(x, y, z);
+        //this.gameObject.position = pos;
+
+        //Position update
+        this.capsuleAggregate.body.setLinearVelocity(currentVelocity);
+
     }
 
 

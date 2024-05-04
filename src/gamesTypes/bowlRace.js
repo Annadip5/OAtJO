@@ -22,18 +22,16 @@ class Game {
 
     #phase = 0.0;
     #vitesseY = 1.8;
-    #playerInfo = {};
     inputMap = {};
+    #playerInputs = {};
     actions = {};
     #playerEntities = {};
     #playerNextPosition = {};
     #player;
     #player2;
     #arena;
-    #urlParams;
-    #pseudo;
     #gameType;
-    #idCountryFlag;
+    delta
 
     constructor(canvas, engine, room) {
 
@@ -45,12 +43,12 @@ class Game {
     }
 
     updatePlayerPosition(sessionId, x, y, z) {
-        if (this.#playerEntities[sessionId]) {
+        if (this.#playerEntities[sessionId].player) {
             console.log("update Player position");
             // Si le joueur existe dans la liste des entités
-            this.#playerEntities[sessionId].gameObject.position.x = x;
-            this.#playerEntities[sessionId].gameObject.position.y = y;
-            this.#playerEntities[sessionId].gameObject.position.z = z;
+            this.#playerEntities[sessionId].player.gameObject.position.x = x;
+            this.#playerEntities[sessionId].player.gameObject.position.y = y;
+            this.#playerEntities[sessionId].player.gameObject.position.z = z;
         }
     }
 
@@ -129,9 +127,6 @@ class Game {
         await this.#arena.init();
         console.log(this.#room);
         await this.syncUrlParams();
-        console.log("333333333333333333")
-        console.log(this.#playerInfo);
-        console.log("333333333333333333")
 
         this.#room.state.players.onAdd((player, sessionId) => {
             const isCurrentPlayer = (sessionId === this.#room.sessionId);
@@ -139,16 +134,25 @@ class Game {
 
             // Créer un joueur
 
-            this.#player = new Player(x, y, z, this.#gameScene, this.#arena, pseudo, this.#gameType, idCountryFlag);
+            const newPlayer = new Player(x, y, z, this.#gameScene, this.#arena, pseudo, this.#gameType, idCountryFlag);
+            newPlayer.init();
 
+            // Store player and camera
+            this.#playerEntities[sessionId] = {
+                player: newPlayer,
+                camera: null
+            };
 
+            if (isCurrentPlayer) {
+                this.#player = newPlayer;
 
-            this.#player.init();
-            this.#playerEntities[sessionId] = this.#player;
+            }
             console.log(this.#playerEntities[sessionId])
 
 
-        })
+        });
+
+
         this.#room.onMessage("updatePlayerParams", (message) => {
             const { sessionId, pseudo, idCountryFlag } = message;
             this.updatePlayerParams(sessionId, pseudo, idCountryFlag);
@@ -156,52 +160,60 @@ class Game {
 
 
 
-
         console.log(this.#playerNextPosition[this.#room.sessionId])
         this.#room.onMessage("removePlayer", (message) => {
             const playerId = message.sessionId;
-            const playerEntity = this.#playerEntities[playerId];
+            const playerEntity = this.#playerEntities[playerId].player;
             if (playerEntity) {
                 playerEntity.removeFromScene();
-                delete this.#playerEntities[playerId];
+                delete this.#playerEntities[playerId].player;
             }
         });
-        this.#room.onMessage("updatePlayerPosition", (message) => {
-            const { sessionId, x, y, z } = message;
-            this.updatePlayerPosition(sessionId, x, y, z);
+        this.#room.onMessage("updatePlayerMove", (message) => {
+            const playerId = message.sessionId;
+            const playerEntity = this.#playerEntities[playerId].player;
+            if (playerId !== this.#room.sessionId && playerEntity) {
+                playerEntity.updateMoveVelo(message);
+
+                //console.log(message);
+
+            }
         });
+        /*this.#room.onMessage("updatePlayerInput", (message) => {
+            const { sessionId, input, action } = message;
+            console.log(sessionId, " inputs : ", input, " action : ", action);
+
+            this.#playerEntities[sessionId].player.update(input, action, this.delta, this.#room);
+
+        });*/
+
 
         this.#player2 = new Player(6, 13, 3, this.#gameScene, this.#arena, "2 eme player", this.#gameType, 5);
         await this.#player2.init();
-        // this.#gameCamera.lockedTarget = this.#player.transform;
-        this.#shadowGenerator.addShadowCaster(this.#player.gameObject, true);
-        await this.createCamera();
+        this.#gameScene.activeCamera = this.#player.camera;
+        this.#gameScene.activeCamera.attachControl(this.#canvas, true);
+
+        this.#shadowGenerator.addShadowCaster(this.#playerEntities[this.#room.sessionId].player.gameObject, true);
+        //await this.createCamera();
 
 
 
         this.initInput();
-        this.#arena.setCollisionZones(this.#player.gameObject);
-        console.log("------------");
-        console.log(this.#arena.setCollisionZones(this.#player.gameObject));
 
-        console.log("------------");
     }
     async createCamera() {
         console.log(this.#playerEntities)
-        this.#gameCamera = await new ArcRotateCamera("camera", Math.PI / 2, Math.PI / 4, 20, this.#playerEntities[this.#room.sessionId].gameObject.position.subtract(new Vector3(0, -3, -2)), this.scene);
+        this.#gameCamera = await new ArcRotateCamera("camera", Math.PI / 2, Math.PI / 4, 20, this.#playerEntities[this.#room.sessionId].player.gameObject.position.subtract(new Vector3(0, -3, -2)), this.scene);
         this.reglageCamera(2, 10, 0.05, 1000);
         this.reglageScene();
 
     }
     updatePlayerParams(sessionId, pseudo, idCountryFlag) {
-        if (this.#playerEntities[sessionId]) {
-            console.log("update Player params");
-            // Si le joueur existe dans la liste des entités
-            this.#playerEntities[sessionId].pseudo = pseudo;
-            this.#playerEntities[sessionId].idCountryFlag = idCountryFlag;
-            // Mettre à jour le texte du pseudo dans la scène
-            this.#playerEntities[sessionId].updatePseudo(pseudo);
-            this.#playerEntities[sessionId].updateIdCountryFlag(idCountryFlag);
+        if (this.#playerEntities[sessionId].player) {
+            this.#playerEntities[sessionId].player.pseudo = pseudo;
+            this.#playerEntities[sessionId].player.idCountryFlag = idCountryFlag;
+            this.#playerEntities[sessionId].player.updatePseudo(pseudo);
+            this.#playerEntities[sessionId].player.updateIdCountryFlag(idCountryFlag);
 
         }
     }
@@ -211,7 +223,7 @@ class Game {
         this.#gameCamera.wheelDeltaPercentage = wheelDeltaPercentage;
         this.#gameCamera.angularSensibility = angularSensibility;
         console.log(this.#player.gameObject.position);
-        this.#gameCamera.target = this.#playerEntities[this.#room.sessionId].gameObject;
+        this.#gameCamera.target = this.#playerEntities[this.#room.sessionId].player.gameObject;
         console.log(this.#gameCamera.target);
         //2, 10, 0.05, 1000
     }
@@ -226,15 +238,27 @@ class Game {
             switch (kbInfo.type) {
                 case KeyboardEventTypes.KEYDOWN:
                     this.inputMap[kbInfo.event.code] = true;
+                    this.#playerInputs[this.#room.sessionId] = this.inputMap[kbInfo.event.code];
+
+                    //this.sendInputToServer();
+
                     console.log(`KEY DOWN: ${kbInfo.event.code} / ${kbInfo.event.key}`);
                     break;
                 case KeyboardEventTypes.KEYUP:
                     this.inputMap[kbInfo.event.code] = false;
+                    this.#playerInputs[this.#room.sessionId] = this.inputMap[kbInfo.event.code];
                     this.actions[kbInfo.event.code] = true;
                     console.log(`KEY UP: ${kbInfo.event.code} / ${kbInfo.event.key}`);
+                    //this.sendInputToServer();
+
+
                     break;
             }
         });
+    }
+    sendInputToServer() {
+        // Envoyer l'input de ce joueur au serveur
+        this.#room.send("playerInput", { inputMap: this.inputMap, actions: this.actions });
     }
 
     endGame() {
@@ -269,17 +293,15 @@ class Game {
 
     updateGame() {
 
-        let delta = this.#engine.getDeltaTime() / 1000.0;
+        this.delta = this.#engine.getDeltaTime() / 1000.0;
 
-        this.#playerEntities[this.#room.sessionId].update(this.inputMap, this.actions, delta, this.#gameCamera, this.#room);
-        const playerPosition = this.#playerEntities[this.#room.sessionId].gameObject.position;
+        this.#playerEntities[this.#room.sessionId].player.update(this.inputMap, this.actions, this.delta, this.#room);
+        this.#playerEntities[this.#room.sessionId].player.sendMovementDataToServer(this.#room);
 
-        // Envoyer la position mise à jour au serveur
-        //this.#room.send("updatePosition", { sessionId: this.#room.sessionId, x: playerPosition.x, y: playerPosition.y, z: playerPosition.z });
 
 
         //Animation
-        this.#phase += this.#vitesseY * delta;
+        this.#phase += this.#vitesseY * this.delta;
         this.#elevatorAggregate.body.setLinearVelocity(new Vector3(0, Math.sin(this.#phase)), 0);
     }
 }

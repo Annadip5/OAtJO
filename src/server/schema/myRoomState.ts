@@ -8,8 +8,18 @@ class Player extends Schema {
         this.x = 0;
         this.y = 0;
         this.z = 0;
+        this.veloX = 0;
+        this.veloY = 0;
+        this.veloZ = 0;
+        this.quaterX = 0;
+        this.quaterY = 0;
+        this.quaterZ = 0;
+        this.quaterW = 0;
+
         this.pseudo = "";
         this.idCountryFlag = 0;
+        this.inputMap = {};
+        this.actions = {};
 
     }
 }
