@@ -4,8 +4,10 @@ import HavokPhysics from "@babylonjs/havok";
 
 import Player from "../players/bowl";
 import Arena from "../arenas/pistCourse";
+import { AdvancedDynamicTexture, TextBlock } from "@babylonjs/gui";
 
 class Game {
+    canStart = false;
     #room;
 
     #canvas;
@@ -46,9 +48,11 @@ class Game {
         if (this.#playerEntities[sessionId].player) {
             console.log("update Player position");
             // Si le joueur existe dans la liste des entités
-            this.#playerEntities[sessionId].player.gameObject.position.x = x;
+            this.#playerEntities[sessionId].player.transform.position = new Vector3(x, y, z);
+
+            /*this.#playerEntities[sessionId].player.gameObject.position.x = x;
             this.#playerEntities[sessionId].player.gameObject.position.y = y;
-            this.#playerEntities[sessionId].player.gameObject.position.z = z;
+            this.#playerEntities[sessionId].player.gameObject.position.z = z;*/
         }
     }
 
@@ -129,6 +133,7 @@ class Game {
         await this.syncUrlParams();
 
         this.#room.state.players.onAdd((player, sessionId) => {
+
             const isCurrentPlayer = (sessionId === this.#room.sessionId);
             const { x, y, z, idCountryFlag, pseudo } = player;
 
@@ -200,6 +205,7 @@ class Game {
 
         this.initInput();
 
+
     }
     async createCamera() {
         console.log(this.#playerEntities)
@@ -268,6 +274,8 @@ class Game {
     gameLoop() {
 
         const divFps = document.getElementById("fps");
+        this.startCountdown()
+
         this.#engine.runRenderLoop(() => {
 
             this.updateGame();
@@ -293,9 +301,11 @@ class Game {
 
     updateGame() {
 
-        this.delta = this.#engine.getDeltaTime() / 1000.0;
 
-        this.#playerEntities[this.#room.sessionId].player.update(this.inputMap, this.actions, this.delta, this.#room);
+        this.delta = this.#engine.getDeltaTime() / 1000.0;
+        if (this.canStart) {
+            this.#playerEntities[this.#room.sessionId].player.update(this.inputMap, this.actions, this.delta, this.#room);
+        }
         this.#playerEntities[this.#room.sessionId].player.sendMovementDataToServer(this.#room);
 
 
@@ -303,6 +313,38 @@ class Game {
         //Animation
         this.#phase += this.#vitesseY * this.delta;
         this.#elevatorAggregate.body.setLinearVelocity(new Vector3(0, Math.sin(this.#phase)), 0);
+    }
+
+    async startCountdown() {
+        await this.delay(5000);
+        const countdownText = new TextBlock();
+        countdownText.text = "3";
+        countdownText.color = "blue";
+        countdownText.fontSize = 500;
+
+        const advancedTexture = AdvancedDynamicTexture.CreateFullscreenUI("CountdownUI");
+        advancedTexture.addControl(countdownText);
+
+        await this.delay(1000); // Attendre 1 seconde
+        console.log("2");
+        countdownText.color = "white";
+        countdownText.text = "2";
+        await this.delay(1000); // Attendre 1 seconde
+        console.log("1");
+        countdownText.color = "red";
+        countdownText.text = "1";
+        await this.delay(1000); // Attendre 1 seconde
+        console.log("GO");
+        countdownText.color = "red";
+        countdownText.text = "GO!";
+
+        await this.delay(500);
+        countdownText.dispose();
+        this.canStart = true;
+
+    }
+    delay(ms) {
+        return new Promise(resolve => setTimeout(resolve, ms));
     }
 }
 

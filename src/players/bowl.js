@@ -96,6 +96,10 @@ class Player {
 
     updateVisualPosition(position) {
         this.transform.position = position
+        //this.transform.position.set()
+
+        //this.transform.locallyTranslate(new Vector3(position._x, position._y, position._z));
+
 
     }
     async updatePseudo(pseudo) {
@@ -178,7 +182,7 @@ class Player {
         var advancedTexture = AdvancedDynamicTexture.CreateFullscreenUI("UI");
         this.label = new TextBlock();
         this.label.text = this.pseudo;
-        this.label.color = "orange";
+        this.label.color = "white";
         this.label.fontSize = 30;
         advancedTexture.addControl(this.label);
         this.label.linkWithMesh(this.gameObject);
@@ -273,7 +277,6 @@ class Player {
             //Position update
             this.capsuleAggregate.body.setLinearVelocity(currentVelocity);
 
-            this.sendMovementDataToServer(room);
 
 
         }
@@ -354,10 +357,16 @@ class Player {
         const posX = message.position._x;
         const posY = message.position._y;
         const posZ = message.position._z;
+        const rotX = message.rotation._x;
+        const rotY = message.rotation._y;
+        const rotZ = message.rotation._z;
+        const rotW = message.rotation._w;
+
 
         //const pos = this.gameObject.position.subtract(new Vector3(posX, posY, posZ));
         const currentVelocity = new Vector3(x, y, z);
         //this.gameObject.position = pos;
+        //this.updateVisualPosition(message.position);
 
         //Position update
         this.capsuleAggregate.body.setLinearVelocity(currentVelocity);
