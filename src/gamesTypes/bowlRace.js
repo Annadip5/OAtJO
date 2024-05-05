@@ -5,10 +5,12 @@ import HavokPhysics from "@babylonjs/havok";
 import Player from "../players/bowl";
 import Arena from "../arenas/pistCourse";
 import Decors from "../arenas/decors";
+import Obstacle from "../players/obstacle";
 import { AdvancedDynamicTexture, TextBlock } from "@babylonjs/gui";
 
 class Game {
     canStart = false;
+    canStartDecompte = false
     #room;
 
     #canvas;
@@ -35,7 +37,8 @@ class Game {
     #arena;
     #gameType;
     delta;
-    #decors
+    #decors;
+    obstacle;
 
     constructor(canvas, engine, room) {
 
@@ -47,14 +50,14 @@ class Game {
     }
 
     updatePlayerPosition(sessionId, x, y, z) {
-        if (this.#playerEntities[sessionId].player) {
-            console.log("update Player position");
+        if (this.#playerEntities[sessionId]) {
+            //console.log("update Player position");
             // Si le joueur existe dans la liste des entités
-            this.#playerEntities[sessionId].player.transform.position = new Vector3(x, y, z);
+            this.#playerEntities[sessionId].transform.position = new Vector3(x, y, z);
 
-            /*this.#playerEntities[sessionId].player.gameObject.position.x = x;
-            this.#playerEntities[sessionId].player.gameObject.position.y = y;
-            this.#playerEntities[sessionId].player.gameObject.position.z = z;*/
+            /*this.#playerEntities[sessionId].gameObject.position.x = x;
+            this.#playerEntities[sessionId].gameObject.position.y = y;
+            this.#playerEntities[sessionId].gameObject.position.z = z;*/
         }
     }
 
@@ -133,6 +136,8 @@ class Game {
         await this.#arena.init();
         this.#decors = new Decors(this.#gameScene)
         await this.#decors.init();
+
+
         console.log(this.#room);
         await this.syncUrlParams();
 
@@ -146,17 +151,14 @@ class Game {
             const newPlayer = new Player(x, y, z, this.#gameScene, this.#arena, pseudo, this.#gameType, idCountryFlag);
             newPlayer.init();
 
-            // Store player and camera
-            this.#playerEntities[sessionId] = {
-                player: newPlayer,
-                camera: null
-            };
+            this.#playerEntities[sessionId] = newPlayer;
+
 
             if (isCurrentPlayer) {
                 this.#player = newPlayer;
 
             }
-            console.log(this.#playerEntities[sessionId])
+            //console.log(this.#playerEntities[sessionId])
 
 
         });
@@ -169,18 +171,18 @@ class Game {
 
 
 
-        console.log(this.#playerNextPosition[this.#room.sessionId])
+        //console.log(this.#playerNextPosition[this.#room.sessionId])
         this.#room.onMessage("removePlayer", (message) => {
             const playerId = message.sessionId;
-            const playerEntity = this.#playerEntities[playerId].player;
+            const playerEntity = this.#playerEntities[playerId];
             if (playerEntity) {
                 playerEntity.removeFromScene();
-                delete this.#playerEntities[playerId].player;
+                delete this.#playerEntities[playerId];
             }
         });
         this.#room.onMessage("updatePlayerMove", (message) => {
             const playerId = message.sessionId;
-            const playerEntity = this.#playerEntities[playerId].player;
+            const playerEntity = this.#playerEntities[playerId];
             if (playerId !== this.#room.sessionId && playerEntity) {
                 playerEntity.updateMoveVelo(message);
 
@@ -199,10 +201,12 @@ class Game {
 
         this.#player2 = new Player(6, 13, 3, this.#gameScene, this.#arena, "2 eme player", this.#gameType, 5);
         await this.#player2.init();
+        /*this.obstacle = new Obstacle(-10, 14, 0, this.#gameScene);
+        await this.obstacle.init();*/
         this.#gameScene.activeCamera = this.#player.camera;
         this.#gameScene.activeCamera.attachControl(this.#canvas, true);
 
-        this.#shadowGenerator.addShadowCaster(this.#playerEntities[this.#room.sessionId].player.gameObject, true);
+        this.#shadowGenerator.addShadowCaster(this.#playerEntities[this.#room.sessionId].gameObject, true);
         //await this.createCamera();
 
 
@@ -212,18 +216,18 @@ class Game {
 
     }
     async createCamera() {
-        console.log(this.#playerEntities)
-        this.#gameCamera = await new ArcRotateCamera("camera", Math.PI / 2, Math.PI / 4, 20, this.#playerEntities[this.#room.sessionId].player.gameObject.position.subtract(new Vector3(0, -3, -2)), this.scene);
+        //console.log(this.#playerEntities)
+        this.#gameCamera = await new ArcRotateCamera("camera", Math.PI / 2, Math.PI / 4, 20, this.#playerEntities[this.#room.sessionId].gameObject.position.subtract(new Vector3(0, -3, -2)), this.scene);
         this.reglageCamera(2, 10, 0.05, 1000);
         this.reglageScene();
 
     }
     updatePlayerParams(sessionId, pseudo, idCountryFlag) {
-        if (this.#playerEntities[sessionId].player) {
-            this.#playerEntities[sessionId].player.pseudo = pseudo;
-            this.#playerEntities[sessionId].player.idCountryFlag = idCountryFlag;
-            this.#playerEntities[sessionId].player.updatePseudo(pseudo);
-            this.#playerEntities[sessionId].player.updateIdCountryFlag(idCountryFlag);
+        if (this.#playerEntities[sessionId]) {
+            this.#playerEntities[sessionId].pseudo = pseudo;
+            this.#playerEntities[sessionId].idCountryFlag = idCountryFlag;
+            this.#playerEntities[sessionId].updatePseudo(pseudo);
+            this.#playerEntities[sessionId].updateIdCountryFlag(idCountryFlag);
 
         }
     }
@@ -232,9 +236,9 @@ class Game {
         this.#gameCamera.upperRadiusLimit = upperRadiusLimit;
         this.#gameCamera.wheelDeltaPercentage = wheelDeltaPercentage;
         this.#gameCamera.angularSensibility = angularSensibility;
-        console.log(this.#player.gameObject.position);
-        this.#gameCamera.target = this.#playerEntities[this.#room.sessionId].player.gameObject;
-        console.log(this.#gameCamera.target);
+        //console.log(this.#player.gameObject.position);
+        this.#gameCamera.target = this.#playerEntities[this.#room.sessionId].gameObject;
+        //console.log(this.#gameCamera.target);
         //2, 10, 0.05, 1000
     }
     reglageScene() {
@@ -252,13 +256,13 @@ class Game {
 
                     //this.sendInputToServer();
 
-                    console.log(`KEY DOWN: ${kbInfo.event.code} / ${kbInfo.event.key}`);
+                    //console.log(`KEY DOWN: ${kbInfo.event.code} / ${kbInfo.event.key}`);
                     break;
                 case KeyboardEventTypes.KEYUP:
                     this.inputMap[kbInfo.event.code] = false;
                     this.#playerInputs[this.#room.sessionId] = this.inputMap[kbInfo.event.code];
                     this.actions[kbInfo.event.code] = true;
-                    console.log(`KEY UP: ${kbInfo.event.code} / ${kbInfo.event.key}`);
+                    //console.log(`KEY UP: ${kbInfo.event.code} / ${kbInfo.event.key}`);
                     //this.sendInputToServer();
 
 
@@ -308,9 +312,11 @@ class Game {
 
         this.delta = this.#engine.getDeltaTime() / 1000.0;
         if (this.canStart) {
-            this.#playerEntities[this.#room.sessionId].player.update(this.inputMap, this.actions, this.delta, this.#room);
+            this.#playerEntities[this.#room.sessionId].update(this.inputMap, this.actions, this.delta, this.#room);
+
         }
-        this.#playerEntities[this.#room.sessionId].player.sendMovementDataToServer(this.#room);
+        this.#playerEntities[this.#room.sessionId].sendMovementDataToServer(this.#room);
+
 
 
 

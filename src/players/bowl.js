@@ -175,7 +175,7 @@ class Player {
         this.camera.wheelDeltaPercentage = wheelDeltaPercentage;
         this.camera.angularSensibility = angularSensibility;
         this.camera.target = this.gameObject;
-        console.log(this.camera.target);
+        //console.log(this.camera.target);
     }
 
     async createLabel() {
@@ -219,13 +219,13 @@ class Player {
         //z
         if (inputMap["KeyW"]) {
             //this.speedZ = -RUNNING_SPEED;
-            console.log(this.transform.position);
-            console.log(this.estAuSol(this.gameObject, this.arena.zoneSable, this.scene));
+            //console.log(this.transform.position);
+            //console.log(this.estAuSol(this.gameObject, this.arena.zoneSable, this.scene));
             this.arena.setCollisionZones(this.gameObject)
             if (this.arena.zoneSable.intersectsMesh(this.transform)) {
                 /*this.speedZ = 0;
                 this.speedX = 0;*/
-                console.log("collision detected");
+                //console.log("collision detected");
             }
             this.speedZ = forwardDirection.z * RUNNING_SPEED;
             this.speedX = forwardDirection.x * RUNNING_SPEED;
@@ -312,7 +312,7 @@ class Player {
 
 
     estAuSol(sphereMesh, groundMesh, scene) {
-        console.log(groundMesh);
+        //console.log(groundMesh);
         var ray = new Ray(sphereMesh.position, new Vector3(0, -1, 0));
 
         var pickInfo = scene.pickWithRay(ray, function (mesh) { return mesh === groundMesh; });

@@ -5,7 +5,7 @@ const { MyRoomState, Player } = require('./schema/myRoomState.ts')
 class MyRoom extends Room {
     constructor() {
         super();
-        this.players = {}; // Tableau pour stocker les joueurs
+        this.players = {};
         this.initialPositions = [
             { x: -5, y: 10, z: 20.8 },
             { x: -5, y: 10, z: 22.6 },

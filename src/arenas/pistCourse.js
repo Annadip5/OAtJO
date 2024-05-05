@@ -1,6 +1,6 @@
 import { ActionManager, Color3, ExecuteCodeAction, NativeXRFrame, PhysicsAggregate, PhysicsMotionType, PhysicsShapeType, SceneLoader, StandardMaterial, TransformNode, Vector3 } from "@babylonjs/core";
 
-import arenaModelUrl from "../../assets/models/piste_course2.glb";
+import arenaModelUrl from "../../assets/models/piste_course3.glb";
 
 class Arena {
     scene;
@@ -11,6 +11,7 @@ class Arena {
     gameObject;
     meshAggregate
     zoneSable;
+    zonePiste;
     zoneA;
     zoneB;
 
@@ -45,6 +46,10 @@ class Arena {
                     this.zoneSable.name = "zoneSable";
 
                 }
+                else if (i == 3) {
+                    this.zonePiste = childMesh;
+                    this.zonePiste.name = "zonePiste";
+                }
 
 
                 const meshAggregate = new PhysicsAggregate(childMesh, PhysicsShapeType.MESH, { mass: 0, friction: 0.2, restitution: 0 });
@@ -58,6 +63,9 @@ class Arena {
 
         zoneMat.diffuseColor = Color3.Gray;
         this.zoneSable.material = zoneMat;
+        /*let zoneMat2 = new StandardMaterial("zonePiste", this.scene);
+        zoneMat2.diffuseColor = Color3.Blue;
+        this.zonePiste.material = zoneMat2;*/
 
         /*
         this.#zoneA = MeshBuilder.CreateBox("zoneA", { width: 8, height: 0.2, depth: 8 }, scene);
@@ -92,7 +100,7 @@ class Arena {
         );
     }
     actionOnPlayer(playerMesh) {
-        console.log("collision detected");
+        //console.log("collision detected");
         playerMesh.speedZ = 0;
         playerMesh.speedX = 0;
     }
