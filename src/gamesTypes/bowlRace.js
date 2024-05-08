@@ -5,7 +5,7 @@ import HavokPhysics from "@babylonjs/havok";
 import Player from "../players/bowl";
 import Arena from "../arenas/pistCourse";
 import Decors from "../arenas/decors";
-import { AdvancedDynamicTexture, TextBlock } from "@babylonjs/gui";
+import { AdvancedDynamicTexture, Rectangle, TextBlock } from "@babylonjs/gui";
 
 class Game {
     canStart = false;
@@ -41,6 +41,7 @@ class Game {
 
     startTime;
     #elapsedTimeText
+    isEnd = false
 
 
     constructor(canvas, engine, room) {
@@ -291,10 +292,13 @@ class Game {
 
         const divFps = document.getElementById("fps");
         this.startCountdown()
-        this.startChrono()
+
+
 
         this.#engine.runRenderLoop(() => {
-            this.updateElapsedTime();
+            if (this.canStart && !this.isEnd) {
+                this.updateElapsedTime();
+            }
             this.updateGame();
 
 
@@ -384,6 +388,8 @@ class Game {
         await this.delay(500);
         countdownText.dispose();
         this.canStart = true;
+        this.startChrono()
+
 
     }
     delay(ms) {
@@ -411,6 +417,7 @@ class Game {
                 },
                 () => {
                     console.log("Le joueur est entré dans le carré !");
+                    this.isEnd = true
                 }
             )
         );
@@ -491,17 +498,35 @@ class Game {
     }
     createElapsedTimeText() {
         const advancedTexture = AdvancedDynamicTexture.CreateFullscreenUI("UI");
+
+        const rectangle = new Rectangle();
+        rectangle.width = "100%";
+        rectangle.height = "10%";
+        rectangle.color = "black";
+        rectangle.thickness = 0;
+        rectangle.background = "rgba(0, 0, 0, 0.5)";
+        rectangle.verticalAlignment = Rectangle.VERTICAL_ALIGNMENT_TOP;
         this.#elapsedTimeText = new TextBlock();
         this.#elapsedTimeText.text = "Time: 0s";
         this.#elapsedTimeText.color = "white";
         this.#elapsedTimeText.fontSize = 24;
-        advancedTexture.addControl(this.#elapsedTimeText);
+        this.#elapsedTimeText.verticalAlignment = TextBlock.VERTICAL_ALIGNMENT_CENTER;
+
+        rectangle.addControl(this.#elapsedTimeText);
+
+        advancedTexture.addControl(rectangle);
     }
 
     updateElapsedTime() {
         const elapsedTime = Math.floor((Date.now() - this.startTime) / 1000);
 
-        this.#elapsedTimeText.text = "Time: " + elapsedTime + "s";
+        if (elapsedTime >= 60) {
+            const minutes = Math.floor(elapsedTime / 60);
+            const seconds = elapsedTime % 60;
+            this.#elapsedTimeText.text = "Time: " + minutes + "m " + seconds + "s";
+        } else {
+            this.#elapsedTimeText.text = "Time: " + elapsedTime + "s";
+        }
     }
 
 }
