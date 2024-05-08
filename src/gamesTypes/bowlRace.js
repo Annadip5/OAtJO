@@ -504,13 +504,16 @@ class Game {
         rectangle.height = "10%";
         rectangle.color = "black";
         rectangle.thickness = 0;
-        rectangle.background = "rgba(0, 0, 0, 0.5)";
+        rectangle.background = "rgba(0, 0, 0, 0.2)";
         rectangle.verticalAlignment = Rectangle.VERTICAL_ALIGNMENT_TOP;
+        rectangle.horizontalAlignment = TextBlock.HORIZONTAL_ALIGNMENT_LEFT;
+
+
         this.#elapsedTimeText = new TextBlock();
-        this.#elapsedTimeText.text = "Time: 0s";
+        this.#elapsedTimeText.text = "0s";
         this.#elapsedTimeText.color = "white";
         this.#elapsedTimeText.fontSize = 24;
-        this.#elapsedTimeText.verticalAlignment = TextBlock.VERTICAL_ALIGNMENT_CENTER;
+        this.#elapsedTimeText.horizontalAlignment = TextBlock.HORIZONTAL_ALIGNMENT_LEFT; // Alignement horizontal à gauche
 
         rectangle.addControl(this.#elapsedTimeText);
 
@@ -523,9 +526,9 @@ class Game {
         if (elapsedTime >= 60) {
             const minutes = Math.floor(elapsedTime / 60);
             const seconds = elapsedTime % 60;
-            this.#elapsedTimeText.text = "Time: " + minutes + "m " + seconds + "s";
+            this.#elapsedTimeText.text = minutes + "m " + seconds + "s";
         } else {
-            this.#elapsedTimeText.text = "Time: " + elapsedTime + "s";
+            this.#elapsedTimeText.text = elapsedTime + "s";
         }
     }
 
