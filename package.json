@@ -39,6 +39,7 @@
     "@typescript-eslint/eslint-plugin": "^6.19.1",
     "@typescript-eslint/parser": "^6.19.1",
     "ammo.js": "^0.0.10",
+    "babylonjs-gui": "^7.5.0",
     "cannon": "^0.6.2",
     "colyseus": "^0.15.15",
     "colyseus.js": "^0.15.18",

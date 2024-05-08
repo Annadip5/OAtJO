@@ -1,4 +1,4 @@
-import { ActionManager, ArcRotateCamera, Color3, Color4, FollowCamera, FreeCamera, HavokPlugin, HemisphericLight, InterpolateValueAction, KeyboardEventTypes, Mesh, MeshBuilder, ParticleSystem, PhysicsAggregate, PhysicsMotionType, PhysicsShapeType, Quaternion, Scene, SetValueAction, ShadowGenerator, SpotLight, StandardMaterial, Texture, Vector3 } from "@babylonjs/core";
+import { ActionManager, ArcRotateCamera, Color3, Color4, ExecuteCodeAction, FollowCamera, FreeCamera, HavokPlugin, HemisphericLight, InterpolateValueAction, KeyboardEventTypes, Mesh, MeshBuilder, ParticleSystem, PhysicsAggregate, PhysicsMotionType, PhysicsShapeType, Quaternion, Scene, SetValueAction, ShadowGenerator, SpotLight, StandardMaterial, Texture, Vector3 } from "@babylonjs/core";
 import { Inspector } from '@babylonjs/inspector';
 import HavokPhysics from "@babylonjs/havok";
 
@@ -205,6 +205,7 @@ class Game {
 
         this.#gameScene.activeCamera = this.#player.camera;
         this.#gameScene.activeCamera.attachControl(this.#canvas, true);
+        this.createSquareDetectionArea(this.#gameScene, this.#player.gameObject)
 
         this.#shadowGenerator.addShadowCaster(this.#playerEntities[this.#room.sessionId].gameObject, true);
         //await this.createCamera();
@@ -376,6 +377,53 @@ class Game {
     }
     delay(ms) {
         return new Promise(resolve => setTimeout(resolve, ms));
+    }
+    async createSquareDetectionArea(scene, localPlayer) {
+        const square = Mesh.CreateGround("square", 5, 7, 1, scene);
+        //-259.4 / -20 (test)
+        square.position = new Vector3(-259.4, 3, 25.3);
+        square.scaling = new Vector3(2.1, 1, 1)
+        square.rotation = new Vector3(276.5 * (Math.PI / 180), 270.4 * (Math.PI / 180), 0);
+
+        square.material = new StandardMaterial("squareMat", scene);
+        square.material.diffuseColor = new Color3(0, 1, 0); // Vert
+
+        square.checkCollisions = true;
+
+        square.actionManager = new ActionManager(scene);
+        square.actionManager.registerAction(
+            new ExecuteCodeAction(
+                {
+                    trigger: ActionManager.OnIntersectionEnterTrigger,
+                    parameter: localPlayer
+                },
+                () => {
+                    console.log("Le joueur est entré dans le carré !");
+                }
+            )
+        );
+
+        square.actionManager.registerAction(
+            new ExecuteCodeAction(
+                {
+                    trigger: ActionManager.OnIntersectionExitTrigger,
+                    parameter: localPlayer
+                },
+                () => {
+                    console.log("Le joueur est sorti du carré !");
+                }
+            )
+        );
+        //texte de fin de course 
+        const finishText = new TextBlock();
+        finishText.text = "FINISH";
+        finishText.color = "white";
+        finishText.fontSize = 330;
+
+
+        const advancedTexture = AdvancedDynamicTexture.CreateForMesh(square);
+        advancedTexture.addControl(finishText);
+        finishText.top = "10px";
     }
 }
 
