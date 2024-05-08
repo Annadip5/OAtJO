@@ -39,6 +39,10 @@ class Game {
     #decors;
     obstacle;
 
+    startTime;
+    #elapsedTimeText
+
+
     constructor(canvas, engine, room) {
 
         this.#room = room
@@ -140,6 +144,7 @@ class Game {
 
         console.log(this.#room);
         await this.syncUrlParams();
+        this.createElapsedTimeText();
 
         this.#room.state.players.onAdd((player, sessionId) => {
 
@@ -205,7 +210,9 @@ class Game {
 
         this.#gameScene.activeCamera = this.#player.camera;
         this.#gameScene.activeCamera.attachControl(this.#canvas, true);
-        this.createSquareDetectionArea(this.#gameScene, this.#player.gameObject)
+        this.createSquareDetectionAreaFinish(this.#gameScene, this.#player.gameObject)
+        this.createSquareDetectionAreaStart(this.#gameScene, this.#player.gameObject)
+
 
         this.#shadowGenerator.addShadowCaster(this.#playerEntities[this.#room.sessionId].gameObject, true);
         //await this.createCamera();
@@ -284,9 +291,10 @@ class Game {
 
         const divFps = document.getElementById("fps");
         this.startCountdown()
+        this.startChrono()
 
         this.#engine.runRenderLoop(() => {
-
+            this.updateElapsedTime();
             this.updateGame();
 
 
@@ -312,6 +320,7 @@ class Game {
 
 
         this.delta = this.#engine.getDeltaTime() / 1000.0;
+        //console.log("delta : ", this.delta)
         if (this.canStart) {
             this.#playerEntities[this.#room.sessionId].update(this.inputMap, this.actions, this.delta, this.#room);
 
@@ -319,6 +328,8 @@ class Game {
         this.#playerEntities[this.#room.sessionId].sendMovementDataToServer(this.#room, this.inputMap["KeyW"], this.inputMap["KeyS"], this.inputMap["Space"]);
 
         for (const playerId in this.#playerEntities) {
+
+
             if (playerId !== this.#room.sessionId) {
                 const otherPlayer = this.#playerEntities[playerId];
                 const localPlayer = this.#playerEntities[this.#room.sessionId];
@@ -378,7 +389,8 @@ class Game {
     delay(ms) {
         return new Promise(resolve => setTimeout(resolve, ms));
     }
-    async createSquareDetectionArea(scene, localPlayer) {
+
+    async createSquareDetectionAreaFinish(scene, localPlayer) {
         const square = Mesh.CreateGround("square", 5, 7, 1, scene);
         //-259.4 / -20 (test)
         square.position = new Vector3(-259.4, 3, 25.3);
@@ -425,6 +437,73 @@ class Game {
         advancedTexture.addControl(finishText);
         finishText.top = "10px";
     }
+    async createSquareDetectionAreaStart(scene, localPlayer) {
+        const square = Mesh.CreateGround("square", 5, 7, 1, scene);
+        //-259.4 / -20 (test)
+        square.position = new Vector3(-15, 3, 25.3);
+        square.scaling = new Vector3(2.1, 1, 1)
+        square.rotation = new Vector3(276.5 * (Math.PI / 180), 270.4 * (Math.PI / 180), 0);
+
+        square.material = new StandardMaterial("squareMat", scene);
+        square.material.diffuseColor = new Color3(0, 1, 0); // Vert
+
+        square.checkCollisions = true;
+
+        square.actionManager = new ActionManager(scene);
+        square.actionManager.registerAction(
+            new ExecuteCodeAction(
+                {
+                    trigger: ActionManager.OnIntersectionEnterTrigger,
+                    parameter: localPlayer
+                },
+                () => {
+                    console.log("Le joueur est entré dans le carré !");
+                }
+            )
+        );
+
+        square.actionManager.registerAction(
+            new ExecuteCodeAction(
+                {
+                    trigger: ActionManager.OnIntersectionExitTrigger,
+                    parameter: localPlayer
+                },
+                () => {
+                    console.log("Le joueur est sorti du carré !");
+                }
+            )
+        );
+        //texte de fin de course 
+        const finishText = new TextBlock();
+        finishText.text = "START";
+        finishText.color = "white";
+        finishText.fontSize = 330;
+
+
+        const advancedTexture = AdvancedDynamicTexture.CreateForMesh(square);
+        advancedTexture.addControl(finishText);
+        finishText.top = "10px";
+    }
+    startChrono() {
+
+        this.startTime = Date.now();
+        this.#playerEntities[this.#room.sessionId].startTime = this.startTime;
+    }
+    createElapsedTimeText() {
+        const advancedTexture = AdvancedDynamicTexture.CreateFullscreenUI("UI");
+        this.#elapsedTimeText = new TextBlock();
+        this.#elapsedTimeText.text = "Time: 0s";
+        this.#elapsedTimeText.color = "white";
+        this.#elapsedTimeText.fontSize = 24;
+        advancedTexture.addControl(this.#elapsedTimeText);
+    }
+
+    updateElapsedTime() {
+        const elapsedTime = Math.floor((Date.now() - this.startTime) / 1000);
+
+        this.#elapsedTimeText.text = "Time: " + elapsedTime + "s";
+    }
+
 }
 
 export default Game;

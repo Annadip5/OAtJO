@@ -6,7 +6,7 @@ import { AdvancedDynamicTexture } from "@babylonjs/gui/2D/advancedDynamicTexture
 import { TextBlock } from "@babylonjs/gui/2D/controls/textBlock";
 const USE_FORCES = false;
 let RUNNING_SPEED = 14;
-let JUMP_IMPULSE = 8;
+let JUMP_IMPULSE = 6;
 const PLAYER_HEIGHT = 1;
 const PLAYER_RADIUS = 0.5;
 
@@ -50,6 +50,9 @@ class Player {
     clientId;
 
     camera;
+
+    startTime = 0;
+    elapsedTime = 0;
     constructor(x, y, z, scene, arena, pseudo, gameType, idCountryFlag, clientId) {
         this.clientId = clientId;
         this.scene = scene;
@@ -390,6 +393,7 @@ class Player {
         this.capsuleAggregate.body.setLinearVelocity(currentVelocity);
 
     }
+
 
 
 }
