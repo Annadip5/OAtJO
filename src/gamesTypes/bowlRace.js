@@ -1,11 +1,10 @@
-import { ActionManager, ArcRotateCamera, Color3, Color4, FollowCamera, FreeCamera, HavokPlugin, HemisphericLight, InterpolateValueAction, KeyboardEventTypes, Mesh, MeshBuilder, ParticleSystem, PhysicsAggregate, PhysicsMotionType, PhysicsShapeType, Scene, SetValueAction, ShadowGenerator, SpotLight, StandardMaterial, Texture, Vector3 } from "@babylonjs/core";
+import { ActionManager, ArcRotateCamera, Color3, Color4, FollowCamera, FreeCamera, HavokPlugin, HemisphericLight, InterpolateValueAction, KeyboardEventTypes, Mesh, MeshBuilder, ParticleSystem, PhysicsAggregate, PhysicsMotionType, PhysicsShapeType, Quaternion, Scene, SetValueAction, ShadowGenerator, SpotLight, StandardMaterial, Texture, Vector3 } from "@babylonjs/core";
 import { Inspector } from '@babylonjs/inspector';
 import HavokPhysics from "@babylonjs/havok";
 
 import Player from "../players/bowl";
 import Arena from "../arenas/pistCourse";
 import Decors from "../arenas/decors";
-import Obstacle from "../players/obstacle";
 import { AdvancedDynamicTexture, TextBlock } from "@babylonjs/gui";
 
 class Game {
@@ -134,6 +133,7 @@ class Game {
         this.#gameScene = this.createScene();
         this.#arena = new Arena(3, 10, 3, this.#gameScene);
         await this.#arena.init();
+        this.#arena.zoneSable.isVisible = false;
         this.#decors = new Decors(this.#gameScene)
         await this.#decors.init();
 
@@ -159,6 +159,7 @@ class Game {
 
             }
             //console.log(this.#playerEntities[sessionId])
+
 
 
         });
@@ -201,8 +202,7 @@ class Game {
 
         this.#player2 = new Player(6, 13, 3, this.#gameScene, this.#arena, "2 eme player", this.#gameType, 5);
         await this.#player2.init();
-        /*this.obstacle = new Obstacle(-10, 14, 0, this.#gameScene);
-        await this.obstacle.init();*/
+
         this.#gameScene.activeCamera = this.#player.camera;
         this.#gameScene.activeCamera.attachControl(this.#canvas, true);
 
@@ -315,14 +315,35 @@ class Game {
             this.#playerEntities[this.#room.sessionId].update(this.inputMap, this.actions, this.delta, this.#room);
 
         }
-        this.#playerEntities[this.#room.sessionId].sendMovementDataToServer(this.#room);
+        this.#playerEntities[this.#room.sessionId].sendMovementDataToServer(this.#room, this.inputMap["KeyW"], this.inputMap["KeyS"], this.inputMap["Space"]);
 
+        for (const playerId in this.#playerEntities) {
+            if (playerId !== this.#room.sessionId) {
+                const otherPlayer = this.#playerEntities[playerId];
+                const localPlayer = this.#playerEntities[this.#room.sessionId];
+
+                // Vérifier si le mesh du joueur local entre en collision avec le mesh de l'autre joueur
+                if (localPlayer.gameObject.intersectsMesh(otherPlayer.gameObject)) {
+                    console.log(`Collision entre le joueur local et ${otherPlayer.pseudo}`);
+                    // Appliquer une vélocité de saut au joueur local
+                    /*const currentVelocity = new Vector3(0, 5, 0);
+                    otherPlayer.capsuleAggregate.body.setLinearVelocity(currentVelocity);*/
+                    this.sendCollisionToServer(playerId);
+
+                }
+            }
+        }
 
 
 
         //Animation
         this.#phase += this.#vitesseY * this.delta;
         this.#elevatorAggregate.body.setLinearVelocity(new Vector3(0, Math.sin(this.#phase)), 0);
+    }
+
+    sendCollisionToServer(otherPlayerId) {
+        // Envoyer l'input de ce joueur au serveur
+        this.#room.send("collision", { collision: otherPlayerId });
     }
 
     async startCountdown() {
@@ -335,15 +356,15 @@ class Game {
         const advancedTexture = AdvancedDynamicTexture.CreateFullscreenUI("CountdownUI");
         advancedTexture.addControl(countdownText);
 
-        await this.delay(1000); // Attendre 1 seconde
+        await this.delay(1000);
         console.log("2");
         countdownText.color = "white";
         countdownText.text = "2";
-        await this.delay(1000); // Attendre 1 seconde
+        await this.delay(1000);
         console.log("1");
         countdownText.color = "red";
         countdownText.text = "1";
-        await this.delay(1000); // Attendre 1 seconde
+        await this.delay(1000);
         console.log("GO");
         countdownText.color = "red";
         countdownText.text = "GO!";

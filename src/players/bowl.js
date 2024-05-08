@@ -1,7 +1,7 @@
 import { ArcRotateCamera, Matrix, Mesh, MeshBuilder, Physics6DoFConstraint, PhysicsAggregate, PhysicsConstraintAxis, PhysicsMotionType, PhysicsShapeType, Quaternion, Ray, SceneLoader, StandardMaterial, Texture, TransformNode, Vector3 } from "@babylonjs/core";
 
 //import girlModelUrl from "../assets/models/girl1.glb";
-import Arena from "../arenas/pistCourse";
+//import Arena from "../arenas/pistCourse";
 import { AdvancedDynamicTexture } from "@babylonjs/gui/2D/advancedDynamicTexture";
 import { TextBlock } from "@babylonjs/gui/2D/controls/textBlock";
 const USE_FORCES = false;
@@ -67,13 +67,17 @@ class Player {
             RUNNING_SPEED += 2;
         }
     }
-    sendMovementDataToServer(room) {
+    sendMovementDataToServer(room, inputDevant, inputArriere, sautInput) {
         // Créer un objet contenant les attributs modifiés lors du mouvement
         const movementData = {
             position: this.transform.position.clone(), // Position du joueur
             rotation: this.gameObject.rotationQuaternion.clone(), // Rotation du joueur
             velocity: this.capsuleAggregate.body.getLinearVelocity().clone(), // Vélocité du joueur
             isWalking: this.bWalking,
+            camera: this.camera.getForwardRay().direction.clone(),
+            avant: inputDevant,
+            arriere: inputArriere,
+            saut: sautInput,
         };
         if (this.previousMovementData === null || !this.areMovementDataEqual(this.previousMovementData, movementData)) {
             // Envoyer les données de mouvement au serveur
@@ -90,6 +94,7 @@ class Player {
             data1.position.equals(data2.position) &&
             data1.rotation.equals(data2.rotation) &&
             data1.velocity.equals(data2.velocity) &&
+            data1.camera.equals(data2.camera) &&
             data1.isWalking === data2.isWalking
         );
     }
@@ -162,6 +167,7 @@ class Player {
         await this.createLabel();
 
 
+
     }
     async createCamera() {
         this.camera = await new ArcRotateCamera("cameraJoueur", Math.PI / 2, Math.PI / 4, 20, this.gameObject.position.subtract(new Vector3(0, -3, -2)), this.scene);
@@ -191,6 +197,7 @@ class Player {
 
     //Pour le moment on passe les events clavier ici, on utilisera un InputManager plus tard
     update(inputMap, actions, delta, room) {
+        //this.arena.setCollisionZones(this.gameObject)
         let currentVelocity = this.capsuleAggregate.body.getLinearVelocity();
         const camera1 = this.camera;
         var forwardDirection = camera1.getForwardRay().direction;
@@ -221,7 +228,7 @@ class Player {
             //this.speedZ = -RUNNING_SPEED;
             //console.log(this.transform.position);
             //console.log(this.estAuSol(this.gameObject, this.arena.zoneSable, this.scene));
-            this.arena.setCollisionZones(this.gameObject)
+            //this.arena.setCollisionZones(this.gameObject)
             if (this.arena.zoneSable.intersectsMesh(this.transform)) {
                 /*this.speedZ = 0;
                 this.speedX = 0;*/
@@ -307,6 +314,17 @@ class Player {
         }
 
 
+
+    }
+    detectPlayerCollision(otherPlayer) {
+        if (otherPlayer !== this) {
+            const distance = Vector3.Distance(this.gameObject.position, otherPlayer.gameObject.position);
+            if (distance < PLAYER_RADIUS * 2) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
 

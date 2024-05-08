@@ -46,16 +46,18 @@ class Arena {
                     this.zoneSable.name = "zoneSable";
 
                 }
-                else if (i == 3) {
+                /*else if (i == 3) {
                     this.zonePiste = childMesh;
                     this.zonePiste.name = "zonePiste";
-                }
-
+                }*/
+                //this.zoneSable.isVisible = false
 
                 const meshAggregate = new PhysicsAggregate(childMesh, PhysicsShapeType.MESH, { mass: 0, friction: 0.2, restitution: 0 });
                 meshAggregate.body.setMotionType(PhysicsMotionType.STATIC);
             }
         }
+        this.zoneSable.isVisible = true;
+
 
         console.log("sable : ");
         console.log(this.zoneSable);
@@ -94,7 +96,8 @@ class Arena {
                     parameter: playerMesh,
                 },
                 (actionEv) => {
-                    this.actionOnPlayer(playerMesh);
+                    //this.actionOnPlayer(playerMesh);
+                    console.log("actionManager sable ");
                 }
             )
         );

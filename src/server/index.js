@@ -38,12 +38,12 @@ class MyRoom extends Room {
                 player.actions = data.actions;
 
                 this.state.players.set(client.sessionId, player);
-                console.log(player.sessionId, " update Movement -> ", data);
+                //console.log(player.sessionId, " update Movement -> ", data);
                 this.broadcast("updatePlayerInput", { sessionId: client.sessionId, input: data.inputMap, action: data.actions });
             }
         });
         this.onMessage("updateMovement", (client, data) => {
-            console.log("update move received -> ", client.sessionId);
+            //console.log("update move received -> ", client.sessionId);
             const player = this.state.players.get(client.sessionId);
 
             if (player) {
@@ -60,11 +60,26 @@ class MyRoom extends Room {
 
                 this.broadcast("updatePlayerMove", { sessionId: client.sessionId, position: data.position, velocity: data.velocity, rotation: data.rotation }, { except: client.sessionId });
 
-                console.log("position : ", data.position._x, " /", data.position._y, " /", data.position._z);
+                /*console.log("position : ", data.position._x, " /", data.position._y, " /", data.position._z);
                 console.log("velocity : ", data.velocity._x, " /", data.velocity._y, " /", data.velocity._z);
                 console.log("rotation : ", data.rotation._x, " /", data.rotation._y, " /", data.rotation._z, " /", data.rotation._w);
+                console.log("cam : ", data.camera);
+                console.log("avant : ", data.avant);
+                console.log("arriere : ", data.arriere);
+                console.log("saut : ", data.saut);*/
 
             }
+
+        });
+        this.onMessage("collision", (client, data) => {
+            console.log("collision detected -> ");
+            const colliderPlayer = this.state.players.get(client.sessionId);
+            const collidedPlayer = this.state.players.get(data.collision);
+            colliderPlayer.isCollider = true;
+            collidedPlayer.isCollided = true;
+            //this.broadcast("updatePlayerCollision",)
+
+            console.log("between ", client.sessionId, " and ", data.collision);
 
         });
 
@@ -112,6 +127,7 @@ class MyRoom extends Room {
         }
 
     }
+    onUpdate() { }
 
 
     onLeave(client) {
