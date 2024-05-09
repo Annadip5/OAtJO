@@ -57,6 +57,59 @@ class Accueil {
             self.photo.setAttribute("src", "../assets/images/drapeaux/" + self.skins[self.indice]);
         };
     }
+    afficherChamps() {
+        var type = document.getElementById("type").value;
+        var champSelection = document.getElementById("champ-selection");
+        var champCreer = document.getElementById("code-creer");
+
+        if (type === "private") {
+            champSelection.style.display = "block";
+        } else {
+            champSelection.style.display = "none";
+            // Réinitialiser le champ de texte du code de la partie
+            champCreer.value = "";
+        }
+    }
+
+    afficherChampSelection() {
+        var choix = document.getElementById("choix").value;
+        var champRejoindre = document.getElementById("champ-rejoindre");
+        var champCreer = document.getElementById("champ-creer");
+
+        if (choix === "rejoindre") {
+            champRejoindre.style.display = "block";
+            champCreer.style.display = "none";
+        } else if (choix === "creer") {
+            champRejoindre.style.display = "none";
+            champCreer.style.display = "block";
+        } else {
+            champRejoindre.style.display = "none";
+            champCreer.style.display = "none";
+            champCreer.value = "";
+        }
+    }
+
+    rejoindrePartie() {
+        var code = document.getElementById("code").value;
+        // Logique pour rejoindre une partie avec le code donné
+        console.log("Rejoindre la partie avec le code : " + code);
+    }
+
+    creerPartie() {
+        // Logique pour créer une partie et obtenir le code
+        var code = genererCode();
+        document.getElementById("code-creer").value = code;
+    }
+
+    genererCode() {
+        // Génération d'un code de partie aléatoire
+        var characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+        var code = '';
+        for (var i = 0; i < 6; i++) {
+            code += characters.charAt(Math.floor(Math.random() * characters.length));
+        }
+        return code;
+    }
 }
 
 // Export de la classe Game

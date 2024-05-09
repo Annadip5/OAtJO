@@ -31,15 +31,40 @@
                 <input type="text" id="pseudo" name="pseudo">
                 <input type="submit" value="Jouer">
 
-                <select id="type" name="type" class="custom-select">
-                    <option value="public">Partie publique</option>
-                    <option value="private">Partie privée</option>
+                <select id="type" name="type" class="custom-select" onchange="accueil.afficherChamps()">
+                    <option class="custom-option" value="public">Partie publique</option>
+                    <option class="custom-option" value="private">Partie privée</option>
                 </select>
+
+                <div id="champ-selection" style="display: none;">
+                    <select id="choix" name="choix" class="custom-select" onchange="accueil.afficherChampSelection()">
+                        <option class="custom-option" value="">Sélectionnez</option>
+                        <option class="custom-option" value="rejoindre">Rejoindre</option>
+                        <option class="custom-option" value="creer">Créer</option>
+                    </select>
+
+                    <div id="champ-rejoindre" style="display: none;">
+                        <input type="text" id="code" name="code" placeholder="Entrez le code">
+                        <button class="bouton" type="submit" onclick="accueil.rejoindrePartie()">Rejoindre</button>
+                    </div>
+
+                    <div id="champ-creer" style="display: none;">
+                        <input type="text" id="code-creer" readonly placeholder="Créé une partie">
+                        <button class="bouton" type="button" onclick="accueil.creerPartie()">Créer</button>
+                    </div>
+
+
+
+                </div>
+
+
+
+
             </form>
         </div>
         <h1 class="title">O at JO'24</h1>
-
     </div>
+
 
 
 

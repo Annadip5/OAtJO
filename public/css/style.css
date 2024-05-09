@@ -1,10 +1,10 @@
-/* Styles pour le conteneur */
 .hidden {
     display: none;
 }
 
 .container {
     display: flex;
+    top: 20%;
     justify-content: center;
     align-items: center;
     height: 40vh;
@@ -165,4 +165,12 @@ input[type="submit"] {
     width: 50px;
     vertical-align: middle;
     /* Aligner les flèches verticalement avec l'image principale */
+}
+
+.bouton {
+    border-radius: 25px;
+    background-color: #001fa7;
+    color: #fff;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
 }
