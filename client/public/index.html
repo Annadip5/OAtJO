@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+
+
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.babylonjs.com/babylon.js"></script>
+    <script src="https://cdn.babylonjs.com/cannon.js"></script>
+    <script src="https://preview.babylonjs.com/gui/babylon.gui.min.js"></script>
+
+    <link rel="stylesheet" href="css/style.css">
+
+    <title>
+        JO2024
+    </title>
+</head>
+
+<body>
+    <div id="accueil" class="hiden">
+        <div class="container">
+            <div id="image">
+                <img class="arrow" src="../assets/images/arrow-left.jpg" alt="flèche" />
+                <img id="show" src="../assets/images/drapeaux/AfriqueSud.png" alt="Paysage" />
+                <img class="arrow" src="../assets/images/arrow-right.jpg" alt="flèche" />
+            </div>
+            <form id="formulaire">
+                <label for="pseudo">Pseudo :</label>
+                <input type="text" id="pseudo" name="pseudo">
+                <input type="submit" value="Jouer">
+
+                <select id="type" name="type" class="custom-select" onchange="accueil.afficherChamps()">
+                    <option class="custom-option" value="public">Partie publique</option>
+                    <option class="custom-option" value="private">Partie privée</option>
+                </select>
+
+                <div id="champ-selection" style="display: none;">
+                    <select id="choix" name="choix" class="custom-select" onchange="accueil.afficherChampSelection()">
+                        <option class="custom-option" value="">Sélectionnez</option>
+                        <option class="custom-option" value="rejoindre">Rejoindre</option>
+                        <option class="custom-option" value="creer">Créer</option>
+                    </select>
+
+                    <div id="champ-rejoindre" style="display: none;">
+                        <input type="text" id="code" name="code" placeholder="Entrez le code">
+                        <button class="bouton" type="submit" onclick="accueil.rejoindrePartie()">Rejoindre</button>
+                    </div>
+
+                    <div id="champ-creer" style="display: none;">
+                        <input type="text" id="code-creer" readonly placeholder="Créé une partie">
+                        <button class="bouton" type="button" onclick="accueil.creerPartie()">Créer</button>
+                    </div>
+
+
+
+                </div>
+
+
+
+
+            </form>
+        </div>
+        <h1 class="title">O at JO'24</h1>
+    </div>
+
+
+
+
+</body>
+
+</html>

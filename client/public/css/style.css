@@ -1,0 +1,176 @@
+.hidden {
+    display: none;
+}
+
+.container {
+    display: flex;
+    top: 20%;
+    justify-content: center;
+    align-items: center;
+    height: 40vh;
+    background-color: #9996968e;
+    /* Couleur de fond */
+}
+
+body {
+    background-image: url('../../assets/images/anneaux-4.png');
+    /* Chemin de l'image de fond */
+    background-size: cover;
+    /* Ajuste la taille de l'image pour couvrir tout l'arrière-plan */
+    background-repeat: no-repeat;
+    /* Empêche la répétition de l'image */
+    overflow: hidden;
+    margin: 0;
+    padding: 0;
+    width: 100vw;
+    height: 100vh;
+}
+
+/* Styles pour le formulaire */
+form {
+    max-width: 400px;
+    width: 100%;
+    padding: 20px;
+    border-radius: 20px;
+    background-color: rgba(74, 2, 133, 0.267);
+    /* Fond du formulaire semi-transparent */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Styles pour le titre */
+.title {
+    position: absolute;
+    top: calc(65% + 10px);
+    left: 50%;
+    transform: translateX(-50%);
+    text-align: center;
+    font-size: 500%;
+    color: transparent;
+    /* Couleur de texte transparente */
+    padding: 5px 10px;
+    border-radius: 10px;
+    background-image: linear-gradient(to right, #ffbf00, #ff0080, #ff0000, #800000, #ff0000, #ff0080, #ffbf00);
+    /* Dégradé de couleurs pour les flammes */
+    background-clip: text;
+    /* Utilise le texte comme masque pour le dégradé */
+    -webkit-background-clip: text;
+    /* Pour la compatibilité avec les anciens navigateurs WebKit */
+    animation: flameAnimation 3s infinite alternate;
+    /* Animation pour un effet de flamme */
+}
+
+/* Animation pour l'effet de flamme */
+@keyframes flameAnimation {
+    from {
+        background-size: 200% auto;
+        background-position: right center;
+    }
+
+    to {
+        background-size: 200% auto;
+        background-position: left center;
+    }
+}
+
+/* Styles pour les champs de texte et le bouton */
+/* Styles pour le champ de texte */
+input[type="text"],
+input[type="submit"],
+.custom-select {
+    width: calc(100% - 20px);
+    /* Largeur ajustée pour tenir compte de la bordure */
+    padding: 10px;
+    /* Ajoutez un rembourrage uniforme */
+    margin-bottom: 15px;
+    font-size: 16px;
+    box-sizing: border-box;
+    /* Inclure la bordure et le remplissage dans la largeur totale */
+}
+
+/* Styles pour le bouton de soumission */
+input[type="submit"] {
+    border-radius: 25px;
+    background-color: #001fa7;
+    color: #fff;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+/* Styles pour le select */
+.custom-select {
+    padding: 10px 40px 10px 20px;
+    border-radius: 25px;
+    background-color: #f9f9f9;
+    cursor: pointer;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+}
+
+/* Flèche déroulante personnalisée */
+.custom-select::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    right: 15px;
+    margin-top: -3px;
+    border-width: 6px;
+    border-style: solid;
+    border-color: #001fa7 transparent transparent transparent;
+}
+
+/* Styles pour les options du select */
+.custom-select option {
+    background-color: #f9f9f9;
+    /* Couleur de fond */
+    color: #000;
+    /* Couleur du texte */
+    font-size: 16px;
+}
+
+/* Styles pour les options du select lorsqu'elles sont survolées */
+.custom-select option:hover {
+    background-color: #e0e0e0;
+    /* Couleur de fond au survol */
+}
+
+/* Media Query pour les appareils de petite taille */
+@media only screen and (max-width: 600px) {
+    .title {
+        font-size: 300%;
+        /* Redimensionnement du titre pour les appareils de petite taille */
+    }
+}
+
+
+#image {
+    max-width: 200px;
+    width: 100%;
+    padding: 20px;
+    border-radius: 20px;
+    background-color: rgba(74, 2, 133, 0.267);
+    /* Fond du formulaire semi-transparent */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    display: flex;
+    /* Utiliser la flexbox pour aligner les éléments */
+    align-items: center;
+    /* Centrer verticalement les éléments */
+}
+
+#show {
+    width: 100px;
+}
+
+.arrow {
+    width: 50px;
+    vertical-align: middle;
+    /* Aligner les flèches verticalement avec l'image principale */
+}
+
+.bouton {
+    border-radius: 25px;
+    background-color: #001fa7;
+    color: #fff;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
