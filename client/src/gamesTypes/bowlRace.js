@@ -293,14 +293,6 @@ class Game {
 
         const divFps = document.getElementById("fps");
 
-        /*if (this.isAllPlayerReady && !this.canStart) {
-            //this.startCountdown()
-
-        }*/
-        console.log("fini")
-
-
-
         this.#engine.runRenderLoop(() => {
 
             if (this.canStart && !this.isEnd) {

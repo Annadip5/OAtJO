@@ -22,28 +22,16 @@ class MyRoom extends Room {
         this.setState(new MyRoomState)
         this.onMessage("updateUrlParams", (client, data) => {
             // Mettre à jour les paramètres du joueur
-            const player = this.state.players.get(client.sessionId);
-            if (player) {
-                player.pseudo = data.pseudo;
-                player.idCountryFlag = data.indice;
-                this.state.players.set(client.sessionId, player);
-                this.broadcast("updatePlayerParams", { sessionId: client.sessionId, pseudo: data.pseudo, idCountryFlag: data.indice });
-
-            }
+            /* const player = this.state.players.get(client.sessionId);
+             if (player) {
+                 player.pseudo = data.pseudo;
+                 player.idCountryFlag = data.indice;
+                 this.state.players.set(client.sessionId, player);
+                 this.broadcast("updatePlayerParams", { sessionId: client.sessionId, pseudo: data.pseudo, idCountryFlag: data.indice });
+ 
+             }*/
         });
-        this.onMessage("playerInput", (client, data) => {
-            // Récupérer le joueur correspondant au client
-            const player = this.state.players.get(client.sessionId);
 
-            if (player) {
-                player.inputMap = data.inputMap;
-                player.actions = data.actions;
-
-                this.state.players.set(client.sessionId, player);
-                //console.log(player.sessionId, " update Movement -> ", data);
-                this.broadcast("updatePlayerInput", { sessionId: client.sessionId, input: data.inputMap, action: data.actions });
-            }
-        });
         this.onMessage("updateMovement", (client, data) => {
             //console.log("update move received -> ", client.sessionId);
             const player = this.state.players.get(client.sessionId);
@@ -62,13 +50,7 @@ class MyRoom extends Room {
 
                 this.broadcast("updatePlayerMove", { sessionId: client.sessionId, position: data.position, velocity: data.velocity, rotation: data.rotation }, { except: client.sessionId });
 
-                /*console.log("position : ", data.position._x, " /", data.position._y, " /", data.position._z);
-                console.log("velocity : ", data.velocity._x, " /", data.velocity._y, " /", data.velocity._z);
-                console.log("rotation : ", data.rotation._x, " /", data.rotation._y, " /", data.rotation._z, " /", data.rotation._w);
-                console.log("cam : ", data.camera);
-                console.log("avant : ", data.avant);
-                console.log("arriere : ", data.arriere);
-                console.log("saut : ", data.saut);*/
+
 
             }
 
@@ -85,23 +67,11 @@ class MyRoom extends Room {
 
         });
 
-        this.onMessage("updatePosition", (client, data) => {
-            console.log("update received -> ");
-            console.debug(JSON.stringify(data));
-            const player = this.state.players.get(client.sessionId);
-            player.x = data["x"];
-            player.y = data['y'];
-            player.z = data["z"];
-            //this.state.players.set(client.sessionId, player);
-            //this.broadcast("updatePlayerPosition", { sessionId: client.sessionId, x: data.x, y: data.y, z: data.z });
 
-        });
         this.onMessage("playerReady", (client, data) => {
             this.readyPlayers.add(client.sessionId);
 
-            // Vérifier si tous les joueurs sont prêts et s'il y a au moins 2 joueurs
             if (this.readyPlayers.size === this.state.players.size && this.readyPlayers.size >= 2) {
-                // Envoyer un message à tous les clients
                 this.broadcast("allPlayersReady", { message: "Tous les joueurs sont prêts!" });
             }
         });
@@ -110,13 +80,13 @@ class MyRoom extends Room {
 
     onJoin(client, options) {
         console.log("Client joined!", client.sessionId);
-        const queryString = options.query || "";
+        //const queryString = options.query || "";
 
-        const urlParams = new URLSearchParams(queryString);
+        //const urlParams = new URLSearchParams(queryString);
 
-        const pseudo = urlParams.get('pseudo');
-        const type = urlParams.get('type');
-        const indice = parseInt(urlParams.get('indice'));
+        const pseudo = options.pseudo;   //urlParams.get('pseudo');
+        const type = options.type;      //urlParams.get('type');
+        const indice = options.indice;  //parseInt(urlParams.get('indice'));
 
         const player = new Player(client.sessionId);
         const playerIndex = this.state.players.size;
@@ -126,6 +96,9 @@ class MyRoom extends Room {
             player.x = initialPosition.x;
             player.y = initialPosition.y;
             player.z = initialPosition.z;
+            player.pseudo = pseudo;
+            player.idCountryFlag = indice;
+            player.type = type;
 
 
             this.state.players.set(client.sessionId, player);

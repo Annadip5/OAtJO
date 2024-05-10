@@ -352,6 +352,9 @@ class Player {
         if (this.gameObject) {
             this.gameObject.dispose();
         }
+        if (this.camera) {
+            this.camera.dispose();
+        }
 
         // Supprimer le label du joueur de la scène
         if (this.label) {

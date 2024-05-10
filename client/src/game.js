@@ -28,7 +28,21 @@ const babylonInit = async () => {
 
 
 babylonInit().then(() => {
-    client.joinOrCreate("my_room", { name: "Race" }).then(room => {
+    const urlParams = new URLSearchParams(window.location.search);
+
+    const pseudo = urlParams.get('pseudo');
+    const type = urlParams.get('type');
+    const indice = parseInt(urlParams.get('indice'));
+
+    const options = {
+        name: "Race",
+        pseudo: pseudo,
+        type: type,
+        indice: indice
+
+    };
+    console.log(options)
+    client.joinOrCreate("my_room", options).then(room => {
         // Une fois la salle rejointe ou créée, créez une instance de l'objet Game en lui passant la salle.
         const game = new Game(canvas, engine, room);
 
