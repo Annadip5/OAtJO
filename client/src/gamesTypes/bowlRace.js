@@ -40,6 +40,7 @@ class Game {
     obstacle;
 
     startTime;
+    isAllPlayerReady = false;
     #elapsedTimeText
     isEnd = false
 
@@ -146,6 +147,7 @@ class Game {
         console.log(this.#room);
         await this.syncUrlParams();
         this.createElapsedTimeText();
+        this.createStartButton();
 
         this.#room.state.players.onAdd((player, sessionId) => {
 
@@ -197,13 +199,12 @@ class Game {
 
             }
         });
-        /*this.#room.onMessage("updatePlayerInput", (message) => {
-            const { sessionId, input, action } = message;
-            console.log(sessionId, " inputs : ", input, " action : ", action);
+        this.#room.onMessage("allPlayersReady", (message) => {
+            console.log(message)
+            this.isAllPlayerReady = true;
+            this.startCountdown();
+        })
 
-            this.#playerEntities[sessionId].player.update(input, action, this.delta, this.#room);
-
-        });*/
 
 
         this.#player2 = new Player(6, 13, 3, this.#gameScene, this.#arena, "2 eme player", this.#gameType, 5);
@@ -291,11 +292,17 @@ class Game {
     gameLoop() {
 
         const divFps = document.getElementById("fps");
-        this.startCountdown()
+
+        /*if (this.isAllPlayerReady && !this.canStart) {
+            //this.startCountdown()
+
+        }*/
+        console.log("fini")
 
 
 
         this.#engine.runRenderLoop(() => {
+
             if (this.canStart && !this.isEnd) {
                 this.updateElapsedTime();
             }
@@ -530,6 +537,37 @@ class Game {
         } else {
             this.#elapsedTimeText.text = elapsedTime + "s";
         }
+    }
+
+    createStartButton() {
+        const advancedTexture = AdvancedDynamicTexture.CreateFullscreenUI("UI");
+
+        const startButtonRect = new Rectangle();
+        startButtonRect.width = "400px";
+        startButtonRect.height = "100px";
+        startButtonRect.color = "white";
+        startButtonRect.background = "green";
+        startButtonRect.cornerRadius = 20;
+        startButtonRect.verticalAlignment = Rectangle.VERTICAL_ALIGNMENT_BOTTOM;
+        startButtonRect.horizontalAlignment = Rectangle.HORIZONTAL_ALIGNMENT_CENTER;
+
+        const startButtonText = new TextBlock();
+        startButtonText.text = "PRET";
+        startButtonText.color = "white";
+        startButtonText.fontSize = 30;
+        startButtonText.verticalAlignment = TextBlock.VERTICAL_ALIGNMENT_CENTER;
+        startButtonText.horizontalAlignment = TextBlock.HORIZONTAL_ALIGNMENT_CENTER;
+
+        startButtonRect.addControl(startButtonText);
+
+        startButtonRect.hoverCursor = "pointer";
+
+        advancedTexture.addControl(startButtonRect);
+
+        startButtonRect.onPointerClickObservable.add(() => {
+            this.#room.send("playerReady", {});
+            startButtonRect.dispose()
+        });
     }
 
 }

@@ -6,6 +6,7 @@ class MyRoom extends Room {
     constructor() {
         super();
         this.players = {};
+        this.readyPlayers = new Set();
         this.initialPositions = [
             { x: -5, y: 10, z: 20.8 },
             { x: -5, y: 10, z: 22.6 },
@@ -14,6 +15,7 @@ class MyRoom extends Room {
             { x: -5, y: 10, z: 28 },
             { x: -5, y: 10, z: 29.8 }
         ];
+
     }
     onCreate(options) {
         console.log("My room created!", options);
@@ -93,6 +95,15 @@ class MyRoom extends Room {
             //this.state.players.set(client.sessionId, player);
             //this.broadcast("updatePlayerPosition", { sessionId: client.sessionId, x: data.x, y: data.y, z: data.z });
 
+        });
+        this.onMessage("playerReady", (client, data) => {
+            this.readyPlayers.add(client.sessionId);
+
+            // Vérifier si tous les joueurs sont prêts et s'il y a au moins 2 joueurs
+            if (this.readyPlayers.size === this.state.players.size && this.readyPlayers.size >= 2) {
+                // Envoyer un message à tous les clients
+                this.broadcast("allPlayersReady", { message: "Tous les joueurs sont prêts!" });
+            }
         });
 
     }
