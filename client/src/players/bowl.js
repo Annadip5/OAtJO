@@ -1,7 +1,4 @@
 import { ArcRotateCamera, Matrix, Mesh, MeshBuilder, Physics6DoFConstraint, PhysicsAggregate, PhysicsConstraintAxis, PhysicsMotionType, PhysicsShapeType, Quaternion, Ray, SceneLoader, StandardMaterial, Texture, TransformNode, Vector3 } from "@babylonjs/core";
-
-//import girlModelUrl from "../assets/models/girl1.glb";
-//import Arena from "../arenas/pistCourse";
 import { AdvancedDynamicTexture } from "@babylonjs/gui/2D/advancedDynamicTexture";
 import { TextBlock } from "@babylonjs/gui/2D/controls/textBlock";
 const USE_FORCES = false;
@@ -196,6 +193,25 @@ class Player {
         advancedTexture.addControl(this.label);
         this.label.linkWithMesh(this.gameObject);
         this.label.linkOffsetY = this.linkOffsetYlabel;
+    }
+    getCameraDirection() {
+        return this.camera.getForwardRay().direction;
+
+    }
+    getCameraAlpha() {
+        return this.camera.alpha
+    }
+    getAbsPosition() {
+        return this.gameObject.getAbsolutePosition()
+
+    }
+
+    updatePlayerMoveServer(x, y, z, camAlp) {
+        this.camera.alpha = camAlp
+        const currentVelocity = new Vector3(x, y, z)
+        this.capsuleAggregate.body.setLinearVelocity(currentVelocity);
+
+
     }
 
     //Pour le moment on passe les events clavier ici, on utilisera un InputManager plus tard

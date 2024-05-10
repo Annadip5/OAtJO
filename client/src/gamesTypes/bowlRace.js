@@ -197,13 +197,15 @@ class Game {
 
             }
         });
-        /*this.#room.onMessage("updatePlayerInput", (message) => {
-            const { sessionId, input, action } = message;
-            console.log(sessionId, " inputs : ", input, " action : ", action);
+        this.#room.onMessage("updatePlayerInput", (message) => {
+            const { sessionId/*, input, action */ } = message;
 
-            this.#playerEntities[sessionId].player.update(input, action, this.delta, this.#room);
+            //console.log(sessionId, " inputs : ", input, " action : ", action);
+            this.#playerEntities[sessionId].updatePlayerMoveServer(message.x, message.y, message.z, message.camAlpha);
 
-        });*/
+            //this.#playerEntities[sessionId].update(input, action, this.delta, this.#room);
+
+        });
 
 
         this.#player2 = new Player(6, 13, 3, this.#gameScene, this.#arena, "2 eme player", this.#gameType, 5);
@@ -263,7 +265,7 @@ class Game {
                     this.inputMap[kbInfo.event.code] = true;
                     this.#playerInputs[this.#room.sessionId] = this.inputMap[kbInfo.event.code];
 
-                    //this.sendInputToServer();
+                    this.sendInputToServer();
 
                     //console.log(`KEY DOWN: ${kbInfo.event.code} / ${kbInfo.event.key}`);
                     break;
@@ -272,7 +274,7 @@ class Game {
                     this.#playerInputs[this.#room.sessionId] = this.inputMap[kbInfo.event.code];
                     this.actions[kbInfo.event.code] = true;
                     //console.log(`KEY UP: ${kbInfo.event.code} / ${kbInfo.event.key}`);
-                    //this.sendInputToServer();
+                    this.sendInputToServer();
 
 
                     break;
@@ -281,7 +283,7 @@ class Game {
     }
     sendInputToServer() {
         // Envoyer l'input de ce joueur au serveur
-        this.#room.send("playerInput", { inputMap: this.inputMap, actions: this.actions });
+        this.#room.send("playerInput", { inputMap: this.inputMap, actions: this.actions, delta: this.#engine.getDeltaTime() / 1000.0, cameraDirection: this.#playerEntities[this.#room.sessionId].getCameraDirection(), cameraAlpha: this.#playerEntities[this.#room.sessionId].getCameraAlpha(), absPos: this.#playerEntities[this.#room.sessionId].getAbsPosition() });
     }
 
     endGame() {
@@ -325,11 +327,11 @@ class Game {
 
         this.delta = this.#engine.getDeltaTime() / 1000.0;
         //console.log("delta : ", this.delta)
-        if (this.canStart) {
+        /*if (this.canStart) {
             this.#playerEntities[this.#room.sessionId].update(this.inputMap, this.actions, this.delta, this.#room);
 
-        }
-        this.#playerEntities[this.#room.sessionId].sendMovementDataToServer(this.#room, this.inputMap["KeyW"], this.inputMap["KeyS"], this.inputMap["Space"]);
+        }*/
+        //this.#playerEntities[this.#room.sessionId].sendMovementDataToServer(this.#room, this.inputMap["KeyW"], this.inputMap["KeyS"], this.inputMap["Space"]);
 
         for (const playerId in this.#playerEntities) {
 

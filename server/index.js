@@ -31,15 +31,49 @@ class MyRoom extends Room {
         });
         this.onMessage("playerInput", (client, data) => {
             // Récupérer le joueur correspondant au client
+            console.log("absPos : ", data.absPos)
             const player = this.state.players.get(client.sessionId);
-
             if (player) {
+                this.updatePlayerPos(player, data.absPos)
+                let impulseY = 0;
+                console.log(player)
+                console.log("speedX : ", player.speedX, " speedZ : ", player.speedZ)
                 player.inputMap = data.inputMap;
                 player.actions = data.actions;
+                if (player.inputMap["KeyA"]) {
+                    data.cameraAlpha += 0.015;
+                }
+                else if (player.inputMap["KeyD"]) {
+                    data.cameraAlpha -= 0.015;
+                }
+                //else { player.speedX += (-50.0 * player.speedX * data.delta) }
+
+                if (player.actions["Space"] && player.y < 1 / 2 + 0.1) {
+                    impulseY = player.jumpImpulse;
+                    player.actions["Space"] = false;
+                    console.log("-----------------------------------------------------------------------")
+                    console.log("data.absPos.y ", data.absPos.y, " impulseY : ", impulseY)
+
+                    console.log(player.actions)
+                }
+
+                if (player.inputMap["KeyW"]) {
+                    player.speedZ = data.cameraDirection._z * player.runningSpeed;
+                    player.speedX = data.cameraDirection._x * player.runningSpeed;
+
+                }
+                else if (player.inputMap["KeyS"]) {
+                    player.speedZ = -data.cameraDirection._z * player.runningSpeed * 0.7;
+                    player.speedX = -data.cameraDirection._x * player.runningSpeed * 0.7;
+                }
+                else { /*player.speedZ += (-50.0 * player.speedZ * data.delta)*/player.speedX = 0; player.speedZ = 0; }
+
 
                 this.state.players.set(client.sessionId, player);
-                //console.log(player.sessionId, " update Movement -> ", data);
-                this.broadcast("updatePlayerInput", { sessionId: client.sessionId, input: data.inputMap, action: data.actions });
+                console.log(player.sessionId, " update Movement -> ", data);
+                this.broadcast("updatePlayerInput", { sessionId: client.sessionId, x: player.speedX, y: impulseY /*+ player.y*/, z: player.speedZ, camAlpha: data.cameraAlpha });
+
+                //this.broadcast("updatePlayerInput", { sessionId: client.sessionId, input: data.inputMap, action: data.actions });
             }
         });
         this.onMessage("updateMovement", (client, data) => {
@@ -128,6 +162,11 @@ class MyRoom extends Room {
 
     }
     onUpdate() { }
+    updatePlayerPos(player, pos) {
+        player.x = pos._x;
+        player.y = pos._y;
+        player.z = pos._z;
+    }
 
 
     onLeave(client) {
