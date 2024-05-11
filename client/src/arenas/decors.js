@@ -1,5 +1,5 @@
 import { DirectionalLight, SceneLoader, Vector3 } from "@babylonjs/core";
-import eiffelUrl from "../../assets/models/decors/toureiffel.glb";
+import eiffelUrl from "../../assets/models/decors/toureiffel2.glb";
 
 class Decors {
     constructor(scene) {

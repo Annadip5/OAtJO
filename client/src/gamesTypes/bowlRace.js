@@ -1,12 +1,14 @@
-import { ActionManager, ArcRotateCamera, Color3, Color4, ExecuteCodeAction, FollowCamera, FreeCamera, HavokPlugin, HemisphericLight, InterpolateValueAction, KeyboardEventTypes, Mesh, MeshBuilder, ParticleSystem, PhysicsAggregate, PhysicsMotionType, PhysicsShapeType, Quaternion, Scene, SetValueAction, ShadowGenerator, SpotLight, StandardMaterial, Texture, Vector3 } from "@babylonjs/core";
+import { ActionManager, ArcRotateCamera, Color3, Color4, CubeTexture, ExecuteCodeAction, FollowCamera, FreeCamera, HavokPlugin, HemisphericLight, InterpolateValueAction, KeyboardEventTypes, Mesh, MeshBuilder, ParticleSystem, PhysicsAggregate, PhysicsMotionType, PhysicsShapeType, Quaternion, Scene, SetValueAction, ShadowGenerator, SpotLight, StandardMaterial, Texture, Vector3 } from "@babylonjs/core";
 import { Inspector } from '@babylonjs/inspector';
 import HavokPhysics from "@babylonjs/havok";
+
+import { AdvancedDynamicTexture, Rectangle, TextBlock } from "@babylonjs/gui";
 
 import Player from "../players/bowl";
 import Arena from "../arenas/pistCourse";
 import Decors from "../arenas/decors";
 import WallCreator from "../managers/wallCreator";
-import { AdvancedDynamicTexture, Rectangle, TextBlock } from "@babylonjs/gui";
+import ArrowsManager from "../managers/arrows";
 
 class Game {
     canStart = false;
@@ -17,16 +19,11 @@ class Game {
     #engine;
     #havokInstance;
     #gameScene;
-    #gameCamera;
+
     #shadowGenerator;
     #bInspector = false;
 
-    #elevator;
-    #elevatorAggregate;
     x
-
-    #phase = 0.0;
-    #vitesseY = 1.8;
     inputMap = {};
     #playerInputs = {};
     actions = {};
@@ -38,13 +35,13 @@ class Game {
     #gameType;
     delta;
     #decors;
-    obstacle;
 
     startTime;
     isAllPlayerReady = false;
     #elapsedTimeText;
     isEnd = false;
     #parcourManage;
+    #arrows;
 
     constructor(canvas, engine, room) {
 
@@ -78,32 +75,12 @@ class Game {
         this.#shadowGenerator = new ShadowGenerator(1024, sLight);
         this.#shadowGenerator.useBlurExponentialShadowMap = true;
 
-        const elevator = MeshBuilder.CreateDisc("sphere", { diameter: 2, segments: 32 }, scene);
-        elevator.rotate(Vector3.Right(), Math.PI / 2)
-        elevator.position.y = 0.1;
-        this.#elevator = elevator;
-
-        const matSphere = new StandardMaterial("silver", scene);
-        matSphere.diffuseColor = new Color3(0.8, 0.8, 1);
-        matSphere.specularColor = new Color3(0.4, 0.4, 1);
-        elevator.material = matSphere;
-
-        this.#shadowGenerator.addShadowCaster(elevator);
-
-
-
-
-        // Create a sphere shape and the associated body. Size will be determined automatically.
-        this.#elevatorAggregate = new PhysicsAggregate(elevator, PhysicsShapeType.CONVEX_HULL, { mass: 1, restitution: 0.0 }, scene);
-        this.#elevatorAggregate.body.setMotionType(PhysicsMotionType.ANIMATED);
-
 
         let boxDebug = MeshBuilder.CreateSphere("boxDebug", { size: 2 });
         boxDebug.position = new Vector3(5, 15, 0);
         this.#shadowGenerator.addShadowCaster(boxDebug);
 
-        // Create a sphere shape and the associated body. Size will be determined automatically.
-        const sphereAggregate = new PhysicsAggregate(boxDebug, PhysicsShapeType.SPHERE, { mass: 0.25, restitution: 0.01 }, scene);
+
 
 
 
@@ -180,14 +157,16 @@ class Game {
 
 
 
-        this.#player2 = new Player(6, 13, 3, this.#gameScene, this.#arena, "2 eme player", this.#gameType, 5);
+        this.#player2 = new Player(10, 13, 3, this.#gameScene, this.#arena, "", this.#gameType, 5);
         await this.#player2.init();
+        this.#player2.gameObject.isVisible = false;
 
         this.#gameScene.activeCamera = this.#player.camera;
         this.#gameScene.activeCamera.attachControl(this.#canvas, true);
-        //this.createSquareDetectionAreaFinish(this.#gameScene, this.#player.gameObject);
         this.#parcourManage = new WallCreator(this.#gameScene);
-        this.#parcourManage.createSquareDetection(this.#player.gameObject)
+        this.#parcourManage.createSquareDetection(this.#player.gameObject);
+        this.#arrows = new ArrowsManager(this.#gameScene, this.#player);
+        await this.#arrows.createArrows();
 
 
         this.#shadowGenerator.addShadowCaster(this.#playerEntities[this.#room.sessionId].gameObject, true);
@@ -283,20 +262,12 @@ class Game {
                 // Vérifier si le mesh du joueur local entre en collision avec le mesh de l'autre joueur
                 if (localPlayer.gameObject.intersectsMesh(otherPlayer.gameObject)) {
                     console.log(`Collision entre le joueur local et ${otherPlayer.pseudo}`);
-                    // Appliquer une vélocité de saut au joueur local
-                    /*const currentVelocity = new Vector3(0, 5, 0);
-                    otherPlayer.capsuleAggregate.body.setLinearVelocity(currentVelocity);*/
+
                     this.sendCollisionToServer(playerId);
 
                 }
             }
         }
-
-
-
-        //Animation
-        this.#phase += this.#vitesseY * this.delta;
-        this.#elevatorAggregate.body.setLinearVelocity(new Vector3(0, Math.sin(this.#phase)), 0);
     }
 
     sendCollisionToServer(otherPlayerId) {

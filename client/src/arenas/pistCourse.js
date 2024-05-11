@@ -1,6 +1,6 @@
 import { ActionManager, Color3, ExecuteCodeAction, NativeXRFrame, PhysicsAggregate, PhysicsMotionType, PhysicsShapeType, SceneLoader, StandardMaterial, TransformNode, Vector3 } from "@babylonjs/core";
 
-import arenaModelUrl from "../../assets/models/piste_course3.glb";
+import arenaModelUrl from "../../assets/models/piste_course4.glb";
 
 class Arena {
     scene;
