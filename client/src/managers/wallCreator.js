@@ -15,11 +15,11 @@ class WallCreator {
         /*{ finish: "finish" }*/
     ];
     olympicColors = [
-        "blue",   // Bleu
-        "orange", // Orange
-        "red",   // Rouge
-        "green",   // Vert
-        "yellow"
+        "blue",
+        "red",
+        "green",
+        "yellow",
+        "black"
     ];
 
     constructor(scene) {
@@ -40,7 +40,7 @@ class WallCreator {
     async createWall(wallPosition, localPlayer) {
         const { position, rotation } = wallPosition;
 
-        const wall = Mesh.CreateGround("wall", 5, 10, 3, this.scene);
+        const wall = Mesh.CreateGround("wall", 10, 20, 3, this.scene);
         wall.position = new Vector3(position[0], position[1], position[2]);
         wall.scaling = new Vector3(2.1, 1, 1);
         wall.rotation = new Vector3(rotation[0], rotation[1], rotation[2]);
@@ -71,7 +71,7 @@ class WallCreator {
         const finishText = new TextBlock();
         finishText.text = "O";
         finishText.color = this.randomColor();
-        finishText.fontSize = 1500;
+        finishText.fontSize = 1200;
         finishText.alpha = 0.3; // Transparence du texte
 
 
@@ -91,8 +91,8 @@ class WallCreator {
 
     markWallToRemove(wall) {
         if (!this.isRemovingWalls) {
-            this.wallsToRemove.push(wall); // Ajoute le mur à la liste des murs à supprimer
-            this.startRemovingWalls(); // Démarre le processus de suppression des murs
+            this.wallsToRemove.push(wall);
+            this.startRemovingWalls();
         }
     }
 
