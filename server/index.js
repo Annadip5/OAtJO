@@ -20,17 +20,7 @@ class MyRoom extends Room {
     onCreate(options) {
         console.log("My room created!", options);
         this.setState(new MyRoomState)
-        this.onMessage("updateUrlParams", (client, data) => {
-            // Mettre à jour les paramètres du joueur
-            /* const player = this.state.players.get(client.sessionId);
-             if (player) {
-                 player.pseudo = data.pseudo;
-                 player.idCountryFlag = data.indice;
-                 this.state.players.set(client.sessionId, player);
-                 this.broadcast("updatePlayerParams", { sessionId: client.sessionId, pseudo: data.pseudo, idCountryFlag: data.indice });
- 
-             }*/
-        });
+
 
         this.onMessage("updateMovement", (client, data) => {
             //console.log("update move received -> ", client.sessionId);

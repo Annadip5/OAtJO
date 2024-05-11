@@ -55,17 +55,6 @@ class Game {
 
     }
 
-    updatePlayerPosition(sessionId, x, y, z) {
-        if (this.#playerEntities[sessionId]) {
-            //console.log("update Player position");
-            // Si le joueur existe dans la liste des entités
-            this.#playerEntities[sessionId].transform.position = new Vector3(x, y, z);
-
-            /*this.#playerEntities[sessionId].gameObject.position.x = x;
-            this.#playerEntities[sessionId].gameObject.position.y = y;
-            this.#playerEntities[sessionId].gameObject.position.z = z;*/
-        }
-    }
 
     async start() {
         await this.initGame()
@@ -126,15 +115,6 @@ class Game {
     }
 
 
-    async syncUrlParams() {
-        const urlParams = new URLSearchParams(window.location.search);
-        const pseudo = urlParams.get('pseudo');
-        const type = urlParams.get('type');
-        const indice = parseInt(urlParams.get('indice'));
-
-        this.#room.send("updateUrlParams", { pseudo, type, indice });
-    }
-
     async initGame() {
         this.#havokInstance = await this.getInitializedHavok();
         this.#gameScene = this.createScene();
@@ -146,7 +126,6 @@ class Game {
 
 
         console.log(this.#room);
-        await this.syncUrlParams();
         this.createElapsedTimeText();
         this.createStartButton();
 
@@ -172,13 +151,6 @@ class Game {
 
 
         });
-
-
-        this.#room.onMessage("updatePlayerParams", (message) => {
-            const { sessionId, pseudo, idCountryFlag } = message;
-            this.updatePlayerParams(sessionId, pseudo, idCountryFlag);
-        });
-
 
 
         //console.log(this.#playerNextPosition[this.#room.sessionId])
@@ -219,7 +191,6 @@ class Game {
 
 
         this.#shadowGenerator.addShadowCaster(this.#playerEntities[this.#room.sessionId].gameObject, true);
-        //await this.createCamera();
 
 
 
@@ -227,37 +198,7 @@ class Game {
 
 
     }
-    async createCamera() {
-        //console.log(this.#playerEntities)
-        this.#gameCamera = await new ArcRotateCamera("camera", Math.PI / 2, Math.PI / 4, 20, this.#playerEntities[this.#room.sessionId].gameObject.position.subtract(new Vector3(0, -3, -2)), this.scene);
-        this.reglageCamera(2, 10, 0.05, 1000);
-        this.reglageScene();
 
-    }
-    updatePlayerParams(sessionId, pseudo, idCountryFlag) {
-        if (this.#playerEntities[sessionId]) {
-            this.#playerEntities[sessionId].pseudo = pseudo;
-            this.#playerEntities[sessionId].idCountryFlag = idCountryFlag;
-            this.#playerEntities[sessionId].updatePseudo(pseudo);
-            this.#playerEntities[sessionId].updateIdCountryFlag(idCountryFlag);
-
-        }
-    }
-    reglageCamera(lowerRadiusLimit, upperRadiusLimit, wheelDeltaPercentage, angularSensibility) {
-        this.#gameCamera.lowerRadiusLimit = lowerRadiusLimit;
-        this.#gameCamera.upperRadiusLimit = upperRadiusLimit;
-        this.#gameCamera.wheelDeltaPercentage = wheelDeltaPercentage;
-        this.#gameCamera.angularSensibility = angularSensibility;
-        //console.log(this.#player.gameObject.position);
-        this.#gameCamera.target = this.#playerEntities[this.#room.sessionId].gameObject;
-        //console.log(this.#gameCamera.target);
-        //2, 10, 0.05, 1000
-    }
-    reglageScene() {
-        //this.scene.enablePhysics(new Vector3(0, -9.81, 0), new CannonJSPlugin());
-        this.#gameScene.activeCamera = this.#gameCamera;
-        this.#gameScene.activeCamera.attachControl(this.#canvas, true);
-    }
 
     initInput() {
         this.#gameScene.onKeyboardObservable.add((kbInfo) => {
@@ -397,54 +338,7 @@ class Game {
         return new Promise(resolve => setTimeout(resolve, ms));
     }
 
-    async createSquareDetectionAreaFinish(scene, localPlayer) {
-        const square = Mesh.CreateGround("square", 5, 7, 1, scene);
-        //-259.4 / -20 (test)
-        square.position = new Vector3(-259.4, 3, 25.3);
-        square.scaling = new Vector3(2.1, 1, 1)
-        square.rotation = new Vector3(276.5 * (Math.PI / 180), 270.4 * (Math.PI / 180), 0);
 
-        square.material = new StandardMaterial("squareMat", scene);
-        square.material.diffuseColor = new Color3(0, 1, 0); // Vert
-
-        square.checkCollisions = true;
-
-        square.actionManager = new ActionManager(scene);
-        square.actionManager.registerAction(
-            new ExecuteCodeAction(
-                {
-                    trigger: ActionManager.OnIntersectionEnterTrigger,
-                    parameter: localPlayer
-                },
-                () => {
-                    console.log("Le joueur est entré dans le carré !");
-                    this.isEnd = true
-                }
-            )
-        );
-
-        square.actionManager.registerAction(
-            new ExecuteCodeAction(
-                {
-                    trigger: ActionManager.OnIntersectionExitTrigger,
-                    parameter: localPlayer
-                },
-                () => {
-                    console.log("Le joueur est sorti du carré !");
-                }
-            )
-        );
-        //texte de fin de course 
-        const finishText = new TextBlock();
-        finishText.text = "FINISH";
-        finishText.color = "white";
-        finishText.fontSize = 330;
-
-
-        const advancedTexture = AdvancedDynamicTexture.CreateForMesh(square);
-        advancedTexture.addControl(finishText);
-        finishText.top = "10px";
-    }
 
     startChrono() {
 
