@@ -213,9 +213,9 @@ class Game {
 
         this.#gameScene.activeCamera = this.#player.camera;
         this.#gameScene.activeCamera.attachControl(this.#canvas, true);
-        this.createSquareDetectionAreaFinish(this.#gameScene, this.#player.gameObject);
+        //this.createSquareDetectionAreaFinish(this.#gameScene, this.#player.gameObject);
         this.#parcourManage = new WallCreator(this.#gameScene);
-        this.#parcourManage.createSquareDetectionAreaFinish(this.#player.gameObject)
+        this.#parcourManage.createSquareDetection(this.#player.gameObject)
 
 
         this.#shadowGenerator.addShadowCaster(this.#playerEntities[this.#room.sessionId].gameObject, true);
@@ -297,7 +297,7 @@ class Game {
 
         this.#engine.runRenderLoop(() => {
 
-            if (this.canStart && !this.isEnd) {
+            if (this.canStart && !this.#parcourManage.isEnd) {
                 this.updateElapsedTime();
             }
             this.updateGame();

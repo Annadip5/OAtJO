@@ -5,10 +5,12 @@ import { AdvancedDynamicTexture, TextBlock } from "@babylonjs/gui";
 class WallCreator {
     wallPositions = [
         { position: [-100, 3, 25.3], rotation: [276.5 * (Math.PI / 180), 270.4 * (Math.PI / 180), 0] },
-        { position: [-110, 3, 25.3], rotation: [276.5 * (Math.PI / 180), 270.4 * (Math.PI / 180), 0] },
+        { position: [-160, 3, 25.3], rotation: [276.5 * (Math.PI / 180), 270.4 * (Math.PI / 180), 0] },
         { position: [-225, 3, 2], rotation: [276.5 * (Math.PI / 180), 270.4 * (Math.PI / 180), 0] },
         { position: [-165, 3, -94], rotation: [276.5 * (Math.PI), 270.4 * (Math.PI / 180), 0] },
-        { position: [-103, 3, 25.3], rotation: [276.5 * (Math.PI / 180), 270.4 * (Math.PI / 180), 0] },
+        { position: [-100, 3, -94], rotation: [276.5 * (Math.PI), 270.4 * (Math.PI / 180), 0] },
+        { position: [-100, 3, 25.3], rotation: [276.5 * (Math.PI / 180), 270.4 * (Math.PI / 180), 0] },
+        { position: [-160, 3, 25.3], rotation: [276.5 * (Math.PI / 180), 270.4 * (Math.PI / 180), 0] },
 
         /*{ finish: "finish" }*/
     ];
@@ -29,9 +31,10 @@ class WallCreator {
         this.isRemovingWalls = false;
     }
 
-    async createSquareDetectionAreaFinish(localPlayer) {
+    async createSquareDetection(localPlayer) {
         await this.createWall(this.wallPositions[this.currentWallIndex], localPlayer);
         await this.createWall(this.wallPositions[this.nextWallIndex], localPlayer);
+
     }
 
     async createWall(wallPosition, localPlayer) {
@@ -56,6 +59,10 @@ class WallCreator {
                 console.log("Le joueur est sorti du mur !");
                 this.moveToNextWall(localPlayer);
                 this.markWallToRemove(wall);
+                if (this.currentWallIndex === this.wallPositions.length - 1) {
+
+                    this.createSquareDetectionAreaFinish2(this.scene, localPlayer);
+                }
             }
         );
 
@@ -119,7 +126,7 @@ class WallCreator {
         }
     }
 
-    /*async createSquareDetectionAreaFinish2(scene, localPlayer) {
+    async createSquareDetectionAreaFinish2(scene, localPlayer) {
         const square = Mesh.CreateGround("square", 5, 7, 1, this.scene);
         //-259.4 / -20 (test)
         square.position = new Vector3(-259.4, 3, 25.3);
@@ -166,7 +173,7 @@ class WallCreator {
         const advancedTexture = AdvancedDynamicTexture.CreateForMesh(square);
         advancedTexture.addControl(finishText);
         finishText.top = "10px";
-    }*/
+    }
 }
 
 export default WallCreator;
