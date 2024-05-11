@@ -5,12 +5,21 @@ import { AdvancedDynamicTexture, TextBlock } from "@babylonjs/gui";
 class WallCreator {
     wallPositions = [
         { position: [-100, 3, 25.3], rotation: [276.5 * (Math.PI / 180), 270.4 * (Math.PI / 180), 0] },
+        { position: [-110, 3, 25.3], rotation: [276.5 * (Math.PI / 180), 270.4 * (Math.PI / 180), 0] },
         { position: [-225, 3, 2], rotation: [276.5 * (Math.PI / 180), 270.4 * (Math.PI / 180), 0] },
         { position: [-165, 3, -94], rotation: [276.5 * (Math.PI), 270.4 * (Math.PI / 180), 0] },
         { position: [-103, 3, 25.3], rotation: [276.5 * (Math.PI / 180), 270.4 * (Math.PI / 180), 0] },
 
         /*{ finish: "finish" }*/
-    ]
+    ];
+    olympicColors = [
+        "blue",   // Bleu
+        "orange", // Orange
+        "red",   // Rouge
+        "green",   // Vert
+        "yellow"
+    ];
+
     constructor(scene) {
         this.scene = scene;
         this.currentWallIndex = 0;
@@ -54,8 +63,10 @@ class WallCreator {
 
         const finishText = new TextBlock();
         finishText.text = "O";
-        finishText.color = "white";
+        finishText.color = this.randomColor();
         finishText.fontSize = 1500;
+        finishText.alpha = 0.3; // Transparence du texte
+
 
 
         const advancedTexture = AdvancedDynamicTexture.CreateForMesh(wall);
@@ -64,6 +75,12 @@ class WallCreator {
 
         this.walls.push(wall); // Ajoute le mur à la liste des murs
     }
+    randomColor() {
+        const randomColorIndex = Math.floor(Math.random() * this.olympicColors.length);
+        console.log(randomColorIndex)
+        return this.olympicColors[randomColorIndex];
+    }
+
 
     markWallToRemove(wall) {
         if (!this.isRemovingWalls) {
