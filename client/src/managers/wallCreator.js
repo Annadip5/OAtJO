@@ -6,7 +6,7 @@ class WallCreator {
     wallPositions = [
         { position: [-100, 3, 25.3], rotation: [276.5 * (Math.PI / 180), 270.4 * (Math.PI / 180), 0] },
         { position: [-160, 3, 25.3], rotation: [276.5 * (Math.PI / 180), 270.4 * (Math.PI / 180), 0] },
-        { position: [-225, 3, 2], rotation: [276.5 * (Math.PI / 180), 270.4 * (Math.PI / 180), 0] },
+        { position: [-225, 3, 2], rotation: [276.5 * (Math.PI / 180), 228.3 * (Math.PI / 180), 0] },
         { position: [-165, 3, -94], rotation: [276.5 * (Math.PI), 270.4 * (Math.PI / 180), 0] },
         { position: [-100, 3, -94], rotation: [276.5 * (Math.PI), 270.4 * (Math.PI / 180), 0] },
         { position: [-100, 3, 25.3], rotation: [276.5 * (Math.PI / 180), 270.4 * (Math.PI / 180), 0] },
