@@ -173,6 +173,28 @@ class WallCreator {
         const advancedTexture = AdvancedDynamicTexture.CreateForMesh(square);
         advancedTexture.addControl(finishText);
         finishText.top = "10px";
+        this.finalWall()
+    }
+
+    async finalWall() {
+
+        const wall = Mesh.CreateGround("wall", 10, 20, 3, this.scene);
+        wall.position = new Vector3(-259.4, 3, 25.3);
+        wall.scaling = new Vector3(2.1, 1, 1)
+        wall.rotation = new Vector3(276.5 * (Math.PI / 180), 270.4 * (Math.PI / 180), 0);
+        wall.material = new StandardMaterial("wallMat", this.scene);
+        wall.material.diffuseColor = new Color3(0, 1, 0); // Vert
+        wall.checkCollisions = true;
+
+        const finishText = new TextBlock();
+        finishText.text = "O";
+        finishText.color = this.randomColor();
+        finishText.fontSize = 1200;
+        finishText.alpha = 0.3; // Transparence du texte
+        const advancedTexture = AdvancedDynamicTexture.CreateForMesh(wall);
+        advancedTexture.addControl(finishText);
+        finishText.top = "-20px";
+
     }
 }
 
