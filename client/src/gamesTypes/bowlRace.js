@@ -5,6 +5,7 @@ import HavokPhysics from "@babylonjs/havok";
 import Player from "../players/bowl";
 import Arena from "../arenas/pistCourse";
 import Decors from "../arenas/decors";
+import WallCreator from "../managers/wallCreator";
 import { AdvancedDynamicTexture, Rectangle, TextBlock } from "@babylonjs/gui";
 
 class Game {
@@ -41,9 +42,9 @@ class Game {
 
     startTime;
     isAllPlayerReady = false;
-    #elapsedTimeText
-    isEnd = false
-
+    #elapsedTimeText;
+    isEnd = false;
+    #parcourManage;
 
     constructor(canvas, engine, room) {
 
@@ -139,7 +140,7 @@ class Game {
         this.#gameScene = this.createScene();
         this.#arena = new Arena(3, 10, 3, this.#gameScene);
         await this.#arena.init();
-        this.#arena.zoneSable.isVisible = false;
+        //this.#arena.zoneSable.isVisible = false;
         this.#decors = new Decors(this.#gameScene)
         await this.#decors.init();
 
@@ -212,8 +213,9 @@ class Game {
 
         this.#gameScene.activeCamera = this.#player.camera;
         this.#gameScene.activeCamera.attachControl(this.#canvas, true);
-        this.createSquareDetectionAreaFinish(this.#gameScene, this.#player.gameObject)
-        this.createSquareDetectionAreaStart(this.#gameScene, this.#player.gameObject)
+        this.createSquareDetectionAreaFinish(this.#gameScene, this.#player.gameObject);
+        this.#parcourManage = new WallCreator(this.#gameScene);
+        this.#parcourManage.createSquareDetectionAreaFinish(this.#player.gameObject)
 
 
         this.#shadowGenerator.addShadowCaster(this.#playerEntities[this.#room.sessionId].gameObject, true);
@@ -362,7 +364,7 @@ class Game {
     }
 
     async startCountdown() {
-        await this.delay(5000);
+        await this.delay(3000);
         const countdownText = new TextBlock();
         countdownText.text = "3";
         countdownText.color = "blue";
@@ -443,53 +445,7 @@ class Game {
         advancedTexture.addControl(finishText);
         finishText.top = "10px";
     }
-    async createSquareDetectionAreaStart(scene, localPlayer) {
-        const square = Mesh.CreateGround("square", 5, 7, 1, scene);
-        //-259.4 / -20 (test)
-        square.position = new Vector3(-15, 3, 25.3);
-        square.scaling = new Vector3(2.1, 1, 1)
-        square.rotation = new Vector3(276.5 * (Math.PI / 180), 270.4 * (Math.PI / 180), 0);
 
-        square.material = new StandardMaterial("squareMat", scene);
-        square.material.diffuseColor = new Color3(0, 1, 0); // Vert
-
-        square.checkCollisions = true;
-
-        square.actionManager = new ActionManager(scene);
-        square.actionManager.registerAction(
-            new ExecuteCodeAction(
-                {
-                    trigger: ActionManager.OnIntersectionEnterTrigger,
-                    parameter: localPlayer
-                },
-                () => {
-                    console.log("Le joueur est entré dans le carré !");
-                }
-            )
-        );
-
-        square.actionManager.registerAction(
-            new ExecuteCodeAction(
-                {
-                    trigger: ActionManager.OnIntersectionExitTrigger,
-                    parameter: localPlayer
-                },
-                () => {
-                    console.log("Le joueur est sorti du carré !");
-                }
-            )
-        );
-        //texte de fin de course 
-        const finishText = new TextBlock();
-        finishText.text = "START";
-        finishText.color = "white";
-        finishText.fontSize = 330;
-
-
-        const advancedTexture = AdvancedDynamicTexture.CreateForMesh(square);
-        advancedTexture.addControl(finishText);
-        finishText.top = "10px";
-    }
     startChrono() {
 
         this.startTime = Date.now();
@@ -512,7 +468,7 @@ class Game {
         this.#elapsedTimeText.text = "0s";
         this.#elapsedTimeText.color = "white";
         this.#elapsedTimeText.fontSize = 24;
-        this.#elapsedTimeText.horizontalAlignment = TextBlock.HORIZONTAL_ALIGNMENT_LEFT; // Alignement horizontal à gauche
+        this.#elapsedTimeText.horizontalAlignment = TextBlock.HORIZONTAL_ALIGNMENT_LEFT;
 
         rectangle.addControl(this.#elapsedTimeText);
 

@@ -70,6 +70,7 @@ class MyRoom extends Room {
 
         this.onMessage("playerReady", (client, data) => {
             this.readyPlayers.add(client.sessionId);
+            console.log("ready : ", client.sessionId)
 
             if (this.readyPlayers.size === this.state.players.size && this.readyPlayers.size >= 2) {
                 this.broadcast("allPlayersReady", { message: "Tous les joueurs sont prêts!" });
