@@ -39,6 +39,7 @@ class ArrowsManager {
         greenRectangle.material = new StandardMaterial("greenMat", this.scene);
         greenRectangle.material.diffuseColor = new Color3(0, 1, 0); // Vert
         greenRectangle.checkCollisions = true;
+        greenRectangle.material.alpha = 0.5;
         greenRectangle.actionManager = new ActionManager(this.scene);
         greenRectangle.actionManager.registerAction(
             new ExecuteCodeAction(
@@ -75,6 +76,7 @@ class ArrowsManager {
         redRectangle.material = new StandardMaterial("redMat", this.scene);
         redRectangle.material.diffuseColor = new Color3(1, 0, 0); // Rouge
         redRectangle.checkCollisions = true;
+        redRectangle.material.alpha = 0.5;
         redRectangle.actionManager = new ActionManager(this.scene);
         redRectangle.actionManager.registerAction(
             new ExecuteCodeAction(
@@ -84,7 +86,8 @@ class ArrowsManager {
                 },
                 () => {
                     console.log("red !");
-                    this.localPlayer.setRunningSpeed(5)
+                    this.localPlayer.setRunningSpeed(5);
+                    this.localPlayer.setJumpImpulse(0);
 
                 }
             )
@@ -98,7 +101,9 @@ class ArrowsManager {
                 },
                 () => {
                     console.log("red ");
-                    this.localPlayer.setRunningSpeed(14)
+                    this.localPlayer.setRunningSpeed(14);
+                    this.localPlayer.setJumpImpulse(6);
+
 
                 }
             )

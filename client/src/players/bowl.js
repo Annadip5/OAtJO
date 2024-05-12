@@ -78,6 +78,9 @@ class Player {
     getRunningSpeed() {
         return RUNNING_SPEED;
     }
+    setJumpImpulse(jump) {
+        JUMP_IMPULSE = jump;
+    }
     sendMovementDataToServer(room, inputDevant, inputArriere, sautInput) {
         // Créer un objet contenant les attributs modifiés lors du mouvement
         const movementData = {
