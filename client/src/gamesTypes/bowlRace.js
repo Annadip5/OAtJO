@@ -42,6 +42,7 @@ class Game {
     isEnd = false;
     #parcourManage;
     #arrows;
+    chronoSended = false;
 
     constructor(canvas, engine, room) {
 
@@ -153,6 +154,10 @@ class Game {
             console.log(message)
             this.isAllPlayerReady = true;
             this.startCountdown();
+        });
+        this.#room.onMessage("finalResults", (message) => {
+            console.log(message);
+            console.log(this.#playerEntities)
         })
 
 
@@ -219,6 +224,11 @@ class Game {
 
             if (this.canStart && !this.#parcourManage.isEnd) {
                 this.updateElapsedTime();
+            }
+            else if (this.#parcourManage.isEnd && !this.chronoSended) {
+                this.#room.send("sendChrono", { chrono: this.elapsedTime });
+                this.chronoSended = true;
+
             }
             this.updateGame();
 
@@ -339,14 +349,14 @@ class Game {
     }
 
     updateElapsedTime() {
-        const elapsedTime = Math.floor((Date.now() - this.startTime) / 1000);
+        this.elapsedTime = Math.floor((Date.now() - this.startTime) / 1000);
 
-        if (elapsedTime >= 60) {
-            const minutes = Math.floor(elapsedTime / 60);
-            const seconds = elapsedTime % 60;
+        if (this.elapsedTime >= 60) {
+            const minutes = Math.floor(this.elapsedTime / 60);
+            const seconds = this.elapsedTime % 60;
             this.#elapsedTimeText.text = minutes + "m " + seconds + "s";
         } else {
-            this.#elapsedTimeText.text = elapsedTime + "s";
+            this.#elapsedTimeText.text = this.elapsedTime + "s";
         }
     }
 

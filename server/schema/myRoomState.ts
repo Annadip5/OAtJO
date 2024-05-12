@@ -23,6 +23,7 @@ class Player extends Schema {
 
         this.isCollided = false;
         this.isCollider = false;
+        this.finishChrono = 0;
 
     }
 }

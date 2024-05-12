@@ -66,6 +66,28 @@ class MyRoom extends Room {
                 this.broadcast("allPlayersReady", { message: "Tous les joueurs sont prêts!" });
             }
         });
+        this.onMessage("sendChrono", (client, data) => {
+            console.log(client.sessionId, " chrono : ", data.chrono);
+            const player = this.state.players.get(client.sessionId);
+
+            if (player) {
+                player.finishChrono = data.chrono;
+            }
+            let allChronosSent = true;
+            for (const player of this.state.players.values()) {
+                if (player.finishChrono === 0) {
+                    allChronosSent = false;
+                    break;
+                }
+            }
+
+            if (allChronosSent) {
+                const sortedPlayers = Array.from(this.state.players.values()).sort((a, b) => a.finishChrono - b.finishChrono);
+                const chronoArray = sortedPlayers.map(player => ({ sessionId: player.sessionId, finishChrono: player.finishChrono }));
+                this.broadcast("finalResults", chronoArray);
+            }
+
+        });
 
     }
 
