@@ -70,6 +70,14 @@ class Player {
             RUNNING_SPEED += 2;
         }
     }
+
+    setRunningSpeed(speed) {
+        RUNNING_SPEED = speed;
+    }
+
+    getRunningSpeed() {
+        return RUNNING_SPEED;
+    }
     sendMovementDataToServer(room, inputDevant, inputArriere, sautInput) {
         // Créer un objet contenant les attributs modifiés lors du mouvement
         const movementData = {

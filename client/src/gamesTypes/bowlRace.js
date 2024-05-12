@@ -242,8 +242,6 @@ class Game {
     }
 
     updateGame() {
-
-
         this.delta = this.#engine.getDeltaTime() / 1000.0;
         //console.log("delta : ", this.delta)
         if (this.canStart) {
