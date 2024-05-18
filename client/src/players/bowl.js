@@ -184,16 +184,18 @@ class Player {
 
     }
     async createCamera() {
-        this.camera = await new ArcRotateCamera("cameraJoueur", Math.PI / 2, Math.PI / 4, 20, this.gameObject.position.subtract(new Vector3(0, -3, -2)), this.scene);
-        await this.reglageCamera();
+        this.camera = await new ArcRotateCamera("cameraJoueur", Math.PI / 2, Math.PI / 4, 20, this.gameObject.position.subtract(new Vector3(0, 2, -7)), this.scene);
+        await this.reglageCamera(10, 50, 0.01, 1000, 0, Math.PI / 3);
         //this.reglageScene();
 
     }
-    async reglageCamera(lowerRadiusLimit, upperRadiusLimit, wheelDeltaPercentage, angularSensibility) {
+    async reglageCamera(lowerRadiusLimit, upperRadiusLimit, wheelDeltaPercentage, angularSensibility, alpha, beta) {
         this.camera.lowerRadiusLimit = lowerRadiusLimit;
         this.camera.upperRadiusLimit = upperRadiusLimit;
         this.camera.wheelDeltaPercentage = wheelDeltaPercentage;
         this.camera.angularSensibility = angularSensibility;
+        /*this.camera.alpha = alpha;
+        this.camera.beta = beta;*/
         this.camera.target = this.gameObject;
         //console.log(this.camera.target);
     }

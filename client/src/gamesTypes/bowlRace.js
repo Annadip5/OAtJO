@@ -1,4 +1,4 @@
-import { ActionManager, ArcRotateCamera, Color3, Color4, CubeTexture, ExecuteCodeAction, FollowCamera, FreeCamera, HavokPlugin, HemisphericLight, InterpolateValueAction, KeyboardEventTypes, Mesh, MeshBuilder, ParticleSystem, PhysicsAggregate, PhysicsMotionType, PhysicsShapeType, Quaternion, Scene, SetValueAction, ShadowGenerator, SpotLight, StandardMaterial, Texture, Vector3 } from "@babylonjs/core";
+import { ActionManager, ArcRotateCamera, Animation, HavokPlugin, HemisphericLight, InterpolateValueAction, KeyboardEventTypes, Mesh, MeshBuilder, ParticleSystem, PhysicsAggregate, PhysicsMotionType, PhysicsShapeType, Quaternion, Scene, SetValueAction, ShadowGenerator, SpotLight, StandardMaterial, Texture, Vector3 } from "@babylonjs/core";
 import { Inspector } from '@babylonjs/inspector';
 import HavokPhysics from "@babylonjs/havok";
 
@@ -56,6 +56,7 @@ class Game {
 
     async start() {
         await this.initGame()
+        this.animateCamera();
         this.gameLoop();
         this.endGame();
     }
@@ -390,6 +391,48 @@ class Game {
             startButtonRect.dispose()
         });
     }
+    animateCamera() {
+        const camera = new ArcRotateCamera("Camera", Math.PI / 2, Math.PI / 2, 10, new Vector3(0, 0, 0), this.#gameScene);
+        const keyFrames = [];
+
+        // Définir les positions clés le long du chemin
+        /*keyFrames.push({
+            frame: 0,
+            value: new Vector3(-10, 15, -10)  // Position initiale
+        });
+        keyFrames.push({
+            frame: 30,
+            value: new Vector3(0, 10, 0)      // Premier point le long de la piste
+        });*/
+        keyFrames.push({
+            frame: 0,
+            value: new Vector3(10, 10, 10)    // Deuxième point le long de la piste
+        });
+        keyFrames.push({
+            frame: 30,
+            value: new Vector3(20, 10, 0)     // Troisième point le long de la piste
+        });
+        keyFrames.push({
+            frame: 60,
+            value: new Vector3(30, 10, -10)   // Quatrième point le long de la piste
+        });
+        keyFrames.push({
+            frame: 120,
+            value: new Vector3(40, 10, -20)   // Quatrième point le long de la piste
+        });
+
+        const cameraAnimation = new Animation("cameraAnimation", "position", 60, Animation.ANIMATIONTYPE_VECTOR3, Animation.ANIMATIONLOOPMODE_CONSTANT);
+        cameraAnimation.setKeys(keyFrames);
+
+        camera.animations.push(cameraAnimation);
+
+        this.#gameScene.activeCamera = camera;
+        this.#gameScene.beginAnimation(camera, 0, 120, false, 1, () => {
+            this.#gameScene.activeCamera = this.#player.camera;
+            this.#gameScene.activeCamera.attachControl(this.#canvas, true);
+        });
+    }
+
 
 }
 

@@ -10,7 +10,7 @@ class ArrowsManager {
         { position: [-130, 0.1, 28], rotation: [0, 0, 0], taille: [4, 2, 1] },
         { position: [-230, 0.1, -68], rotation: [0, Math.PI / 4, 0], taille: [4, 5, 1] },
         { position: [-165, 0.1, -94], rotation: [0, 0, 0], taille: [4, 2, 1] },
-        { position: [-185, 0.1, 26.3], rotation: [0, 0, 0], taille: [4, 2, 1] },
+        { position: [-185, 0.1, 26.3], rotation: [0, 0, 0], taille: [7, 2, 1] },
 
     ];
     redRects = [
