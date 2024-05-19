@@ -83,7 +83,7 @@ class MyRoom extends Room {
 
             if (allChronosSent) {
                 const sortedPlayers = Array.from(this.state.players.values()).sort((a, b) => a.finishChrono - b.finishChrono);
-                const chronoArray = sortedPlayers.map(player => ({ sessionId: player.sessionId, finishChrono: player.finishChrono }));
+                const chronoArray = sortedPlayers.map(player => ({ sessionId: player.sessionId, pseudo: player.pseudo, idFlag: player.idCountryFlag, finishChrono: player.finishChrono }));
                 this.broadcast("finalResults", chronoArray);
             }
 

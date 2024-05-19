@@ -159,6 +159,8 @@ class Game {
         this.#room.onMessage("finalResults", (message) => {
             console.log(message);
             console.log(this.#playerEntities)
+            this.createFinalResultsUI(message);
+
         })
 
 
@@ -263,7 +265,6 @@ class Game {
 
         for (const playerId in this.#playerEntities) {
 
-
             if (playerId !== this.#room.sessionId) {
                 const otherPlayer = this.#playerEntities[playerId];
                 const localPlayer = this.#playerEntities[this.#room.sessionId];
@@ -283,7 +284,11 @@ class Game {
         // Envoyer l'input de ce joueur au serveur
         this.#room.send("collision", { collision: otherPlayerId });
     }
-
+    convertSecondsToMinSec(seconds) {
+        const minutes = Math.floor(seconds / 60);
+        const remainingSeconds = seconds % 60;
+        return `${minutes}m ${remainingSeconds}s`;
+    }
     async startCountdown() {
         await this.delay(3000);
         const countdownText = new TextBlock();
@@ -443,6 +448,34 @@ class Game {
             this.#gameScene.activeCamera.attachControl(this.#canvas, true);
         });
     }
+    createFinalResultsUI(results) {
+        const advancedTexture = AdvancedDynamicTexture.CreateFullscreenUI("UI");
+
+        const resultsRectangle = new Rectangle();
+        resultsRectangle.width = "50%";
+        resultsRectangle.height = "50%";
+        resultsRectangle.color = "white";
+        resultsRectangle.thickness = 2;
+        resultsRectangle.background = "rgba(0, 0, 0, 0.8)";
+        resultsRectangle.cornerRadius = 20;
+        resultsRectangle.verticalAlignment = Rectangle.VERTICAL_ALIGNMENT_CENTER;
+        resultsRectangle.horizontalAlignment = Rectangle.HORIZONTAL_ALIGNMENT_CENTER;
+
+        const resultsText = new TextBlock();
+        resultsText.text = "Résultats Finaux:\n";
+        resultsText.color = "white";
+        resultsText.fontSize = 24;
+        resultsText.textWrapping = true;
+        resultsText.paddingTop = 20;
+
+        results.forEach((result, index) => {
+            resultsText.text += `${index + 1}. ${result.pseudo} - ${this.convertSecondsToMinSec(result.finishChrono)}\n`;
+        });
+
+        resultsRectangle.addControl(resultsText);
+        advancedTexture.addControl(resultsRectangle);
+    }
+
 
 
 }
