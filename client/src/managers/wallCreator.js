@@ -55,7 +55,6 @@ class WallCreator {
                 parameter: localPlayer
             },
             () => {
-                console.log("Le joueur est sorti du mur !");
                 this.moveToNextWall(localPlayer);
                 this.markWallToRemove(wall);
                 if (this.currentWallIndex === this.wallPositions.length - 1) {
@@ -83,7 +82,6 @@ class WallCreator {
     }
     randomColor() {
         const randomColorIndex = Math.floor(Math.random() * this.olympicColors.length);
-        console.log(randomColorIndex)
         return this.olympicColors[randomColorIndex];
     }
 

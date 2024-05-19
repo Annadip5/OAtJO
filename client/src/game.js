@@ -33,6 +33,7 @@ babylonInit().then(() => {
     const pseudo = urlParams.get('pseudo');
     const type = urlParams.get('type');
     const indice = parseInt(urlParams.get('indice'));
+    const code = urlParams.get('code');
 
     const options = {
         name: "Race",
@@ -42,15 +43,28 @@ babylonInit().then(() => {
 
     };
     console.log(options)
-    client.joinOrCreate("my_room", options).then(room => {
-        // Une fois la salle rejointe ou créée, créez une instance de l'objet Game en lui passant la salle.
-        const game = new Game(canvas, engine, room);
+    let name;
 
-        // Démarrez le jeu.
-        game.start();
-    }).catch(e => {
-        // Gérez les erreurs de connexion à la salle.
-        console.error("Erreur lors de la connexion à la salle", e);
-    });
+    name = "my_room";
+
+    if (type === 'private' && code) {
+        client.joinById(code, options).then(room => {
+            const game = new Game(canvas, engine, room);
+            game.start();
+        }).catch(e => {
+            console.error("Erreur lors de la connexion à la salle", e);
+        });
+    } else {
+        client.joinOrCreate(name, options).then(room => {
+            // Une fois la salle rejointe ou créée, créez une instance de l'objet Game en lui passant la salle.
+            const game = new Game(canvas, engine, room);
+
+            // Démarrez le jeu.
+            game.start();
+        }).catch(e => {
+            // Gérez les erreurs de connexion à la salle.
+            console.error("Erreur lors de la connexion à la salle", e);
+        });
+    }
 });
 

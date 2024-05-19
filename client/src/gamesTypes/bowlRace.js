@@ -395,39 +395,50 @@ class Game {
         const camera = new ArcRotateCamera("Camera", Math.PI / 2, Math.PI / 2, 10, new Vector3(0, 0, 0), this.#gameScene);
         const keyFrames = [];
 
-        // Définir les positions clés le long du chemin
-        /*keyFrames.push({
+        keyFrames.push({
             frame: 0,
-            value: new Vector3(-10, 15, -10)  // Position initiale
+            value: new Vector3(10, 10, 10)
         });
         keyFrames.push({
             frame: 30,
-            value: new Vector3(0, 10, 0)      // Premier point le long de la piste
-        });*/
-        keyFrames.push({
-            frame: 0,
-            value: new Vector3(10, 10, 10)    // Deuxième point le long de la piste
-        });
-        keyFrames.push({
-            frame: 30,
-            value: new Vector3(20, 10, 0)     // Troisième point le long de la piste
+            value: new Vector3(20, 10, 0)
         });
         keyFrames.push({
             frame: 60,
-            value: new Vector3(30, 10, -10)   // Quatrième point le long de la piste
+            value: new Vector3(30, 10, -10)
         });
         keyFrames.push({
             frame: 120,
-            value: new Vector3(40, 10, -20)   // Quatrième point le long de la piste
+            value: new Vector3(40, 10, -20)
+        });
+        keyFrames.push({
+            frame: 150,
+            value: new Vector3(30, 10, -20)
+        });
+        keyFrames.push({
+            frame: 180,
+            value: new Vector3(20, 10, -20)
+        });
+        keyFrames.push({
+            frame: 210,
+            value: new Vector3(10, 10, -20)
+        });
+        keyFrames.push({
+            frame: 240,
+            value: new Vector3(5, 10, -15)
         });
 
+        /*keyFrames.push({
+            frame: 270,
+            value: new Vector3(0, 0, -10)
+        });*/
         const cameraAnimation = new Animation("cameraAnimation", "position", 60, Animation.ANIMATIONTYPE_VECTOR3, Animation.ANIMATIONLOOPMODE_CONSTANT);
         cameraAnimation.setKeys(keyFrames);
 
         camera.animations.push(cameraAnimation);
 
         this.#gameScene.activeCamera = camera;
-        this.#gameScene.beginAnimation(camera, 0, 120, false, 1, () => {
+        this.#gameScene.beginAnimation(camera, 0, 240, false, 1, () => {
             this.#gameScene.activeCamera = this.#player.camera;
             this.#gameScene.activeCamera.attachControl(this.#canvas, true);
         });

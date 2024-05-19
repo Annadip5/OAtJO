@@ -29,10 +29,22 @@ class Accueil {
             console.log("Pseudo:", self.pseudo);
             console.log("Type de partie:", self.type);
             console.log("Indice:", self.indice);
+            const choix = document.getElementById('choix').value;
 
-            const queryString = `?pseudo=${self.pseudo}&type=${self.type}&indice=${self.indice}`;
+            if (self.type === 'public') {
+                self.lancerPartiePublique();
+            } else if (self.type === 'private' && choix === 'rejoindre') {
+                self.rejoindrePartie();
+            } else if (self.type === 'private' && choix === 'creer') {
+                if (!document.getElementById('code-creer').value) {
+                    self.creerPartie();
+                } else {
+                    self.lancerPartiePrivee();
+                }
+            }
+            //const queryString = `?pseudo=${self.pseudo}&type=${self.type}&indice=${self.indice}`;
 
-            window.location.href = `${window.location.pathname}game.html${queryString}`;
+            //window.location.href = `${window.location.pathname}game.html${queryString}`;
         }
 
         // Ajout de l'événement de soumission du formulaire
@@ -44,7 +56,6 @@ class Accueil {
             if (self.indice > self.skins.length - 1) {
                 self.indice = 0;
             }
-            console.log("Droite");
             self.photo.setAttribute("src", "../assets/images/drapeaux/" + self.skins[self.indice]);
         };
 
@@ -53,9 +64,25 @@ class Accueil {
             if (self.indice < 0) {
                 self.indice = self.skins.length - 1;
             }
-            console.log("Gauche");
             self.photo.setAttribute("src", "../assets/images/drapeaux/" + self.skins[self.indice]);
         };
+        document.getElementById('type').addEventListener('change', function () {
+            self.afficherChamps();
+        });
+
+        document.getElementById('choix').addEventListener('change', function () {
+            self.afficherChampSelection();
+        });
+
+        // Gestion des boutons
+        document.querySelector("#champ-rejoindre .bouton[type='submit']").addEventListener('click', function (event) {
+            event.preventDefault();
+            self.rejoindrePartie();
+        });
+
+        document.querySelector("#champ-creer .bouton[type='button']").addEventListener('click', function () {
+            self.creerPartie();
+        });
     }
     afficherChamps() {
         var type = document.getElementById("type").value;
@@ -66,7 +93,6 @@ class Accueil {
             champSelection.style.display = "block";
         } else {
             champSelection.style.display = "none";
-            // Réinitialiser le champ de texte du code de la partie
             champCreer.value = "";
         }
     }
@@ -91,14 +117,32 @@ class Accueil {
 
     rejoindrePartie() {
         var code = document.getElementById("code").value;
-        // Logique pour rejoindre une partie avec le code donné
         console.log("Rejoindre la partie avec le code : " + code);
+        if (code != "") {
+            const queryString = `?pseudo=${this.pseudo}&type=${this.type}&code=${code}&indice=${this.indice}`;
+            window.location.href = `${window.location.pathname}game.html${queryString}`;
+        }
+        else {
+            alert("Veuillez entrer un code pour rejoindre une partie.");
+        }
+
     }
 
     creerPartie() {
-        // Logique pour créer une partie et obtenir le code
-        var code = genererCode();
+        const code = this.genererCode();
         document.getElementById("code-creer").value = code;
+        console.log("Créer une partie avec le code : " + code);
+    }
+
+    lancerPartiePrivee() {
+        const code = document.getElementById("code-creer").value;
+        const queryString = `?pseudo=${this.pseudo}&type=${this.type}&code=${code}&indice=${this.indice}`;
+        window.location.href = `${window.location.pathname}game.html${queryString}`;
+    }
+    lancerPartiePublique() {
+        console.log("Lancer une partie publique");
+        const queryString = `?pseudo=${this.pseudo}&type=${this.type}&indice=${this.indice}`;
+        window.location.href = `${window.location.pathname}game.html${queryString}`;
     }
 
     genererCode() {
