@@ -1,4 +1,4 @@
-import { ActionManager, ArcRotateCamera, Animation, HavokPlugin, HemisphericLight, InterpolateValueAction, KeyboardEventTypes, Mesh, MeshBuilder, ParticleSystem, PhysicsAggregate, PhysicsMotionType, PhysicsShapeType, Quaternion, Scene, SetValueAction, ShadowGenerator, SpotLight, StandardMaterial, Texture, Vector3 } from "@babylonjs/core";
+import { ActionManager, ArcRotateCamera, Animation, HavokPlugin, HemisphericLight, InterpolateValueAction, KeyboardEventTypes, Mesh, MeshBuilder, ParticleSystem, PhysicsAggregate, PhysicsMotionType, PhysicsShapeType, Quaternion, Scene, SetValueAction, ShadowGenerator, SpotLight, StandardMaterial, Texture, Vector3, Sound } from "@babylonjs/core";
 import { Inspector } from '@babylonjs/inspector';
 import HavokPhysics from "@babylonjs/havok";
 
@@ -9,6 +9,11 @@ import Arena from "../arenas/pistCourse";
 import Decors from "../arenas/decors";
 import WallCreator from "../managers/wallCreator";
 import ArrowsManager from "../managers/arrows";
+
+import winSoundUrl from "../../assets/sounds/win.mp3"
+import decompteUrl from "../../assets/sounds/decompte.mp3"
+import decompteUrl2 from "../../assets/sounds/decompte2.mp3"
+
 
 class Game {
     canStart = false;
@@ -43,7 +48,10 @@ class Game {
     #parcourManage;
     #arrows;
     chronoSended = false;
-
+    //sounds
+    #win
+    #decompteSound
+    #decompteSound2
     constructor(canvas, engine, room) {
 
         this.#room = room
@@ -82,6 +90,9 @@ class Game {
         boxDebug.position = new Vector3(5, 15, 0);
         this.#shadowGenerator.addShadowCaster(boxDebug);
 
+        this.#win = new Sound("win", winSoundUrl, this.#gameScene)
+        this.#decompteSound = new Sound("decompte", decompteUrl, this.#gameScene)
+        this.#decompteSound2 = new Sound("decompte2", decompteUrl2, this.#gameScene)
 
 
 
@@ -231,6 +242,9 @@ class Game {
             else if (this.#parcourManage.isEnd && !this.chronoSended) {
                 this.#room.send("sendChrono", { chrono: this.elapsedTime });
                 this.chronoSended = true;
+                if (this.#win.isReady()) {
+                    this.#win.play();
+                }
 
             }
             this.updateGame();
@@ -290,7 +304,11 @@ class Game {
         return `${minutes}m ${remainingSeconds}s`;
     }
     async startCountdown() {
+
         await this.delay(3000);
+        if (this.#decompteSound.isReady()) {
+            this.#decompteSound.play();
+        }
         const countdownText = new TextBlock();
         countdownText.text = "3";
         countdownText.color = "blue";
@@ -300,14 +318,23 @@ class Game {
         advancedTexture.addControl(countdownText);
 
         await this.delay(1000);
+        if (this.#decompteSound.isReady()) {
+            this.#decompteSound.play();
+        }
         console.log("2");
         countdownText.color = "white";
         countdownText.text = "2";
         await this.delay(1000);
+        if (this.#decompteSound.isReady()) {
+            this.#decompteSound.play();
+        }
         console.log("1");
         countdownText.color = "red";
         countdownText.text = "1";
         await this.delay(1000);
+        if (this.#decompteSound2.isReady()) {
+            this.#decompteSound2.play();
+        }
         console.log("GO");
         countdownText.color = "red";
         countdownText.text = "GO!";
