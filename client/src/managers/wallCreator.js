@@ -1,5 +1,6 @@
-import { ActionManager, Color3, DiscBuilder, ExecuteCodeAction, Mesh, StandardMaterial, Vector3 } from "@babylonjs/core";
+import { ActionManager, Color3, DiscBuilder, ExecuteCodeAction, Mesh, Sound, StandardMaterial, Vector3 } from "@babylonjs/core";
 import { AdvancedDynamicTexture, TextBlock } from "@babylonjs/gui";
+import checkpointSoundUrl from "../../assets/sounds/checkpoint.mp3"
 
 
 class WallCreator {
@@ -31,6 +32,8 @@ class WallCreator {
     }
 
     async createSquareDetection(localPlayer) {
+        this.checkpointSound = new Sound("checkpoint", checkpointSoundUrl, this.scene);
+
         await this.createWall(this.wallPositions[this.currentWallIndex], localPlayer);
         await this.createWall(this.wallPositions[this.nextWallIndex], localPlayer);
 
@@ -48,13 +51,27 @@ class WallCreator {
         wall.checkCollisions = true;
 
         wall.actionManager = new ActionManager(this.scene);
+        const enterAction = new ExecuteCodeAction(
+            {
+                trigger: ActionManager.OnIntersectionEnterTrigger,
+                parameter: localPlayer
+            },
+            () => {
+                if (this.checkpointSound.isReady()) {
+                    this.checkpointSound.play();
+                }
 
+            }
+        );
+
+        wall.actionManager.registerAction(enterAction);
         const exitAction = new ExecuteCodeAction(
             {
                 trigger: ActionManager.OnIntersectionExitTrigger,
                 parameter: localPlayer
             },
             () => {
+
                 this.moveToNextWall(localPlayer);
                 this.markWallToRemove(wall);
                 if (this.currentWallIndex === this.wallPositions.length - 1) {
@@ -143,8 +160,10 @@ class WallCreator {
                     parameter: localPlayer
                 },
                 () => {
-                    console.log("Le joueur est entré dans le carré !");
                     this.isEnd = true
+                    if (this.checkpointSound.isReady()) {
+                        this.checkpointSound.play();
+                    }
                 }
             )
         );

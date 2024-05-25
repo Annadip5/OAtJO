@@ -14,6 +14,7 @@ import winSoundUrl from "../../assets/sounds/win.mp3"
 import decompteUrl from "../../assets/sounds/decompte.mp3"
 import decompteUrl2 from "../../assets/sounds/decompte2.mp3"
 import readyUrl from "../../assets/sounds/ready.mp3"
+import backgroundMusicUrl from "../../assets/sounds/musiqueRace.mp3";
 
 
 class Game {
@@ -54,6 +55,8 @@ class Game {
     #decompteSound
     #decompteSound2
     #readySound
+    #backgroundMusic
+
     constructor(canvas, engine, room) {
 
         this.#room = room
@@ -97,7 +100,11 @@ class Game {
         this.#decompteSound2 = new Sound("decompte2", decompteUrl2, this.#gameScene);
         this.#readySound = new Sound("ready", readyUrl, this.#gameScene);
 
-
+        this.#backgroundMusic = new Sound("backgroundMusic", backgroundMusicUrl, this.#gameScene, null, {
+            loop: true,
+            autoplay: false,
+            volume: 0.5
+        });
 
 
         return scene;
@@ -243,6 +250,7 @@ class Game {
                 this.updateElapsedTime();
             }
             else if (this.#parcourManage.isEnd && !this.chronoSended) {
+                this.#backgroundMusic.stop()
                 this.#room.send("sendChrono", { chrono: this.elapsedTime });
                 this.chronoSended = true;
                 if (this.#winSound.isReady()) {
@@ -275,7 +283,7 @@ class Game {
         this.delta = this.#engine.getDeltaTime() / 1000.0;
         //console.log("delta : ", this.delta)
         if (this.canStart) {
-            this.#playerEntities[this.#room.sessionId].update(this.inputMap, this.actions, this.delta, this.#room);
+            this.#playerEntities[this.#room.sessionId].update(this.inputMap, this.actions, this.delta, this.#room, this.#backgroundMusic);
 
         }
         this.#playerEntities[this.#room.sessionId].sendMovementDataToServer(this.#room, this.inputMap["KeyW"], this.inputMap["KeyS"], this.inputMap["Space"]);
@@ -346,6 +354,7 @@ class Game {
         countdownText.dispose();
         this.canStart = true;
         this.startChrono()
+        this.#backgroundMusic.play()
 
 
     }

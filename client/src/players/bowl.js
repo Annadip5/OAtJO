@@ -4,7 +4,7 @@ import { ArcRotateCamera, Matrix, Mesh, MeshBuilder, Physics6DoFConstraint, Phys
 //import Arena from "../arenas/pistCourse";
 import { AdvancedDynamicTexture } from "@babylonjs/gui/2D/advancedDynamicTexture";
 import { TextBlock } from "@babylonjs/gui/2D/controls/textBlock";
-import jumpSoundUrl from "../../assets/sounds/saut.mp3"
+import jumpSoundUrl from "../../assets/sounds/jump.mp3"
 
 const USE_FORCES = false;
 let RUNNING_SPEED = 14;
@@ -13,6 +13,7 @@ const PLAYER_HEIGHT = 1;
 const PLAYER_RADIUS = 0.5;
 
 class Player {
+    isSoundPlay = true;
     previousMovementData = null;
 
     scene;
@@ -205,12 +206,27 @@ class Player {
         this.label.linkOffsetY = this.linkOffsetYlabel;
     }
 
-    update(inputMap, actions, delta, room) {
+    update(inputMap, actions, delta, room, sound) {
         let currentVelocity = this.capsuleAggregate.body.getLinearVelocity();
         const camera1 = this.camera;
         var forwardDirection = camera1.getForwardRay().direction;
 
         //Inputs 
+        if (actions["KeyP"]) {
+            if (this.isSoundPlay) {
+                this.isSoundPlay = false;
+
+                sound.stop()
+                console.log(this.isSoundPlay);
+            }
+            else {
+                this.isSoundPlay = true;
+
+                sound.play();
+                console.log(this.isSoundPlay);
+
+            }
+        }
         //q
         if (inputMap["KeyA"]) {
             //this.speedX = RUNNING_SPEED;
@@ -284,7 +300,7 @@ class Player {
             if (actions["Space"] && this.gameObject.getAbsolutePosition().y < PLAYER_HEIGHT / 2 + 0.1) {
                 //Pas de delta ici, c'est une impulsion non dépendante du temps (pas d'ajout)
                 impulseY = JUMP_IMPULSE;
-                if (JUMP_IMPULSE == 6) {
+                if (JUMP_IMPULSE > 0) {
                     this.#jumpSound.play();
 
                 }
