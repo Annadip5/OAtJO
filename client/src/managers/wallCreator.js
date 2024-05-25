@@ -1,4 +1,4 @@
-import { ActionManager, Color3, DiscBuilder, ExecuteCodeAction, Mesh, Sound, StandardMaterial, Vector3 } from "@babylonjs/core";
+import { ActionManager, Color3, DiscBuilder, ExecuteCodeAction, Mesh, MeshParticleEmitter, ParticleSystem, Sound, StandardMaterial, Texture, Vector3 } from "@babylonjs/core";
 import { AdvancedDynamicTexture, TextBlock } from "@babylonjs/gui";
 import checkpointSoundUrl from "../../assets/sounds/checkpoint.mp3"
 
@@ -164,6 +164,7 @@ class WallCreator {
                     if (this.checkpointSound.isReady()) {
                         this.checkpointSound.play();
                     }
+                    this.endParticle(localPlayer)
                 }
             )
         );
@@ -211,6 +212,27 @@ class WallCreator {
         advancedTexture.addControl(finishText);
         finishText.top = "-20px";
 
+    }
+    endParticle(playerSphere) {
+        this.particleSystem = new ParticleSystem("particles", 10000, this.scene);
+        this.particleSystem.particleTexture = new Texture("/textures/flare.png", this.scene);
+
+        this.particleSystem.minSize = 0.05;
+        this.particleSystem.maxSize = 0.1;
+        var meshEmitter = new MeshParticleEmitter(playerSphere);
+        this.particleSystem.particleEmitterType = meshEmitter;
+        this.particleSystem.emitter = playerSphere;
+        this.particleSystem.minLifeTime = 4.0;
+        this.particleSystem.maxLifeTime = 4.0;
+        this.particleSystem.emitRate = 500;
+        // Blend mode : BLENDMODE_ONEONE, or BLENDMODE_STANDARD
+        this.particleSystem.blendMode = ParticleSystem.BLENDMODE_ONEONE;
+        this.particleSystem.gravity = new Vector3(0, 0, 0);
+        this.particleSystem.minEmitPower = 1;
+        this.particleSystem.maxEmitPower = 4;
+        this.particleSystem.updateSpeed = 1 / 60;
+
+        this.particleSystem.start();
     }
 }
 
