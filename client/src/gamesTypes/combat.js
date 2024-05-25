@@ -1,11 +1,11 @@
-import { ActionManager, ArcRotateCamera, Animation, HavokPlugin, HemisphericLight, InterpolateValueAction, KeyboardEventTypes, Mesh, MeshBuilder, ParticleSystem, PhysicsAggregate, PhysicsMotionType, PhysicsShapeType, Quaternion, Scene, SetValueAction, ShadowGenerator, SpotLight, StandardMaterial, Texture, Vector3, Sound, CubeTexture, Color3, SceneLoader } from "@babylonjs/core";
+import { ActionManager, ArcRotateCamera, Animation, HavokPlugin, HemisphericLight, InterpolateValueAction, KeyboardEventTypes, Mesh, MeshBuilder, ParticleSystem, PhysicsAggregate, PhysicsMotionType, PhysicsShapeType, Quaternion, Scene, SetValueAction, ShadowGenerator, SpotLight, StandardMaterial, Texture, Vector3, Sound, CubeTexture, Color3 } from "@babylonjs/core";
 import { Inspector } from '@babylonjs/inspector';
 import HavokPhysics from "@babylonjs/havok";
 
 import { AdvancedDynamicTexture, Rectangle, TextBlock } from "@babylonjs/gui";
 
 import Player from "../players/bowl";
-import Arena from "../arenas/pistCourse";
+import Arena from "../arenas/pistLutte";
 import Decors from "../arenas/decors";
 import WallCreator from "../managers/wallCreator";
 import ArrowsManager from "../managers/arrows";
@@ -14,11 +14,10 @@ import winSoundUrl from "../../assets/sounds/win.mp3"
 import decompteUrl from "../../assets/sounds/decompte.mp3"
 import decompteUrl2 from "../../assets/sounds/decompte2.mp3"
 import readyUrl from "../../assets/sounds/ready.mp3"
-import backgroundMusicUrl from "../../assets/sounds/musiqueRace.mp3";
-import Combat from "./combat";
+import backgroundMusicUrl from "../../assets/sounds/eyeTiger.mp3";
 
 
-class Game {
+class Combat {
     canStart = false;
     canStartDecompte = false
     #room;
@@ -70,14 +69,13 @@ class Game {
 
     async start() {
         await this.initGame()
-        this.animateCamera();
+        //this.animateCamera();
         this.gameLoop();
         this.endGame();
     }
 
     createScene() {
         const scene = new Scene(this.#engine);
-
         scene.collisionsEnabled = true;
 
         const hk = new HavokPlugin(true, this.#havokInstance);
@@ -120,10 +118,6 @@ class Game {
     async initGame() {
         this.#havokInstance = await this.getInitializedHavok();
         this.#gameScene = this.createScene();
-        SceneLoader.Append("https://www.babylonjs.com/Scenes/Espilit/",
-            "Espilit.incremental.babylon", this.#gameScene, function () {
-                console.log("load")
-            });
         this.#arena = new Arena(3, 10, 3, this.#gameScene);
         await this.#arena.init();
         //this.#arena.zoneSable.isVisible = false;
@@ -134,10 +128,63 @@ class Game {
         console.log(this.#room);
         this.createElapsedTimeText();
         this.createStartButton();
-        this.initializePlayerEntities()
+
+        this.#room.state.players.onAdd((player, sessionId) => {
+
+            const isCurrentPlayer = (sessionId === this.#room.sessionId);
+            const { x, y, z, idCountryFlag, pseudo } = player;
+
+            // Créer un joueur
+
+            const newPlayer = new Player(x, y, z, this.#gameScene, this.#arena, pseudo, this.#gameType, idCountryFlag);
+            newPlayer.init();
+
+            this.#playerEntities[sessionId] = newPlayer;
 
 
-        this.setupNetworkHandlers();
+            if (isCurrentPlayer) {
+                this.#player = newPlayer;
+
+            }
+            //console.log(this.#playerEntities[sessionId])
+
+
+
+        });
+
+
+        //console.log(this.#playerNextPosition[this.#room.sessionId])
+        this.#room.onMessage("removePlayer", (message) => {
+            const playerId = message.sessionId;
+            const playerEntity = this.#playerEntities[playerId];
+            if (playerEntity) {
+                playerEntity.removeFromScene();
+                delete this.#playerEntities[playerId];
+            }
+        });
+        this.#room.onMessage("updatePlayerMove", (message) => {
+            const playerId = message.sessionId;
+            const playerEntity = this.#playerEntities[playerId];
+            if (playerId !== this.#room.sessionId && playerEntity) {
+                playerEntity.updateMoveVelo(message);
+
+                //console.log(message);
+
+            }
+        });
+        this.#room.onMessage("allPlayersReady", (message) => {
+            console.log(message)
+            this.isAllPlayerReady = true;
+            this.startCountdown();
+        });
+        this.#room.onMessage("finalResults", (message) => {
+            console.log(message);
+            console.log(this.#playerEntities)
+            this.createFinalResultsUI(message);
+
+        })
+
+
 
         this.#player2 = new Player(10, 13, 3, this.#gameScene, this.#arena, "", this.#gameType, 5);
         await this.#player2.init();
@@ -145,10 +192,10 @@ class Game {
 
         this.#gameScene.activeCamera = this.#player.camera;
         this.#gameScene.activeCamera.attachControl(this.#canvas, true);
-        this.#parcourManage = new WallCreator(this.#gameScene);
+        /*this.#parcourManage = new WallCreator(this.#gameScene);
         this.#parcourManage.createSquareDetection(this.#player.gameObject);
         this.#arrows = new ArrowsManager(this.#gameScene, this.#player);
-        await this.#arrows.createArrows();
+        await this.#arrows.createArrows();*/
 
 
         this.#shadowGenerator.addShadowCaster(this.#playerEntities[this.#room.sessionId].gameObject, true);
@@ -198,45 +245,38 @@ class Game {
         const divFps = document.getElementById("fps");
 
         this.#engine.runRenderLoop(() => {
-            if (this.#gameScene) {
-                if (this.canStart && !this.#parcourManage.isEnd) {
-                    this.updateElapsedTime();
-                }
-                else if (this.#parcourManage.isEnd && !this.chronoSended) {
-                    this.#backgroundMusic.stop()
-                    this.#room.send("sendChrono", { chrono: this.elapsedTime });
-                    this.chronoSended = true;
-                    if (this.#winSound.isReady()) {
-                        this.#winSound.play();
-                    }
 
-                }
-                this.updateGame();
-
-
-
-
-                //Debug
-                if (this.actions["KeyI"]) {
-                    this.#bInspector = !this.#bInspector;
-
-                    if (this.#bInspector)
-                        Inspector.Show();
-                    else
-                        Inspector.Hide();
-                }
-
-                this.actions = {};
-                divFps.innerHTML = this.#engine.getFps().toFixed() + " fps";
-                this.#gameScene.render();
+            if (this.canStart && !this.isEnd) {
+                this.updateElapsedTime();
             }
-        });
-        this.#gameScene.onDispose = function () {
-            this.#engine.stopRenderLoop();
-            const combat = new Combat(this.#canvas, this.#engine, this.#room);
-            combat.start();
+            else if (this.isEnd && !this.chronoSended) {
+                this.#backgroundMusic.stop()
+                this.#room.send("sendChrono", { chrono: this.elapsedTime });
+                this.chronoSended = true;
+                if (this.#winSound.isReady()) {
+                    this.#winSound.play();
+                }
 
-        };
+            }
+            this.updateGame();
+
+
+
+
+            //Debug
+            if (this.actions["KeyI"]) {
+                this.#bInspector = !this.#bInspector;
+
+                if (this.#bInspector)
+                    Inspector.Show();
+                else
+                    Inspector.Hide();
+            }
+
+            this.actions = {};
+            divFps.innerHTML = this.#engine.getFps().toFixed() + " fps";
+            this.#gameScene.render();
+        });
     }
 
     updateGame() {
@@ -476,94 +516,10 @@ class Game {
 
         resultsRectangle.addControl(resultsText);
         advancedTexture.addControl(resultsRectangle);
-        this.delay(5000);
-        setTimeout(() => {
-            this.dispose();
-        }, 5000);
-
     }
 
-    dispose() {
-        if (this.#gameScene) {
-            this.#gameScene.dispose();
-            this.#gameScene = null;
-        }
 
-        if (this.#havokInstance) {
-            this.#havokInstance = null; // Havok dispose automatiquement ses ressources lorsqu'elles ne sont plus référencées
-        }
-
-        // Dispose other resources if necessary
-        this.#playerEntities = {};
-        this.#player = null;
-        this.#player2 = null;
-        this.#arena = null;
-        this.#decors = null;
-        this.#parcourManage = null;
-        this.#arrows = null;
-
-        if (this.#backgroundMusic) {
-            this.#backgroundMusic.stop();
-            this.#backgroundMusic.dispose();
-            this.#backgroundMusic = null;
-        }
-    }
-    setupNetworkHandlers() {
-        this.#room.onMessage("removePlayer", (message) => {
-            const playerId = message.sessionId;
-            const playerEntity = this.#playerEntities[playerId];
-            if (playerEntity) {
-                playerEntity.removeFromScene();
-                delete this.#playerEntities[playerId];
-            }
-        });
-
-        this.#room.onMessage("updatePlayerMove", (message) => {
-            const playerId = message.sessionId;
-            const playerEntity = this.#playerEntities[playerId];
-            if (playerId !== this.#room.sessionId && playerEntity) {
-                playerEntity.updateMoveVelo(message);
-            }
-        });
-
-        this.#room.onMessage("allPlayersReady", (message) => {
-            console.log(message);
-            this.isAllPlayerReady = true;
-            this.startCountdown();
-        });
-
-        this.#room.onMessage("finalResults", (message) => {
-            console.log(message);
-            console.log(this.#playerEntities);
-            this.createFinalResultsUI(message);
-        });
-    }
-
-    initializePlayerEntities() {
-        this.#room.state.players.onAdd((player, sessionId) => {
-
-            const isCurrentPlayer = (sessionId === this.#room.sessionId);
-            const { x, y, z, idCountryFlag, pseudo } = player;
-
-            // Créer un joueur
-
-            const newPlayer = new Player(x, y, z, this.#gameScene, this.#arena, pseudo, this.#gameType, idCountryFlag);
-            newPlayer.init();
-
-            this.#playerEntities[sessionId] = newPlayer;
-
-
-            if (isCurrentPlayer) {
-                this.#player = newPlayer;
-
-            }
-            //console.log(this.#playerEntities[sessionId])
-
-
-
-        });
-    }
 
 }
 
-export default Game;
+export default Combat;

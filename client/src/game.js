@@ -1,6 +1,8 @@
 import { Engine } from "@babylonjs/core";
 
 import Game from "./gamesTypes/bowlRace";
+import Combat from "./gamesTypes/combat";
+import Football from "./gamesTypes/football";
 const Colyseus = require('colyseus.js');
 
 
@@ -51,16 +53,29 @@ babylonInit().then(() => {
         client.joinById(code, options).then(room => {
             const game = new Game(canvas, engine, room);
             game.start();
+
+
+            const combat = new Combat(canvas, engine, room);
+
+            combat.start();
+
+            /*const football = new Football(canvas, engine, room);
+            football.start();*/
+
         }).catch(e => {
             console.error("Erreur lors de la connexion à la salle", e);
         });
     } else {
         client.joinOrCreate(name, options).then(room => {
-            // Une fois la salle rejointe ou créée, créez une instance de l'objet Game en lui passant la salle.
             const game = new Game(canvas, engine, room);
-
-            // Démarrez le jeu.
             game.start();
+
+
+            /*const combat = new Combat(canvas, engine, room);
+            combat.start();*/
+
+            /*const football = new Football(canvas, engine, room);
+            football.start();*/
         }).catch(e => {
             // Gérez les erreurs de connexion à la salle.
             console.error("Erreur lors de la connexion à la salle", e);

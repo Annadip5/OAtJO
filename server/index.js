@@ -15,6 +15,22 @@ class MyRoom extends Room {
             { x: -5, y: 10, z: 28 },
             { x: -5, y: 10, z: 29.8 }
         ];
+        this.initialPositionsFootball = [
+            { x: -20, y: 10, z: -30 },
+            { x: -15, y: 10, z: -25 },
+            { x: 0, y: 10, z: 0 },
+            { x: 0, y: 10, z: 0 },
+            { x: 0, y: 10, z: 0 },
+            { x: 0, y: 10, z: 0 }
+        ];
+        this.initialPositionsLutte = [
+            { x: -10, y: 10, z: 0 },
+            { x: 0, y: 10, z: 0 },
+            { x: 0, y: 10, z: 0 },
+            { x: 0, y: 10, z: 0 },
+            { x: 0, y: 10, z: 0 },
+            { x: 0, y: 10, z: 0 }
+        ];
 
     }
     onCreate(options) {

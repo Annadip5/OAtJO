@@ -181,7 +181,7 @@ class Player {
 
     }
     async createCamera() {
-        this.camera = await new ArcRotateCamera("cameraJoueur", Math.PI / 2, Math.PI / 4, 20, this.gameObject.position.subtract(new Vector3(0, 3, -7)), this.scene);
+        this.camera = await new ArcRotateCamera("cameraJoueur", Math.PI / 2, Math.PI / 4, 20, this.transform.position.subtract(new Vector3(0, 3, 0)), this.scene);
         await this.reglageCamera(10, 50, 0.01, 1000);
         //this.reglageScene();
 
@@ -192,7 +192,7 @@ class Player {
         this.camera.wheelDeltaPercentage = wheelDeltaPercentage;
         this.camera.angularSensibility = angularSensibility;
 
-        this.camera.target = this.gameObject;
+        this.camera.target = this.transform;
     }
 
     async createLabel() {
@@ -253,11 +253,7 @@ class Player {
             //console.log(this.transform.position);
             //console.log(this.estAuSol(this.gameObject, this.arena.zoneSable, this.scene));
             //this.arena.setCollisionZones(this.gameObject)
-            if (this.arena.zoneSable.intersectsMesh(this.transform)) {
-                /*this.speedZ = 0;
-                this.speedX = 0;*/
-                //console.log("collision detected");
-            }
+
             this.speedZ = forwardDirection.z * RUNNING_SPEED;
             this.speedX = forwardDirection.x * RUNNING_SPEED;
             //console.log(currentVelocity.y);
