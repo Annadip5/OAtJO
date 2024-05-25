@@ -1,9 +1,11 @@
-import { ArcRotateCamera, Matrix, Mesh, MeshBuilder, Physics6DoFConstraint, PhysicsAggregate, PhysicsConstraintAxis, PhysicsMotionType, PhysicsShapeType, Quaternion, Ray, SceneLoader, StandardMaterial, Texture, TransformNode, Vector3 } from "@babylonjs/core";
+import { ArcRotateCamera, Matrix, Mesh, MeshBuilder, Physics6DoFConstraint, PhysicsAggregate, PhysicsConstraintAxis, PhysicsMotionType, PhysicsShapeType, Quaternion, Ray, SceneLoader, Sound, StandardMaterial, Texture, TransformNode, Vector3 } from "@babylonjs/core";
 
 //import girlModelUrl from "../assets/models/girl1.glb";
 //import Arena from "../arenas/pistCourse";
 import { AdvancedDynamicTexture } from "@babylonjs/gui/2D/advancedDynamicTexture";
 import { TextBlock } from "@babylonjs/gui/2D/controls/textBlock";
+import jumpSoundUrl from "../../assets/sounds/saut.mp3"
+
 const USE_FORCES = false;
 let RUNNING_SPEED = 14;
 let JUMP_IMPULSE = 6;
@@ -53,6 +55,8 @@ class Player {
 
     startTime = 0;
     elapsedTime = 0;
+
+    #jumpSound;
     constructor(x, y, z, scene, arena, pseudo, gameType, idCountryFlag, clientId) {
         this.clientId = clientId;
         this.scene = scene;
@@ -122,19 +126,14 @@ class Player {
 
     }
     async updatePseudo(pseudo) {
-        // Mettre à jour le pseudo
         this.pseudo = pseudo;
-
-        // Mettre à jour le texte de l'étiquette du pseudo
         if (this.label) {
             this.label.text = pseudo;
         }
     }
     async updateIdCountryFlag(idCountryFlag) {
-        // Mettre à jour l'ID du drapeau
         this.idCountryFlag = idCountryFlag;
 
-        // Mettre à jour la texture du mesh avec le nouveau drapeau
         if (this.gameObject) {
             const meshMaterial = new StandardMaterial("mesh");
             meshMaterial.diffuseTexture = new Texture("../assets/images/drapeaux/" + this.skins[this.idCountryFlag]);
@@ -159,12 +158,7 @@ class Player {
         this.capsuleAggregate = new PhysicsAggregate(this.transform, PhysicsShapeType.CAPSULE, { mass: 1, friction: 1, restitution: 0.2, inertia: 0 }, this.scene);
         this.capsuleAggregate.body.setMotionType(PhysicsMotionType.DYNAMIC);
 
-        //On bloque les rotations avec cette méthode, à vérifier.
-        /*  this.capsuleAggregate.body.setMassProperties({
-             inertia: new Vector3(0, 0, 0),
-             centerOfMass: new Vector3(0, PLAYER_HEIGHT / 2, 0),
-             mass: 1
-         }); */
+
         if (USE_FORCES) {
             this.capsuleAggregate.body.setLinearDamping(0.8);
             this.capsuleAggregate.body.setAngularDamping(10.0);
@@ -177,6 +171,8 @@ class Player {
 
 
         this.gameObject.parent = this.transform;
+        this.#jumpSound = new Sound("jump", jumpSoundUrl, this.scene)
+
         await this.createCamera();
         await this.createLabel();
 
@@ -196,7 +192,6 @@ class Player {
         this.camera.angularSensibility = angularSensibility;
 
         this.camera.target = this.gameObject;
-        //console.log(this.camera.target);
     }
 
     async createLabel() {
@@ -210,9 +205,7 @@ class Player {
         this.label.linkOffsetY = this.linkOffsetYlabel;
     }
 
-    //Pour le moment on passe les events clavier ici, on utilisera un InputManager plus tard
     update(inputMap, actions, delta, room) {
-        //this.arena.setCollisionZones(this.gameObject)
         let currentVelocity = this.capsuleAggregate.body.getLinearVelocity();
         const camera1 = this.camera;
         var forwardDirection = camera1.getForwardRay().direction;
@@ -291,6 +284,11 @@ class Player {
             if (actions["Space"] && this.gameObject.getAbsolutePosition().y < PLAYER_HEIGHT / 2 + 0.1) {
                 //Pas de delta ici, c'est une impulsion non dépendante du temps (pas d'ajout)
                 impulseY = JUMP_IMPULSE;
+                if (JUMP_IMPULSE == 6) {
+                    this.#jumpSound.play();
+
+                }
+
 
             }
             //Gravity 

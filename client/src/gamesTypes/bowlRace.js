@@ -13,6 +13,7 @@ import ArrowsManager from "../managers/arrows";
 import winSoundUrl from "../../assets/sounds/win.mp3"
 import decompteUrl from "../../assets/sounds/decompte.mp3"
 import decompteUrl2 from "../../assets/sounds/decompte2.mp3"
+import readyUrl from "../../assets/sounds/ready.mp3"
 
 
 class Game {
@@ -49,9 +50,10 @@ class Game {
     #arrows;
     chronoSended = false;
     //sounds
-    #win
+    #winSound
     #decompteSound
     #decompteSound2
+    #readySound
     constructor(canvas, engine, room) {
 
         this.#room = room
@@ -90,9 +92,10 @@ class Game {
         boxDebug.position = new Vector3(5, 15, 0);
         this.#shadowGenerator.addShadowCaster(boxDebug);
 
-        this.#win = new Sound("win", winSoundUrl, this.#gameScene)
-        this.#decompteSound = new Sound("decompte", decompteUrl, this.#gameScene)
-        this.#decompteSound2 = new Sound("decompte2", decompteUrl2, this.#gameScene)
+        this.#winSound = new Sound("win", winSoundUrl, this.#gameScene);
+        this.#decompteSound = new Sound("decompte", decompteUrl, this.#gameScene);
+        this.#decompteSound2 = new Sound("decompte2", decompteUrl2, this.#gameScene);
+        this.#readySound = new Sound("ready", readyUrl, this.#gameScene);
 
 
 
@@ -242,8 +245,8 @@ class Game {
             else if (this.#parcourManage.isEnd && !this.chronoSended) {
                 this.#room.send("sendChrono", { chrono: this.elapsedTime });
                 this.chronoSended = true;
-                if (this.#win.isReady()) {
-                    this.#win.play();
+                if (this.#winSound.isReady()) {
+                    this.#winSound.play();
                 }
 
             }
@@ -406,7 +409,7 @@ class Game {
         startButtonRect.horizontalAlignment = Rectangle.HORIZONTAL_ALIGNMENT_CENTER;
 
         const startButtonText = new TextBlock();
-        startButtonText.text = "PRET";
+        startButtonText.text = "READY";
         startButtonText.color = "white";
         startButtonText.fontSize = 30;
         startButtonText.verticalAlignment = TextBlock.VERTICAL_ALIGNMENT_CENTER;
@@ -420,6 +423,9 @@ class Game {
 
         startButtonRect.onPointerClickObservable.add(() => {
             this.#room.send("playerReady", {});
+            if (this.#readySound.isReady()) {
+                this.#readySound.play();
+            }
             startButtonRect.dispose()
         });
     }
