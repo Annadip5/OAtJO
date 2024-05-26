@@ -28,8 +28,9 @@ Besoins de 2 terminales
     npm run start
 ```
 
-### Jeux
-Jeux Olympiques 2024 à Paris
+### Jeux Multijoueurs
+Jeux Olympiques 2024 à Paris.
+Réalisé avec BabyloneJS, Colyseus (server), Blender.
 #### Race
 - Course avec parcours obligatoire et bonus, malus. 2 à 6 joueurs.
 #### Fight
