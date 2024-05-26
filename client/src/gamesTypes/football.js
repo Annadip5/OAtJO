@@ -7,8 +7,7 @@ import { AdvancedDynamicTexture, Rectangle, TextBlock } from "@babylonjs/gui";
 import Player from "../players/bowl";
 import Arena from "../arenas/pistFootball";
 import Decors from "../arenas/decors";
-import WallCreator from "../managers/wallCreator";
-import ArrowsManager from "../managers/arrows";
+
 
 import winSoundUrl from "../../assets/sounds/win.mp3"
 import decompteUrl from "../../assets/sounds/decompte.mp3"
@@ -129,61 +128,9 @@ class Football {
         this.createElapsedTimeText();
         this.createStartButton();
 
-        this.#room.state.players.onAdd((player, sessionId) => {
 
-            const isCurrentPlayer = (sessionId === this.#room.sessionId);
-            const { x, y, z, idCountryFlag, pseudo } = player;
-
-            // Créer un joueur
-
-            const newPlayer = new Player(x, y, z, this.#gameScene, this.#arena, pseudo, this.#gameType, idCountryFlag);
-            newPlayer.init();
-
-            this.#playerEntities[sessionId] = newPlayer;
-
-
-            if (isCurrentPlayer) {
-                this.#player = newPlayer;
-
-            }
-            //console.log(this.#playerEntities[sessionId])
-
-
-
-        });
-
-
-        //console.log(this.#playerNextPosition[this.#room.sessionId])
-        this.#room.onMessage("removePlayer", (message) => {
-            const playerId = message.sessionId;
-            const playerEntity = this.#playerEntities[playerId];
-            if (playerEntity) {
-                playerEntity.removeFromScene();
-                delete this.#playerEntities[playerId];
-            }
-        });
-        this.#room.onMessage("updatePlayerMove", (message) => {
-            const playerId = message.sessionId;
-            const playerEntity = this.#playerEntities[playerId];
-            if (playerId !== this.#room.sessionId && playerEntity) {
-                playerEntity.updateMoveVelo(message);
-
-                //console.log(message);
-
-            }
-        });
-        this.#room.onMessage("allPlayersReady", (message) => {
-            console.log(message)
-            this.isAllPlayerReady = true;
-            this.startCountdown();
-        });
-        this.#room.onMessage("finalResults", (message) => {
-            console.log(message);
-            console.log(this.#playerEntities)
-            this.createFinalResultsUI(message);
-
-        })
-
+        this.initializePlayerEntities();
+        this.setupNetworkHandlers();
 
 
         this.#player2 = new Player(10, 13, 3, this.#gameScene, this.#arena, "", this.#gameType, 5);
@@ -518,6 +465,61 @@ class Football {
         advancedTexture.addControl(resultsRectangle);
     }
 
+    setupNetworkHandlers() {
+        this.#room.onMessage("removePlayer", (message) => {
+            const playerId = message.sessionId;
+            const playerEntity = this.#playerEntities[playerId];
+            if (playerEntity) {
+                playerEntity.removeFromScene();
+                delete this.#playerEntities[playerId];
+            }
+        });
+
+        this.#room.onMessage("updatePlayerMove", (message) => {
+            const playerId = message.sessionId;
+            const playerEntity = this.#playerEntities[playerId];
+            if (playerId !== this.#room.sessionId && playerEntity) {
+                playerEntity.updateMoveVelo(message);
+            }
+        });
+
+        this.#room.onMessage("allPlayersReady", (message) => {
+            console.log(message);
+            this.isAllPlayerReady = true;
+            this.startCountdown();
+        });
+
+        this.#room.onMessage("finalResults", (message) => {
+            console.log(message);
+            console.log(this.#playerEntities);
+            this.createFinalResultsUI(message);
+        });
+    }
+
+    initializePlayerEntities() {
+        this.#room.state.players.onAdd((player, sessionId) => {
+
+            const isCurrentPlayer = (sessionId === this.#room.sessionId);
+            const { x, y, z, idCountryFlag, pseudo } = player;
+
+            // Créer un joueur
+
+            const newPlayer = new Player(x, y, z, this.#gameScene, this.#arena, pseudo, this.#gameType, idCountryFlag);
+            newPlayer.init();
+
+            this.#playerEntities[sessionId] = newPlayer;
+
+
+            if (isCurrentPlayer) {
+                this.#player = newPlayer;
+
+            }
+            //console.log(this.#playerEntities[sessionId])
+
+
+
+        });
+    }
 
 
 }

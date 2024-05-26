@@ -1,5 +1,6 @@
 import { DirectionalLight, SceneLoader, Vector3 } from "@babylonjs/core";
 import eiffelUrl from "../../assets/models/decors/toureiffel2.glb";
+import notreDamesUrl from "../../assets/models/decors/Notredame.glb"
 
 class Decors {
     constructor(scene) {
@@ -18,6 +19,16 @@ class Decors {
         this.gameObject.scaling = new Vector3(5, 5, 5);
         this.addDirectionalLight();
 
+    }
+    async initNotreDame() {
+        console.log("Initialisation du décor...");
+        const result = await SceneLoader.ImportMeshAsync("", "", notreDamesUrl, this.scene);
+        this.gameObject = result.meshes[0];
+        this.gameObject.name = "notreDame";
+        this.gameObject.setParent(null);
+        this.gameObject.position = new Vector3(-220, -20, -10);
+        this.gameObject.scaling = new Vector3(0.1, 0.1, 0.1);
+        this.addDirectionalLight();
     }
     addDirectionalLight() {
         this.light = new DirectionalLight("eiffelLight", new Vector3(0, -300, 0), this.scene);
