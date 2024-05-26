@@ -24,15 +24,50 @@
 
         #fps {
             position: absolute;
-            background-color: black;
-            border: 2px solid red;
-            text-align: center;
-            font-size: 16px;
+            background-color: rgba(0, 0, 0, 0.7);
             color: white;
-            top: 15px;
+            font-size: 14px;
+            padding: 5px 20px;
+            /* Ajustement de la largeur */
+            border-radius: 5px;
+            top: 10px;
             right: 10px;
-            width: 60px;
-            height: 20px;
+            z-index: 9999;
+            transition: opacity 0.3s ease;
+        }
+
+        #gameSelection {
+            position: absolute;
+            top: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            width: 100%;
+        }
+
+        .gameButton {
+            padding: 10px 20px;
+            font-size: 16px;
+            font-weight: bold;
+            color: white;
+            background-color: #be54ef;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: background-color 0.3s, transform 0.3s;
+        }
+
+        .gameButton:hover {
+            background-color: #bc85c3;
+            transform: translateY(-2px);
+        }
+
+        .gameButton:active {
+            background-color: #e7a4eb;
+            transform: translateY(2px);
         }
     </style>
 </head>
@@ -40,6 +75,11 @@
 <body>
     <canvas id="renderCanvas" touch-action="none"></canvas>
     <div id="fps">0</div>
+    <div id="gameSelection">
+        <button class="gameButton" id="raceButton">Course</button>
+        <button class="gameButton" id="combatButton">Combat</button>
+        <button class="gameButton" id="footballButton">Football</button>
+    </div>
 </body>
 
 </html>

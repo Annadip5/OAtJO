@@ -7,7 +7,8 @@ class MyRoom extends Room {
         super();
         this.players = {};
         this.readyPlayers = new Set();
-        this.initialPositions = [
+        this.initialPositions = [];
+        /*this.initialPositions = [
             { x: -5, y: 10, z: 20.8 },
             { x: -5, y: 10, z: 22.6 },
             { x: -5, y: 10, z: 24.4 },
@@ -30,13 +31,13 @@ class MyRoom extends Room {
             { x: 0, y: 10, z: 0 },
             { x: 0, y: 10, z: 0 },
             { x: 0, y: 10, z: 0 }
-        ];
+        ];*/
 
     }
     onCreate(options) {
         console.log("My room created!", options);
         this.setState(new MyRoomState)
-
+        this.setInitialPositions(options.name)
 
         this.onMessage("updateMovement", (client, data) => {
             //console.log("update move received -> ", client.sessionId);
@@ -158,10 +159,49 @@ class MyRoom extends Room {
     onDispose() {
         console.log("Room disposed!");
     }
+    setInitialPositions(data) {
+
+        switch (data) {
+            case "race_room":
+                this.initialPositions = [
+                    { x: -5, y: 10, z: 20.8 },
+                    { x: -5, y: 10, z: 22.6 },
+                    { x: -5, y: 10, z: 24.4 },
+                    { x: -5, y: 10, z: 26.2 },
+                    { x: -5, y: 10, z: 28 },
+                    { x: -5, y: 10, z: 29.8 }
+                ];
+                break;
+            case "football_room":
+                this.initialPositions = [
+                    { x: -20, y: 10, z: -30 },
+                    { x: -15, y: 10, z: -25 },
+                    { x: 0, y: 10, z: 0 },
+                    { x: 0, y: 10, z: 0 },
+                    { x: 0, y: 10, z: 0 },
+                    { x: 0, y: 10, z: 0 }
+                ];
+                break;
+            case "combat_room":
+                this.initialPositions = [
+                    { x: -10, y: 10, z: 0 },
+                    { x: 0, y: 10, z: 0 },
+                    { x: 0, y: 10, z: 0 },
+                    { x: 0, y: 10, z: 0 },
+                    { x: 0, y: 10, z: 0 },
+                    { x: 0, y: 10, z: 0 }
+                ];
+                break;
+            default:
+                console.error("Invalid game type");
+                break;
+        }
+    }
 }
 
 const server = new Server();
-server.define('my_room', MyRoom);
-
+server.define('race_room', MyRoom); // Salle pour le jeu de course
+server.define('combat_room', MyRoom); // Salle pour le jeu de combat
+server.define('football_room', MyRoom); // Salle pour le jeu de football
 server.listen(2567);
 console.log("Server started on port 2567");

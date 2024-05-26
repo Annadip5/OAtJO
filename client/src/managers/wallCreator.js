@@ -1,4 +1,4 @@
-import { ActionManager, Color3, DiscBuilder, ExecuteCodeAction, Mesh, MeshParticleEmitter, ParticleSystem, Sound, StandardMaterial, Texture, Vector3 } from "@babylonjs/core";
+import { ActionManager, Color3, DiscBuilder, ExecuteCodeAction, Mesh, MeshParticleEmitter, ParticleSystem, Sound, StandardMaterial, Texture, Vector3, SceneLoader, Color4 } from "@babylonjs/core";
 import { AdvancedDynamicTexture, TextBlock } from "@babylonjs/gui";
 import checkpointSoundUrl from "../../assets/sounds/checkpoint.mp3"
 
@@ -214,9 +214,12 @@ class WallCreator {
 
     }
     endParticle(playerSphere) {
+        console.log(playerSphere)
         this.particleSystem = new ParticleSystem("particles", 10000, this.scene);
-        this.particleSystem.particleTexture = new Texture("/textures/flare.png", this.scene);
+        //this.particleSystem.color = new Color4(Math.random(), Math.random(), Math.random(), 1)
 
+        this.particleSystem.particleTexture = new Texture("../assets/images/textures/confetti.jpg", this.scene);
+        //meshMaterial.diffuseTexture = new Texture("../assets/images/drapeaux/" + this.skins[this.idCountryFlag]);
         this.particleSystem.minSize = 0.05;
         this.particleSystem.maxSize = 0.1;
         var meshEmitter = new MeshParticleEmitter(playerSphere);
@@ -233,6 +236,27 @@ class WallCreator {
         this.particleSystem.updateSpeed = 1 / 60;
 
         this.particleSystem.start();
+    }
+    destroy() {
+        if (this.particleSystem) {
+            this.particleSystem.stop(); // Stop the particle system before disposing
+            this.particleSystem.dispose(); // Dispose the particle system
+        }
+        this.walls.forEach(wall => {
+            wall.dispose();
+        });
+        this.walls = [];
+        this.wallsToRemove.forEach(wall => {
+            wall.dispose();
+        });
+        this.wallsToRemove = [];
+        this.isRemovingWalls = false;
+        if (this.particleSystem) {
+            this.particleSystem.dispose();
+        }
+        if (this.checkpointSound) {
+            this.checkpointSound.dispose();
+        }
     }
 }
 

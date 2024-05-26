@@ -7,11 +7,7 @@ const Colyseus = require('colyseus.js');
 
 
 const client = new Colyseus.Client('ws://localhost:2567');
-/*await client.joinOrCreate("my_room", { name: "Race" }).then(room => {
-    console.log("joined successfully", room);
-}).catch(e => {
-    console.error("join error", e);
-});*/
+
 let canvas;
 let engine;
 
@@ -37,49 +33,64 @@ babylonInit().then(() => {
     const indice = parseInt(urlParams.get('indice'));
     const code = urlParams.get('code');
 
-    const options = {
-        name: "Race",
-        pseudo: pseudo,
-        type: type,
-        indice: indice
 
+    const startGame = (gameType) => {
+        let roomName;
+
+        switch (gameType) {
+            case 'race':
+                roomName = 'race_room';
+                break;
+            case 'combat':
+                roomName = 'combat_room';
+                break;
+            case 'football':
+                roomName = 'football_room';
+                break;
+            default:
+                console.error("Jeu non reconnu");
+                return;
+        }
+        const options = {
+            name: roomName,
+            pseudo: pseudo,
+            type: type,
+            indice: indice
+
+        };
+        client.joinOrCreate(roomName, options).then(room => {
+            let game;
+            switch (gameType) {
+                case 'race':
+                    game = new Game(canvas, engine, room);
+                    break;
+                case 'combat':
+                    game = new Combat(canvas, engine, room);
+                    break;
+                case 'football':
+                    game = new Football(canvas, engine, room);
+                    break;
+                default:
+                    console.error("Jeu non reconnu");
+                    return;
+            }
+            game.start();
+            document.getElementById('gameSelection').style.display = 'none';
+
+        }).catch(e => {
+            console.error("Erreur lors de la connexion à la salle", e);
+        });
     };
-    console.log(options)
-    let name;
 
-    name = "my_room";
+    document.getElementById("raceButton").addEventListener("click", () => {
+        startGame('race');
+    });
 
-    if (type === 'private' && code) {
-        client.joinById(code, options).then(room => {
-            const game = new Game(canvas, engine, room);
-            game.start();
+    document.getElementById("combatButton").addEventListener("click", () => {
+        startGame('combat');
+    });
 
-
-            const combat = new Combat(canvas, engine, room);
-
-            combat.start();
-
-            /*const football = new Football(canvas, engine, room);
-            football.start();*/
-
-        }).catch(e => {
-            console.error("Erreur lors de la connexion à la salle", e);
-        });
-    } else {
-        client.joinOrCreate(name, options).then(room => {
-            const game = new Game(canvas, engine, room);
-            game.start();
-
-
-            /*const combat = new Combat(canvas, engine, room);
-            combat.start();*/
-
-            /*const football = new Football(canvas, engine, room);
-            football.start();*/
-        }).catch(e => {
-            // Gérez les erreurs de connexion à la salle.
-            console.error("Erreur lors de la connexion à la salle", e);
-        });
-    }
+    document.getElementById("footballButton").addEventListener("click", () => {
+        startGame('football');
+    });
 });
-

@@ -197,7 +197,7 @@ class Combat {
         this.#arrows = new ArrowsManager(this.#gameScene, this.#player);
         await this.#arrows.createArrows();*/
 
-
+        console.log(this.#playerEntities)
         this.#shadowGenerator.addShadowCaster(this.#playerEntities[this.#room.sessionId].gameObject, true);
 
 

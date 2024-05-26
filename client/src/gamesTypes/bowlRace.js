@@ -120,7 +120,7 @@ class Game {
     async initGame() {
         this.#havokInstance = await this.getInitializedHavok();
         this.#gameScene = this.createScene();
-        SceneLoader.Append("https://www.babylonjs.com/Scenes/Espilit/",
+        SceneLoader.Append("",
             "Espilit.incremental.babylon", this.#gameScene, function () {
                 console.log("load")
             });
@@ -231,12 +231,7 @@ class Game {
                 this.#gameScene.render();
             }
         });
-        this.#gameScene.onDispose = function () {
-            this.#engine.stopRenderLoop();
-            const combat = new Combat(this.#canvas, this.#engine, this.#room);
-            combat.start();
 
-        };
     }
 
     updateGame() {
@@ -476,10 +471,6 @@ class Game {
 
         resultsRectangle.addControl(resultsText);
         advancedTexture.addControl(resultsRectangle);
-        this.delay(5000);
-        setTimeout(() => {
-            this.dispose();
-        }, 5000);
 
     }
 
@@ -499,6 +490,7 @@ class Game {
         this.#player2 = null;
         this.#arena = null;
         this.#decors = null;
+        this.#parcourManage.destroy();
         this.#parcourManage = null;
         this.#arrows = null;
 
@@ -507,6 +499,27 @@ class Game {
             this.#backgroundMusic.dispose();
             this.#backgroundMusic = null;
         }
+        if (this.#winSound) {
+            this.#winSound.stop();
+            this.#winSound.dispose();
+            this.#winSound = null;
+        }
+        if (this.#decompteSound) {
+            this.#decompteSound.stop();
+            this.#decompteSound.dispose();
+            this.#decompteSound = null;
+        }
+        if (this.#decompteSound2) {
+            this.#decompteSound2.stop();
+            this.#decompteSound2.dispose();
+            this.#decompteSound2 = null;
+        }
+        if (this.#readySound) {
+            this.#readySound.stop();
+            this.#readySound.dispose();
+            this.#readySound = null;
+        }
+
     }
     setupNetworkHandlers() {
         this.#room.onMessage("removePlayer", (message) => {
