@@ -73,8 +73,7 @@ class Player {
         this.transform.visibility = 0.0;
         this.transform.position = new Vector3(this.x, this.y, this.z);
         this.color = color || "";
-        console.log(color)
-        console.log(this.color)
+
         if (USE_FORCES) {
             RUNNING_SPEED += 2;
         }
@@ -145,7 +144,6 @@ class Player {
             this.gameObject.material = meshMaterial;
             var hl = new HighlightLayer("hl1", this.scene);
             hl.addMesh(this.gameObject, Color3.Green());
-            console.log(hl)
         }
     }
 
@@ -163,16 +161,11 @@ class Player {
         this.gameObject.bakeCurrentTransformIntoVertices();
         this.gameObject.checkCollisions = true;
         var hl = new HighlightLayer("hl1", this.scene);
-        console.log("-----")
-        console.log(this.color)
         if (this.color == "blue") {
-            console.log("blue hl")
             hl.addMesh(this.gameObject, Color3.Blue());
-            console.log(hl)
         }
         else if (this.color == "red") {
             hl.addMesh(this.gameObject, Color3.Red());
-            console.log(hl)
         }
 
         this.capsuleAggregate = new PhysicsAggregate(this.transform, PhysicsShapeType.CAPSULE, { mass: 1, friction: 1, restitution: 0.2, inertia: 0 }, this.scene);
@@ -200,7 +193,13 @@ class Player {
 
     }
     async createCamera() {
-        this.camera = await new ArcRotateCamera("cameraJoueur", Math.PI / 2, Math.PI / 4, 20, this.transform.position.subtract(new Vector3(0, 3, 0)), this.scene);
+        if (this.color == "white") {
+            this.camera = await new ArcRotateCamera("cameraJoueur", Math.PI / 2, Math.PI / 4, 20, this.gameObject.position.subtract(new Vector3(0, 3, 0)), this.scene);
+
+        }
+        else {
+            this.camera = await new ArcRotateCamera("cameraJoueur", Math.PI / 2, Math.PI / 4, 20, this.transform.position.subtract(new Vector3(0, 3, 0)), this.scene);
+        }
         await this.reglageCamera(10, 50, 0.01, 1000);
         //this.reglageScene();
 
@@ -210,8 +209,12 @@ class Player {
         this.camera.upperRadiusLimit = upperRadiusLimit;
         this.camera.wheelDeltaPercentage = wheelDeltaPercentage;
         this.camera.angularSensibility = angularSensibility;
+        if (this.color == "white") {
+            this.camera.target = this.gameObject;
 
-        this.camera.target = this.transform;
+        } else {
+            this.camera.target = this.transform;
+        }
     }
 
     async createLabel() {
@@ -236,13 +239,11 @@ class Player {
                 this.isSoundPlay = false;
 
                 sound.stop()
-                console.log(this.isSoundPlay);
             }
             else {
                 this.isSoundPlay = true;
 
                 sound.play();
-                console.log(this.isSoundPlay);
 
             }
         }
@@ -268,14 +269,9 @@ class Player {
 
         //z
         if (inputMap["KeyW"]) {
-            //this.speedZ = -RUNNING_SPEED;
-            //console.log(this.transform.position);
-            //console.log(this.estAuSol(this.gameObject, this.arena.zoneSable, this.scene));
-            //this.arena.setCollisionZones(this.gameObject)
 
             this.speedZ = forwardDirection.z * RUNNING_SPEED;
             this.speedX = forwardDirection.x * RUNNING_SPEED;
-            //console.log(currentVelocity.y);
 
 
 
@@ -302,9 +298,7 @@ class Player {
                 this.speedZ += (-12.0 * this.speedZ * delta);
         }
         if (USE_FORCES) {
-            //console.log(currentVelocity.y);
             if (actions["Space"] && currentVelocity.y == 0) {
-                //Pas de delta ici, c'est une impulsion non dépendante du temps (pas d'ajout)
                 this.capsuleAggregate.body.applyImpulse(new Vector3(0, JUMP_IMPULSE, 0), new Vector3(0, 0, 0));
 
             }
@@ -374,13 +368,9 @@ class Player {
 
 
     estAuSol(sphereMesh, groundMesh, scene) {
-        //console.log(groundMesh);
         var ray = new Ray(sphereMesh.position, new Vector3(0, -1, 0));
 
         var pickInfo = scene.pickWithRay(ray, function (mesh) { return mesh === groundMesh; });
-        /* console.log(pickInfo);
-         console.log(pickInfo.distance);
-         console.log(pickInfo.distance <= sphereMesh.scaling.y);*/
 
         if (/*pickInfo.hit && */pickInfo.distance <= sphereMesh.scaling.y) {
             return true;

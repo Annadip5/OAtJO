@@ -506,7 +506,7 @@ class Combat {
 
             // Créer un joueur
 
-            const newPlayer = new Player(x, y, z, this.#gameScene, this.#arena, pseudo, this.#gameType, idCountryFlag);
+            const newPlayer = new Player(x, y, z, this.#gameScene, this.#arena, pseudo, this.#gameType, idCountryFlag, sessionId);
             newPlayer.init();
 
             this.#playerEntities[sessionId] = newPlayer;

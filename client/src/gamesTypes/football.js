@@ -105,7 +105,9 @@ class Football {
             volume: 0.5
         });
 
-
+        this.createFootball(scene);
+        this.createDetectionSquareRed();
+        this.createDetectionSquareBlue();
         return scene;
     }
 
@@ -520,6 +522,51 @@ class Football {
 
         });
     }
+    createFootball(scene) {
+        // Crée la balle
+        const ball = MeshBuilder.CreateSphere("football", { diameter: 3 }, scene);
+        ball.position = new Vector3(-15, 1, -21); // Position initiale de la balle
+
+        // Matériau de la balle
+        const ballMaterial = new StandardMaterial("footballMaterial", scene);
+        ballMaterial.diffuseTexture = new Texture("../assets/images/anneaux-4.png", scene);
+        ball.material = ballMaterial;
+
+        // Ajouter des ombres à la balle
+        this.#shadowGenerator.addShadowCaster(ball);
+
+        // Ajoute des propriétés physiques à la balle
+        const ballAggregate = new PhysicsAggregate(ball, PhysicsShapeType.SPHERE, { mass: 1 }, scene);
+
+        return ball;
+    }
+    createDetectionSquareBlue() {
+        const rectangle = MeshBuilder.CreatePlane("goalBlue", { width: 6, height: 2 }, this.scene);
+        rectangle.position = new Vector3(-15.4, 0.2, -36);
+        rectangle.rotation = new Vector3(Math.PI / 2, 0, 0);
+
+        const material = new StandardMaterial("detectionRectangleMaterialBlue", this.scene);
+        material.diffuseColor = new Color3(0, 0, 1); // bleu
+        material.alpha = 0.5;
+
+        rectangle.material = material;
+
+        rectangle.isPickable = true;
+    }
+    createDetectionSquareRed() {
+        const rectangle = MeshBuilder.CreatePlane("goalRed", { width: 6, height: 2 }, this.scene);
+        rectangle.position = new Vector3(-15.4, 0.2, -4.2);
+        rectangle.rotation = new Vector3(Math.PI / 2, 0, 0);
+
+        const material = new StandardMaterial("detectionRectangleMaterialRed", this.scene);
+        material.diffuseColor = new Color3(1, 0, 0); // rouge
+        material.alpha = 0.5;
+
+        rectangle.material = material;
+
+        rectangle.isPickable = true;
+    }
+
 
 
 }
