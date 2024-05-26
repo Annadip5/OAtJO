@@ -30,12 +30,11 @@ Besoins de 2 terminales
 
 ### Jeux
 Jeux Olympiques 2024 à Paris
-#### Parties possibles
-##### Race
+#### Race
 Course avec parcours obligatoire et bonus, malus. 2 à 6 joueurs.
-##### Fight
+#### Fight
 Combat entre les spheres. Attention a ne pas tomber de la piste. 2 à 6 joueurs.
-##### Football
+#### Football
 Marquer 5 buts dans le camp adverse. 2 à 6 joueurs, 2 équipes Bleus VS Rouges.
 #### Monuments
 - Tour Eiffel
