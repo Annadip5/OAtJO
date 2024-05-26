@@ -1,4 +1,4 @@
-import { ArcRotateCamera, Matrix, Mesh, MeshBuilder, Physics6DoFConstraint, PhysicsAggregate, PhysicsConstraintAxis, PhysicsMotionType, PhysicsShapeType, Quaternion, Ray, SceneLoader, Sound, StandardMaterial, Texture, TransformNode, Vector3 } from "@babylonjs/core";
+import { ArcRotateCamera, Color3, HighlightLayer, Matrix, Mesh, MeshBuilder, Physics6DoFConstraint, PhysicsAggregate, PhysicsConstraintAxis, PhysicsMotionType, PhysicsShapeType, Quaternion, Ray, SceneLoader, Sound, StandardMaterial, Texture, TransformNode, Vector3 } from "@babylonjs/core";
 
 //import girlModelUrl from "../assets/models/girl1.glb";
 //import Arena from "../arenas/pistCourse";
@@ -58,7 +58,8 @@ class Player {
     elapsedTime = 0;
 
     #jumpSound;
-    constructor(x, y, z, scene, arena, pseudo, gameType, idCountryFlag, clientId) {
+    color = ""
+    constructor(x, y, z, scene, arena, pseudo, gameType, idCountryFlag, clientId, color) {
         this.clientId = clientId;
         this.scene = scene;
         this.pseudo = pseudo;
@@ -71,6 +72,9 @@ class Player {
         this.transform = new MeshBuilder.CreateCapsule("player", { height: PLAYER_HEIGHT, radius: PLAYER_RADIUS }, this.scene);
         this.transform.visibility = 0.0;
         this.transform.position = new Vector3(this.x, this.y, this.z);
+        this.color = color || "";
+        console.log(color)
+        console.log(this.color)
         if (USE_FORCES) {
             RUNNING_SPEED += 2;
         }
@@ -139,6 +143,9 @@ class Player {
             const meshMaterial = new StandardMaterial("mesh");
             meshMaterial.diffuseTexture = new Texture("../assets/images/drapeaux/" + this.skins[this.idCountryFlag]);
             this.gameObject.material = meshMaterial;
+            var hl = new HighlightLayer("hl1", this.scene);
+            hl.addMesh(this.gameObject, Color3.Green());
+            console.log(hl)
         }
     }
 
@@ -155,6 +162,18 @@ class Player {
         this.gameObject.rotate(Vector3.UpReadOnly, Math.PI);
         this.gameObject.bakeCurrentTransformIntoVertices();
         this.gameObject.checkCollisions = true;
+        var hl = new HighlightLayer("hl1", this.scene);
+        console.log("-----")
+        console.log(this.color)
+        if (this.color == "blue") {
+            console.log("blue hl")
+            hl.addMesh(this.gameObject, Color3.Blue());
+            console.log(hl)
+        }
+        else if (this.color == "red") {
+            hl.addMesh(this.gameObject, Color3.Red());
+            console.log(hl)
+        }
 
         this.capsuleAggregate = new PhysicsAggregate(this.transform, PhysicsShapeType.CAPSULE, { mass: 1, friction: 1, restitution: 0.2, inertia: 0 }, this.scene);
         this.capsuleAggregate.body.setMotionType(PhysicsMotionType.DYNAMIC);

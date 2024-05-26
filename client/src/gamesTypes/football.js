@@ -121,7 +121,7 @@ class Football {
         await this.#arena.init();
         //this.#arena.zoneSable.isVisible = false;
         this.#decors = new Decors(this.#gameScene)
-        await this.#decors.init();
+        await this.#decors.initArcTriomphe();
 
 
         console.log(this.#room);
@@ -500,11 +500,11 @@ class Football {
         this.#room.state.players.onAdd((player, sessionId) => {
 
             const isCurrentPlayer = (sessionId === this.#room.sessionId);
-            const { x, y, z, idCountryFlag, pseudo } = player;
-
+            const { x, y, z, idCountryFlag, pseudo, color } = player;
+            console.log(color)
             // Créer un joueur
 
-            const newPlayer = new Player(x, y, z, this.#gameScene, this.#arena, pseudo, this.#gameType, idCountryFlag);
+            const newPlayer = new Player(x, y, z, this.#gameScene, this.#arena, pseudo, this.#gameType, idCountryFlag, sessionId, color);
             newPlayer.init();
 
             this.#playerEntities[sessionId] = newPlayer;

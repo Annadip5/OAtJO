@@ -1,6 +1,7 @@
 import { DirectionalLight, SceneLoader, Vector3 } from "@babylonjs/core";
 import eiffelUrl from "../../assets/models/decors/toureiffel2.glb";
-import notreDamesUrl from "../../assets/models/decors/Notredame.glb"
+import notreDamesUrl from "../../assets/models/decors/Notredame.glb";
+import arcTriompheUrl from "../../assets/models/decors/ArcTriomphe.glb";
 
 class Decors {
     constructor(scene) {
@@ -28,6 +29,16 @@ class Decors {
         this.gameObject.setParent(null);
         this.gameObject.position = new Vector3(-220, -20, -10);
         this.gameObject.scaling = new Vector3(0.1, 0.1, 0.1);
+        this.addDirectionalLight();
+    }
+    async initArcTriomphe() {
+        console.log("Initialisation du décor...");
+        const result = await SceneLoader.ImportMeshAsync("", "", arcTriompheUrl, this.scene);
+        this.gameObject = result.meshes[0];
+        this.gameObject.name = "arcTriomphe";
+        this.gameObject.setParent(null);
+        this.gameObject.position = new Vector3(-70, -10, -20);
+        this.gameObject.scaling = new Vector3(2, 2, 2);
         this.addDirectionalLight();
     }
     addDirectionalLight() {

@@ -65,26 +65,7 @@ class Arena {
 
         zoneMat.diffuseColor = Color3.Gray;
         this.zoneSable.material = zoneMat;
-        /*let zoneMat2 = new StandardMaterial("zonePiste", this.scene);
-        zoneMat2.diffuseColor = Color3.Blue;
-        this.zonePiste.material = zoneMat2;*/
 
-        /*
-        this.#zoneA = MeshBuilder.CreateBox("zoneA", { width: 8, height: 0.2, depth: 8 }, scene);
-        let zoneMat = new StandardMaterial("zoneA", scene);
-        zoneMat.diffuseColor = Color3.Red();
-        zoneMat.alpha = 0.5;
-        this.#zoneA.material = zoneMat;
-        this.#zoneA.position = new Vector3(12, 0.1, 12);
-
-
-        this.#zoneB = MeshBuilder.CreateBox("zoneB", { width: 8, height: 0.2, depth: 8 }, scene);
-        let zoneMatB = new StandardMaterial("zoneB", scene);
-        zoneMatB.diffuseColor = Color3.Green();
-        zoneMatB.alpha = 0.5;
-        this.#zoneB.material = zoneMatB;
-        this.#zoneB.position = new Vector3(-12, 0.1, -12);
-        */
     }
 
     setCollisionZones(playerMesh) {

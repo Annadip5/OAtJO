@@ -475,10 +475,7 @@ class Game {
     }
 
     dispose() {
-        if (this.#gameScene) {
-            this.#gameScene.dispose();
-            this.#gameScene = null;
-        }
+
 
         if (this.#havokInstance) {
             this.#havokInstance = null; // Havok dispose automatiquement ses ressources lorsqu'elles ne sont plus référencées
@@ -519,6 +516,11 @@ class Game {
             this.#readySound.dispose();
             this.#readySound = null;
         }
+        if (this.#gameScene) {
+            this.#gameScene.dispose();
+            this.#gameScene = null;
+        }
+        this.#engine.dispose()
 
     }
     setupNetworkHandlers() {

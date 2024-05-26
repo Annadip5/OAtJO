@@ -25,6 +25,8 @@ class Player extends Schema {
         this.isCollider = false;
         this.finishChrono = 0;
 
+        this.color = "";
+
     }
 }
 type("string")(Player.prototype, "sessionId");
@@ -35,6 +37,8 @@ type("string")(Player.prototype, "pseudo");
 type("number")(Player.prototype, "idCountryFlag");
 type("boolean")(Player.prototype, "isCollided");
 type("boolean")(Player.prototype, "isCollider");
+type("string")(Player.prototype, "color");
+
 
 class MyRoomState extends Schema {
     constructor() {

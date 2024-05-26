@@ -14,9 +14,9 @@ let engine;
 const babylonInit = async () => {
 
     canvas = document.getElementById("renderCanvas");
-    engine = new Engine(canvas, false, {
+    engine = new Engine(canvas, true, {
         adaptToDeviceRatio: true,
-    });
+    }, { stencil: true });
 
     window.addEventListener("resize", function () {
         engine.resize();

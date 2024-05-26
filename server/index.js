@@ -106,6 +106,12 @@ class MyRoom extends Room {
             player.pseudo = pseudo;
             player.idCountryFlag = indice;
             player.type = type;
+            if (playerIndex % 2 == 0) {
+                player.color = "blue"
+            }
+            else {
+                player.color = "red"
+            }
 
 
             this.state.players.set(client.sessionId, player);
