@@ -174,22 +174,22 @@ class MyRoom extends Room {
                 break;
             case "football_room":
                 this.initialPositions = [
-                    { x: -20, y: 10, z: -30 },
-                    { x: -15, y: 10, z: -25 },
-                    { x: 0, y: 10, z: 0 },
-                    { x: 0, y: 10, z: 0 },
-                    { x: 0, y: 10, z: 0 },
-                    { x: 0, y: 10, z: 0 }
+                    { x: -20, y: 2, z: -30 },
+                    { x: -14, y: 2, z: -10 },
+                    { x: -18, y: 2, z: -28 },
+                    { x: -15, y: 2, z: -11 },
+                    { x: -16, y: 2, z: -25 },
+                    { x: -13, y: 2, z: -12 }
                 ];
                 break;
             case "combat_room":
                 this.initialPositions = [
-                    { x: -10, y: 10, z: 0 },
-                    { x: 0, y: 10, z: 0 },
-                    { x: 0, y: 10, z: 0 },
-                    { x: 0, y: 10, z: 0 },
-                    { x: 0, y: 10, z: 0 },
-                    { x: 0, y: 10, z: 0 }
+                    { x: -3, y: 10, z: 0 },
+                    { x: -2, y: 10, z: -2 },
+                    { x: 0, y: 10, z: -4 },
+                    { x: 2, y: 10, z: 2 },
+                    { x: 5, y: 10, z: 0 },
+                    { x: 3, y: 10, z: -4 }
                 ];
                 break;
             default:
