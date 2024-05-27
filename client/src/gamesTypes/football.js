@@ -195,7 +195,7 @@ class Football {
         const divFps = document.getElementById("fps");
 
         this.#engine.runRenderLoop(() => {
-            if (this.elapsedTime > 60) {
+            if (this.elapsedTime > 59) {
                 this.isEnd = true;
                 console.log(this.isEnd)
             }
