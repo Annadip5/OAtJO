@@ -1,4 +1,4 @@
-import { ActionManager, ArcRotateCamera, Animation, HavokPlugin, HemisphericLight, InterpolateValueAction, KeyboardEventTypes, Mesh, MeshBuilder, ParticleSystem, PhysicsAggregate, PhysicsMotionType, PhysicsShapeType, Quaternion, Scene, SetValueAction, ShadowGenerator, SpotLight, StandardMaterial, Texture, Vector3, Sound, CubeTexture, Color3 } from "@babylonjs/core";
+import { ActionManager, ArcRotateCamera, Animation, HavokPlugin, HemisphericLight, InterpolateValueAction, KeyboardEventTypes, Mesh, MeshBuilder, ParticleSystem, PhysicsAggregate, PhysicsMotionType, PhysicsShapeType, Quaternion, Scene, SetValueAction, ShadowGenerator, SpotLight, StandardMaterial, Texture, Vector3, Sound, CubeTexture, Color3, ExecuteCodeAction } from "@babylonjs/core";
 import { Inspector } from '@babylonjs/inspector';
 import HavokPhysics from "@babylonjs/havok";
 
@@ -7,6 +7,7 @@ import { AdvancedDynamicTexture, Rectangle, TextBlock } from "@babylonjs/gui";
 import Player from "../players/bowl";
 import Arena from "../arenas/pistFootball";
 import Decors from "../arenas/decors";
+import Ball from "../players/ball";
 
 
 import winSoundUrl from "../../assets/sounds/win.mp3"
@@ -17,6 +18,9 @@ import backgroundMusicUrl from "../../assets/sounds/avinci.mp3";
 
 
 class Football {
+    scoreRed = 0;
+    scoreBlue = 0;
+    ballFoot = null;
     canStart = false;
     canStartDecompte = false
     #room;
@@ -105,9 +109,6 @@ class Football {
             volume: 0.5
         });
 
-        this.createFootball(scene);
-        this.createDetectionSquareRed();
-        this.createDetectionSquareBlue();
         return scene;
     }
 
@@ -141,17 +142,17 @@ class Football {
 
         this.#gameScene.activeCamera = this.#player.camera;
         this.#gameScene.activeCamera.attachControl(this.#canvas, true);
-        /*this.#parcourManage = new WallCreator(this.#gameScene);
-        this.#parcourManage.createSquareDetection(this.#player.gameObject);
-        this.#arrows = new ArrowsManager(this.#gameScene, this.#player);
-        await this.#arrows.createArrows();*/
-
 
         this.#shadowGenerator.addShadowCaster(this.#playerEntities[this.#room.sessionId].gameObject, true);
 
 
 
         this.initInput();
+        this.ballFoot = new Ball(this.#gameScene);
+        this.ballFoot.init();
+        this.ballFoot.createScoreText();
+        this.ballFoot.updateScoreText();
+
 
 
     }
@@ -194,6 +195,10 @@ class Football {
         const divFps = document.getElementById("fps");
 
         this.#engine.runRenderLoop(() => {
+            if (this.elapsedTime > 60) {
+                this.isEnd = true;
+                console.log(this.isEnd)
+            }
 
             if (this.canStart && !this.isEnd) {
                 this.updateElapsedTime();
@@ -522,51 +527,6 @@ class Football {
 
         });
     }
-    createFootball(scene) {
-        // Crée la balle
-        const ball = MeshBuilder.CreateSphere("football", { diameter: 3 }, scene);
-        ball.position = new Vector3(-15, 1, -21); // Position initiale de la balle
-
-        // Matériau de la balle
-        const ballMaterial = new StandardMaterial("footballMaterial", scene);
-        ballMaterial.diffuseTexture = new Texture("../assets/images/anneaux-4.png", scene);
-        ball.material = ballMaterial;
-
-        // Ajouter des ombres à la balle
-        this.#shadowGenerator.addShadowCaster(ball);
-
-        // Ajoute des propriétés physiques à la balle
-        const ballAggregate = new PhysicsAggregate(ball, PhysicsShapeType.SPHERE, { mass: 1 }, scene);
-
-        return ball;
-    }
-    createDetectionSquareBlue() {
-        const rectangle = MeshBuilder.CreatePlane("goalBlue", { width: 6, height: 2 }, this.scene);
-        rectangle.position = new Vector3(-15.4, 0.2, -36);
-        rectangle.rotation = new Vector3(Math.PI / 2, 0, 0);
-
-        const material = new StandardMaterial("detectionRectangleMaterialBlue", this.scene);
-        material.diffuseColor = new Color3(0, 0, 1); // bleu
-        material.alpha = 0.5;
-
-        rectangle.material = material;
-
-        rectangle.isPickable = true;
-    }
-    createDetectionSquareRed() {
-        const rectangle = MeshBuilder.CreatePlane("goalRed", { width: 6, height: 2 }, this.scene);
-        rectangle.position = new Vector3(-15.4, 0.2, -4.2);
-        rectangle.rotation = new Vector3(Math.PI / 2, 0, 0);
-
-        const material = new StandardMaterial("detectionRectangleMaterialRed", this.scene);
-        material.diffuseColor = new Color3(1, 0, 0); // rouge
-        material.alpha = 0.5;
-
-        rectangle.material = material;
-
-        rectangle.isPickable = true;
-    }
-
 
 
 }

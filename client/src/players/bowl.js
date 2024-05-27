@@ -1,7 +1,6 @@
 import { ArcRotateCamera, Color3, HighlightLayer, Matrix, Mesh, MeshBuilder, Physics6DoFConstraint, PhysicsAggregate, PhysicsConstraintAxis, PhysicsMotionType, PhysicsShapeType, Quaternion, Ray, SceneLoader, Sound, StandardMaterial, Texture, TransformNode, Vector3 } from "@babylonjs/core";
 
-//import girlModelUrl from "../assets/models/girl1.glb";
-//import Arena from "../arenas/pistCourse";
+
 import { AdvancedDynamicTexture } from "@babylonjs/gui/2D/advancedDynamicTexture";
 import { TextBlock } from "@babylonjs/gui/2D/controls/textBlock";
 import jumpSoundUrl from "../../assets/sounds/jump.mp3"
