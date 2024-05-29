@@ -42,7 +42,7 @@ Réalisé avec BabyloneJS, Colyseus (server), Blender.
 #### Fight
 - Combat entre les spheres. Attention a ne pas tomber de la piste. 2 à 6 joueurs.
 #### Football
-- Marquer 5 buts dans le camp adverse. 2 à 6 joueurs, 2 équipes Bleus VS Rouges.
+- Marquer le plus de but possibles dans le camp adverse. 2 à 6 joueurs, 2 équipes Bleus VS Rouges. Temps maximale de jeu : 5 min 
 #### Monuments
 - Tour Eiffel
 - Notre Dame de Paris
