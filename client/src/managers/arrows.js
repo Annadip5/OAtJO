@@ -17,7 +17,7 @@ class ArrowsManager {
 
         { position: [-100, 0.1, -94], rotation: [0, 0, 0], taille: [4, 2, 1] },
         { position: [-100, 0.1, 29.3], rotation: [0, 0, 0], taille: [4, 2, 1] },
-        { position: [-230, 0.1, -6], rotation: [0, Math.PI / 4, 0], taille: [7, 7, 1] },
+        { position: [-230, 0.1, -6], rotation: [0, Math.PI / 4, 0], taille: [3, 7, 1] },
         { position: [-130, 0.1, 21], rotation: [0, 0, 0], taille: [4, 2, 1] },
 
         /*{ finish: "finish" }*/
@@ -82,7 +82,6 @@ class ArrowsManager {
                     parameter: this.localPlayer.gameObject
                 },
                 () => {
-                    console.log("red !");
                     this.localPlayer.setRunningSpeed(5);
                     this.localPlayer.setJumpImpulse(0);
 

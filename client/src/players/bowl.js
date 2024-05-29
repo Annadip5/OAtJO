@@ -193,8 +193,7 @@ class Player {
     }
     async createCamera() {
         if (this.color == "white") {
-            this.camera = await new ArcRotateCamera("cameraJoueur", Math.PI / 2, Math.PI / 4, 20, this.gameObject.position.subtract(new Vector3(0, 3, 0)), this.scene);
-
+            this.camera = await new ArcRotateCamera("cameraJoueur", Math.PI / 2, Math.PI / 4, 20, this.gameObject.position.subtract(new Vector3(0, -3, -2)), this.scene);
         }
         else {
             this.camera = await new ArcRotateCamera("cameraJoueur", Math.PI / 2, Math.PI / 4, 20, this.transform.position.subtract(new Vector3(0, 3, 0)), this.scene);

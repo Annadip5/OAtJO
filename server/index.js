@@ -8,6 +8,8 @@ class MyRoom extends Room {
         this.players = {};
         this.readyPlayers = new Set();
         this.initialPositions = [];
+        this.scoreBlue = 0;
+        this.scoreRed = 0;
 
 
     }
@@ -80,6 +82,17 @@ class MyRoom extends Room {
                 const chronoArray = sortedPlayers.map(player => ({ sessionId: player.sessionId, pseudo: player.pseudo, idFlag: player.idCountryFlag, finishChrono: player.finishChrono }));
                 this.broadcast("finalResults", chronoArray);
             }
+
+        });
+        this.onMessage("scoreBlueIncr", (client, data) => {
+            this.scoreBlue += 1;
+            console.log(this.scoreBlue);
+            this.broadcast("blueGoal", this.scoreBlue);
+        });
+        this.onMessage("scoreRedIncr", (client, data) => {
+            this.scoreRed += 1;
+            console.log(this.scoreRed);
+            this.broadcast("redGoal", this.scoreRed);
 
         });
 

@@ -2,7 +2,7 @@ import { ActionManager, ArcRotateCamera, Animation, HavokPlugin, HemisphericLigh
 import { Inspector } from '@babylonjs/inspector';
 import HavokPhysics from "@babylonjs/havok";
 
-import { AdvancedDynamicTexture, Rectangle, TextBlock } from "@babylonjs/gui";
+import { AdvancedDynamicTexture, Control, Rectangle, StackPanel, TextBlock } from "@babylonjs/gui";
 
 import Player from "../players/bowl";
 import Arena from "../arenas/pistFootball";
@@ -59,6 +59,8 @@ class Football {
     #decompteSound2
     #readySound
     #backgroundMusic
+    #redScoreText
+    #blueScoreText
 
     constructor(canvas, engine, room) {
 
@@ -148,7 +150,7 @@ class Football {
 
 
         this.initInput();
-        this.ballFoot = new Ball(this.#gameScene);
+        this.ballFoot = new Ball(this.#gameScene, this.#room, this.#redScoreText, this.#blueScoreText);
         this.ballFoot.init();
         this.ballFoot.createScoreText();
         this.ballFoot.updateScoreText();
@@ -195,9 +197,8 @@ class Football {
         const divFps = document.getElementById("fps");
 
         this.#engine.runRenderLoop(() => {
-            if (this.elapsedTime > 59) {
+            if (this.elapsedTime > 299) {
                 this.isEnd = true;
-                console.log(this.isEnd)
             }
 
             if (this.canStart && !this.isEnd) {
@@ -326,26 +327,47 @@ class Football {
     createElapsedTimeText() {
         const advancedTexture = AdvancedDynamicTexture.CreateFullscreenUI("UI");
 
-        const rectangle = new Rectangle();
-        rectangle.width = "100%";
-        rectangle.height = "10%";
-        rectangle.color = "black";
-        rectangle.thickness = 0;
-        rectangle.background = "rgba(0, 0, 0, 0.2)";
-        rectangle.verticalAlignment = Rectangle.VERTICAL_ALIGNMENT_TOP;
-        rectangle.horizontalAlignment = TextBlock.HORIZONTAL_ALIGNMENT_LEFT;
+        // Créer un rectangle principal pour contenir les textes
+        const mainRectangle = new Rectangle();
+        mainRectangle.width = "100%";
+        mainRectangle.height = "50px"; // Ajuster la hauteur selon vos besoins
+        mainRectangle.color = "black";
+        mainRectangle.thickness = 0;
+        mainRectangle.background = "rgba(0, 0, 0, 0.2)";
+        mainRectangle.verticalAlignment = Rectangle.VERTICAL_ALIGNMENT_TOP;
+        advancedTexture.addControl(mainRectangle);
 
-
+        // Créer le TextBlock pour le temps écoulé
         this.#elapsedTimeText = new TextBlock();
         this.#elapsedTimeText.text = "0s";
         this.#elapsedTimeText.color = "white";
         this.#elapsedTimeText.fontSize = 24;
-        this.#elapsedTimeText.horizontalAlignment = TextBlock.HORIZONTAL_ALIGNMENT_LEFT;
+        this.#elapsedTimeText.horizontalAlignment = TextBlock.HORIZONTAL_ALIGNMENT_CENTER;
+        this.#elapsedTimeText.verticalAlignment = TextBlock.VERTICAL_ALIGNMENT_CENTER;
+        mainRectangle.addControl(this.#elapsedTimeText);
 
-        rectangle.addControl(this.#elapsedTimeText);
+        // Créer le TextBlock pour le score rouge (à gauche)
+        this.#redScoreText = new TextBlock();
+        this.#redScoreText.text = "Red Team : 0";
+        this.#redScoreText.color = "red";
+        this.#redScoreText.fontSize = 24;
+        this.#redScoreText.horizontalAlignment = TextBlock.HORIZONTAL_ALIGNMENT_LEFT;
+        this.#redScoreText.verticalAlignment = TextBlock.VERTICAL_ALIGNMENT_CENTER;
+        this.#redScoreText.left = "200px"; // Marges internes
+        mainRectangle.addControl(this.#redScoreText);
 
-        advancedTexture.addControl(rectangle);
+        // Créer le TextBlock pour le score bleu (à droite)
+        this.#blueScoreText = new TextBlock();
+        this.#blueScoreText.text = "Blue Team : 0";
+        this.#blueScoreText.color = "blue";
+        this.#blueScoreText.fontSize = 24;
+        this.#blueScoreText.horizontalAlignment = TextBlock.HORIZONTAL_ALIGNMENT_RIGHT;
+        this.#blueScoreText.verticalAlignment = TextBlock.VERTICAL_ALIGNMENT_CENTER;
+        this.#blueScoreText.left = "-200px"; // Marges internes
+        mainRectangle.addControl(this.#blueScoreText);
     }
+
+
 
     updateElapsedTime() {
         this.elapsedTime = Math.floor((Date.now() - this.startTime) / 1000);

@@ -10,16 +10,20 @@ class Ball {
     scene
     scoreBlue = 0;
     scoreRed = 0;
-    scoreTextRed = null;
-    scoreTextBlue = null;
 
+    scoreTextR;
+    scoreTextB;
     mesh;
     meshAggregate;
     x = -15;
     y = 1;
     z = -21;
-    constructor(scene) {
+    room;
+    constructor(scene, room, scoreTextRed, scoreTextBlue) {
         this.scene = scene;
+        this.room = room;
+        this.scoreTextR = scoreTextRed;
+        this.scoreTextB = scoreTextBlue;
 
     }
 
@@ -60,8 +64,8 @@ class Ball {
                     parameter: this.mesh
                 },
                 () => {
-                    this.scoreBlue += 1;
-                    console.log("Score Blue: " + this.scoreBlue);
+                    this.scoreRed += 1;
+                    this.room.send("scoreRedIncr", this.scoreRed)
                     this.resetToCenter();
                     this.updateScoreText();
                 }
@@ -90,8 +94,8 @@ class Ball {
                     parameter: this.mesh
                 },
                 () => {
-                    this.scoreRed += 1;
-                    console.log("Score Red: " + this.scoreRed);
+                    this.scoreBlue += 1;
+                    this.room.send("scoreBlueIncr", this.scoreBlue)
                     this.resetToCenter()
                     this.updateScoreText()
 
@@ -107,12 +111,15 @@ class Ball {
         return degrees * (Math.PI / 180);
     }
     resetToCenter() {
+        console.log("reset to center")
         this.meshAggregate.body.disablePreStep = false;
         // The position where you want to move the body to
+        console.log(this.meshAggregate.body.transformNode.position)
+        console.log(this.mesh.position)
+        this.mesh.position = new Vector3(this.x, this.y, this.z);
         this.meshAggregate.body.transformNode.position.set(this.x, this.y, this.z);
         this.meshAggregate.body.setLinearVelocity(Vector3.Zero());
         this.scene.onAfterRenderObservable.addOnce(() => {
-            // Turn disablePreStep on again for maximum performance
             this.meshAggregate.body.disablePreStep = true;
         });
     }
@@ -141,11 +148,11 @@ class Ball {
         advancedTexture.addControl(this.scoreTextRed);
         advancedTexture.addControl(this.scoreTextBlue);
     }
-
     updateScoreText() {
-        this.scoreTextRed.text = `Red: ${this.scoreRed}`;
-        this.scoreTextBlue.text = `Blue: ${this.scoreBlue}`;
+        this.scoreTextR.text = `Red: ${this.scoreRed}`;
+        this.scoreTextB.text = `Blue: ${this.scoreBlue}`;
     }
+
 }
 
 export default Ball;
