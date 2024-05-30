@@ -5,6 +5,7 @@ import arrowSoundUrl from "../../assets/sounds/checkpoint.mp3"
 class ArrowsManager {
     scene;
     localPlayer;
+    room
     greenRects = [
         { position: [-100, 0.1, 23], rotation: [0, 0, 0], taille: [4, 2, 1] },
         { position: [-130, 0.1, 28], rotation: [0, 0, 0], taille: [4, 2, 1] },
@@ -23,9 +24,10 @@ class ArrowsManager {
         /*{ finish: "finish" }*/
     ];
 
-    constructor(scene, localPlayer) {
+    constructor(scene, localPlayer, room) {
         this.scene = scene;
         this.localPlayer = localPlayer;
+        this.room = room || null;
 
     }
     async createGreenArrow(positions, rotations, taille) {
@@ -39,7 +41,7 @@ class ArrowsManager {
         greenRectangle.checkCollisions = true;
         greenRectangle.material.alpha = 0.5;
         greenRectangle.actionManager = new ActionManager(this.scene);
-        
+
         greenRectangle.actionManager.registerAction(
             new ExecuteCodeAction(
                 {
@@ -54,12 +56,12 @@ class ArrowsManager {
                     }
                     setTimeout(() => {
                         this.localPlayer.setRunningSpeed(14);
-                        
+
                     }, 3000); // Reset speed after 3 seconds
                 }
             )
         );
-    
+
         greenRectangle.actionManager.registerAction(
             new ExecuteCodeAction(
                 {
@@ -125,8 +127,8 @@ class ArrowsManager {
         }
     }
 
-    async createelimground(){
-        await this.createelim([0,-1,0],[0,0,0],[100,100,10])
+    async createelimground() {
+        await this.createelim([0, -1, 0], [0, 0, 0], [100, 100, 10])
     }
     async createelim(positions, rotations, taille) {
         const greenRectangle = Mesh.CreateGround("greenRectangle", taille[0], taille[1], taille[2], this.scene);
@@ -134,7 +136,7 @@ class ArrowsManager {
         greenRectangle.scaling = new Vector3(2.1, 1, 1);
         greenRectangle.rotation = new Vector3(rotations[0], rotations[1], rotations[2]);
         greenRectangle.material = new StandardMaterial("greenMat", this.scene);
-        greenRectangle.material.diffuseColor = new Color3(0, 0, 1); 
+        greenRectangle.material.diffuseColor = new Color3(0, 0, 1);
         greenRectangle.checkCollisions = true;
         greenRectangle.material.alpha = 0.5;
         greenRectangle.actionManager = new ActionManager(this.scene);
@@ -149,7 +151,7 @@ class ArrowsManager {
                     console.log("Éliminer !");
                     this.localPlayer.setRunningSpeed(0);
                     this.localPlayer.setJumpImpulse(0);
-                    
+
                     // Afficher le texte "Éliminer"
                     const advancedTexture = AdvancedDynamicTexture.CreateFullscreenUI("UI");
                     const countdownText = new TextBlock();
@@ -159,7 +161,8 @@ class ArrowsManager {
                     countdownText.horizontalAlignment = TextBlock.HORIZONTAL_ALIGNMENT_CENTER;
                     countdownText.verticalAlignment = TextBlock.VERTICAL_ALIGNMENT_CENTER;
                     advancedTexture.addControl(countdownText);
-    
+                    this.room.send("elimination");
+
                     // Immobiliser la caméra et passer à une vue de haut
                     const camera = this.scene.activeCamera;
                     if (camera) {
@@ -169,7 +172,7 @@ class ArrowsManager {
                     setTimeout(() => {
                         advancedTexture.removeControl(countdownText);
                         this.localPlayer.label.dispose();
-                        
+
 
                     }, 5000);
                 }
@@ -177,6 +180,6 @@ class ArrowsManager {
         );
     }
 }
-    
+
 
 export default ArrowsManager;

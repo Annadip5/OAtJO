@@ -10,8 +10,17 @@ class MyRoom extends Room {
         this.initialPositions = [];
         this.scoreBlue = 0;
         this.scoreRed = 0;
+        this.eliminatedPlayers = [];
 
 
+    }
+    getRemainingPlayer() {
+        for (const [sessionId, player] of this.state.players.entries()) {
+            if (!this.eliminatedPlayers.includes(sessionId)) {
+                return sessionId;
+            }
+        }
+        return null;
     }
     onCreate(options) {
         console.log("My room created!", options);
@@ -94,6 +103,27 @@ class MyRoom extends Room {
             console.log(this.scoreRed);
             this.broadcast("redGoal", this.scoreRed);
 
+        });
+        this.onMessage("elimination", (client, data) => {
+            const player = this.state.players.get(client.sessionId);
+
+            if (player && this.state.players.size >= 2) {
+                this.eliminatedPlayers.push(player.sessionId);
+                console.log(`Player ${client.sessionId} eliminated and added to the eliminated players list.`);
+                console.log(this.eliminatedPlayers.length, this.state.players.size - 1)
+                if (this.eliminatedPlayers.length == this.state.players.size - 1) {
+                    const winnerSessionId = this.getRemainingPlayer();
+                    console.log(winnerSessionId)
+                    console.log(this.eliminatedPlayers)
+                    this.eliminatedPlayers.push(winnerSessionId)
+                    console.log(this.eliminatedPlayers)
+                    this.broadcast("finalResLutte", { tableau: this.eliminatedPlayers });
+
+
+
+                }
+
+            }
         });
 
     }
@@ -196,8 +226,8 @@ class MyRoom extends Room {
 }
 
 const server = new Server();
-server.define('race_room', MyRoom); // Salle pour le jeu de course
-server.define('combat_room', MyRoom); // Salle pour le jeu de combat
-server.define('football_room', MyRoom); // Salle pour le jeu de football
+server.define('race_room', MyRoom).enableRealtimeListing(); // Salle pour le jeu de course
+server.define('combat_room', MyRoom).enableRealtimeListing(); // Salle pour le jeu de combat
+server.define('football_room', MyRoom).enableRealtimeListing(); // Salle pour le jeu de football
 server.listen(2567);
 console.log("Server started on port 2567");

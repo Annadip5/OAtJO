@@ -50,14 +50,10 @@ class Arena {
                 else if (i === 4) {
                     const greenMaterial = new StandardMaterial("greenMaterial", this.scene);
                     greenMaterial.specularColor = new Color3(0, 0, 0);
-                    greenMaterial.diffuseTexture = new Texture("../assets/images/sable-texture.jpg",this.scene);
+                    greenMaterial.diffuseTexture = new Texture("../assets/images/sable-texture.jpg", this.scene);
                     childMesh.material = greenMaterial;
                 }
-                /*else if (i == 3) {
-                    this.zonePiste = childMesh;
-                    this.zonePiste.name = "zonePiste";
-                }*/
-                //this.zoneSable.isVisible = false
+
 
                 const meshAggregate = new PhysicsAggregate(childMesh, PhysicsShapeType.MESH, { mass: 0, friction: 0.2, restitution: 0 });
                 meshAggregate.body.setMotionType(PhysicsMotionType.STATIC);

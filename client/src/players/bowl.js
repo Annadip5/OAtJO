@@ -430,11 +430,11 @@ class Player {
         const dx = Math.abs(currentPosition.x - this.transform.position.x);
         const dy = Math.abs(currentPosition.y - this.transform.position.y);
         const dz = Math.abs(currentPosition.z - this.transform.position.z);
-        console.log(dx, " ", dy, " ", dz)
+        //console.log(dx, " ", dy, " ", dz)
         if (dx > POSITION_CORRECTION_THRESHOLD || dy > POSITION_CORRECTION_THRESHOLD || dz > POSITION_CORRECTION_THRESHOLD || dx < - POSITION_CORRECTION_THRESHOLD || dy < -POSITION_CORRECTION_THRESHOLD || dz < - POSITION_CORRECTION_THRESHOLD) {
-            console.log("poschange")
+            /*console.log("poschange")
             console.log(this.transform.position)
-            console.log(currentPosition)
+            console.log(currentPosition)*/
             this.transform.position = currentPosition;
         }
         else {

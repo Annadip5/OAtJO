@@ -141,11 +141,8 @@ class Combat {
 
         this.#gameScene.activeCamera = this.#player.camera;
         this.#gameScene.activeCamera.attachControl(this.#canvas, true);
-        /*this.#parcourManage = new WallCreator(this.#gameScene);
-        this.#parcourManage.createSquareDetection(this.#player.gameObject);
-        this.#arrows = new ArrowsManager(this.#gameScene, this.#player);
-        await this.#arrows.createArrows();*/
-        this.#arrows = new ArrowsManager(this.#gameScene, this.#player);
+
+        this.#arrows = new ArrowsManager(this.#gameScene, this.#player, this.#room);
         await this.#arrows.createelimground();
         console.log(this.#playerEntities)
         this.#shadowGenerator.addShadowCaster(this.#playerEntities[this.#room.sessionId].gameObject, true);
@@ -459,9 +456,10 @@ class Combat {
         resultsText.fontSize = 24;
         resultsText.textWrapping = true;
         resultsText.paddingTop = 20;
+        results.reverse();
 
         results.forEach((result, index) => {
-            resultsText.text += `${index + 1}. ${result.pseudo} - ${this.convertSecondsToMinSec(result.finishChrono)}\n`;
+            resultsText.text += `${index + 1}. ${this.#playerEntities[result].pseudo} \n`;
         });
 
         resultsRectangle.addControl(resultsText);
@@ -496,6 +494,10 @@ class Combat {
             console.log(message);
             console.log(this.#playerEntities);
             this.createFinalResultsUI(message);
+        });
+        this.#room.onMessage("finalResLutte", (message) => {
+            console.log(message);
+            this.createFinalResultsUI(message.tableau);
         });
     }
 
