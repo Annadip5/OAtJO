@@ -435,7 +435,7 @@ class Player {
             /*console.log("poschange")
             console.log(this.transform.position)
             console.log(currentPosition)*/
-            this.transform.position = currentPosition;
+            //this.transform.position = currentPosition;
         }
         else {
             this.capsuleAggregate.body.setLinearVelocity(currentVelocity);

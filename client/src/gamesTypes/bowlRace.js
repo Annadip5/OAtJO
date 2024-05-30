@@ -90,7 +90,7 @@ class Game {
         const hk = new HavokPlugin(true, this.#havokInstance);
         // enable physics in the scene with a gravity
         scene.enablePhysics(new Vector3(0, -9.81, 0), hk);
-        scene.debugLayer.show();
+        //scene.debugLayer.show();
 
         const light = new HemisphericLight("light", new Vector3(0, 1, 0), scene);
         light.intensity = 0.7;
