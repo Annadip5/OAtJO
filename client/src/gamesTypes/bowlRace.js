@@ -29,7 +29,7 @@ class Game {
     #gameScene;
 
     #shadowGenerator;
-    #bInspector = false;
+    #bInspector = true;
 
     x
     inputMap = {};
@@ -77,14 +77,14 @@ class Game {
 
     createScene() {
         const scene = new Scene(this.#engine);
-        const skybox = MeshBuilder.CreateBox("skyBox", {size:700}, scene);
-            const skyboxMaterial = new StandardMaterial("skyBox", scene);
-            skyboxMaterial.backFaceCulling = false;
-            skyboxMaterial.reflectionTexture = new CubeTexture("../assets/images/JOchargement", scene);
-            skyboxMaterial.reflectionTexture.coordinatesMode = Texture.SKYBOX_MODE;
-            skyboxMaterial.diffuseColor = new Color3(0, 0, 0);
-            skyboxMaterial.specularColor = new Color3(0, 0, 0);
-            skybox.material = skyboxMaterial;
+        const skybox = MeshBuilder.CreateBox("skyBox", { size: 700 }, scene);
+        const skyboxMaterial = new StandardMaterial("skyBox", scene);
+        skyboxMaterial.backFaceCulling = false;
+        skyboxMaterial.reflectionTexture = new CubeTexture("../assets/images/JOchargement", scene);
+        skyboxMaterial.reflectionTexture.coordinatesMode = Texture.SKYBOX_MODE;
+        skyboxMaterial.diffuseColor = new Color3(0, 0, 0);
+        skyboxMaterial.specularColor = new Color3(0, 0, 0);
+        skybox.material = skyboxMaterial;
         scene.collisionsEnabled = true;
 
         const hk = new HavokPlugin(true, this.#havokInstance);
@@ -127,7 +127,7 @@ class Game {
     async initGame() {
         this.#havokInstance = await this.getInitializedHavok();
         this.#gameScene = this.createScene();
-        
+
         this.#arena = new Arena(3, 10, 3, this.#gameScene);
         await this.#arena.init();
         //this.#arena.zoneSable.isVisible = false;

@@ -32,7 +32,7 @@ class Football {
     #gameScene;
 
     #shadowGenerator;
-    #bInspector = false;
+    #bInspector = true;
 
     x
     inputMap = {};
