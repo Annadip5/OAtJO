@@ -1,4 +1,4 @@
-import { ActionManager, Color3, ExecuteCodeAction, NativeXRFrame, PhysicsAggregate, PhysicsMotionType, PhysicsShapeType, SceneLoader, StandardMaterial, TransformNode, Vector3 } from "@babylonjs/core";
+import { ActionManager, Color3, CubeTexture, ExecuteCodeAction, MeshBuilder, NativeXRFrame, PhysicsAggregate, PhysicsMotionType, PhysicsShapeType, SceneLoader, StandardMaterial, Texture, TransformNode, Vector3 } from "@babylonjs/core";
 
 import arenaModelUrl from "../../assets/models/terrainfoot.glb";
 
@@ -26,6 +26,19 @@ class ArenaFootball {
     async init() {
 
         const result = await SceneLoader.ImportMeshAsync("", "", arenaModelUrl, this.scene);
+        const skybox = MeshBuilder.CreateBox("skyBox", { size: 300 }, this.scene);
+        const skyboxMaterial = new StandardMaterial("skyBox", this.scene);
+        skyboxMaterial.backFaceCulling = false;
+        skyboxMaterial.reflectionTexture = new CubeTexture("../assets/images/etoiles", this.scene);
+        skyboxMaterial.reflectionTexture.coordinatesMode = Texture.SKYBOX_MODE;
+        skyboxMaterial.diffuseColor = new Color3(0, 0, 0);
+        skyboxMaterial.specularColor = new Color3(0, 0, 0);
+
+// Ajustement de l'échelle de la texture pour couvrir une face entière du skybox
+skyboxMaterial.reflectionTexture.uScale = -1; // Inverse l'échelle horizontale pour éviter les effets de miroir
+skyboxMaterial.reflectionTexture.vScale = 1; // Laisse l'échelle verticale à 1 pour ne pas étirer la texture
+
+skybox.material = skyboxMaterial;
         //console.log(result);
         this.gameObject = result.meshes[0];
         this.gameObject.name = "arena";

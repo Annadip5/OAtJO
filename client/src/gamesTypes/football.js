@@ -17,6 +17,7 @@ import readyUrl from "../../assets/sounds/ready.mp3"
 import backgroundMusicUrl from "../../assets/sounds/avinci.mp3";
 
 
+
 class Football {
     scoreRed = 0;
     scoreBlue = 0;

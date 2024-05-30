@@ -1,7 +1,6 @@
 import { ActionManager, Color3, DiscBuilder, ExecuteCodeAction, Mesh, MeshParticleEmitter, ParticleSystem, Sound, StandardMaterial, Texture, Vector3, SceneLoader, Color4 } from "@babylonjs/core";
 import { AdvancedDynamicTexture, TextBlock } from "@babylonjs/gui";
-import checkpointSoundUrl from "../../assets/sounds/checkpoint.mp3"
-
+import checkpointSoundUrl from "../../assets/sounds/checkpoint2.mp3"
 
 class WallCreator {
     wallPositions = [

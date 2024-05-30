@@ -1,4 +1,4 @@
-import { ActionManager, Color3, ExecuteCodeAction, NativeXRFrame, PhysicsAggregate, PhysicsMotionType, PhysicsShapeType, SceneLoader, StandardMaterial, TransformNode, Vector3 } from "@babylonjs/core";
+import { ActionManager, Color3, ExecuteCodeAction, NativeXRFrame, PhysicsAggregate, PhysicsMotionType, PhysicsShapeType, SceneLoader, StandardMaterial, Texture, TransformNode, Vector3 } from "@babylonjs/core";
 
 import arenaModelUrl from "../../assets/models/piste_course4.glb";
 
@@ -39,12 +39,19 @@ class Arena {
             i++;
             //console.log(childMesh);
             if (childMesh.getTotalVertices() > 0) {
-                if (i == 6 || i == 4)
+                if (i == 6)
                     childMesh.isVisible = false;
+
                 else if (i == 5) {
                     this.zoneSable = childMesh;
                     this.zoneSable.name = "zoneSable";
 
+                }
+                else if (i === 4) {
+                    const greenMaterial = new StandardMaterial("greenMaterial", this.scene);
+                    greenMaterial.specularColor = new Color3(0, 0, 0);
+                    greenMaterial.diffuseTexture = new Texture("../assets/images/sable-texture.jpg",this.scene);
+                    childMesh.material = greenMaterial;
                 }
                 /*else if (i == 3) {
                     this.zonePiste = childMesh;
@@ -62,8 +69,8 @@ class Arena {
         console.log("sable : ");
         console.log(this.zoneSable);
         let zoneMat = new StandardMaterial("zoneSable", this.scene);
-
-        zoneMat.diffuseColor = Color3.Gray;
+        zoneMat.specularColor = new Color3(0, 0, 0);
+        zoneMat.diffuseTexture = new Texture("../assets/images/sable-texture.jpg");
         this.zoneSable.material = zoneMat;
 
     }

@@ -253,15 +253,16 @@ class Player {
             }
         }
         //q
+        var cameraspeed = 2.5 * delta;
         if (inputMap["KeyA"]) {
             //this.speedX = RUNNING_SPEED;
-            camera1.alpha += 0.015;
+            camera1.alpha += cameraspeed;
         }
 
         //d
         else if (inputMap["KeyD"]) {
             //this.speedX = -RUNNING_SPEED;
-            camera1.alpha -= 0.015;
+            camera1.alpha -= cameraspeed;
         }
 
         else {

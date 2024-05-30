@@ -145,7 +145,8 @@ class Combat {
         this.#parcourManage.createSquareDetection(this.#player.gameObject);
         this.#arrows = new ArrowsManager(this.#gameScene, this.#player);
         await this.#arrows.createArrows();*/
-
+        this.#arrows = new ArrowsManager(this.#gameScene, this.#player);
+        await this.#arrows.createelimground();
         console.log(this.#playerEntities)
         this.#shadowGenerator.addShadowCaster(this.#playerEntities[this.#room.sessionId].gameObject, true);
 
