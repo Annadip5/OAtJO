@@ -10,6 +10,7 @@ let RUNNING_SPEED = 14;
 let JUMP_IMPULSE = 6;
 const PLAYER_HEIGHT = 1;
 const PLAYER_RADIUS = 0.5;
+const POSITION_CORRECTION_THRESHOLD = 1;
 
 class Player {
     isSoundPlay = true;
@@ -230,7 +231,13 @@ class Player {
         let currentVelocity = this.capsuleAggregate.body.getLinearVelocity();
         const camera1 = this.camera;
         var forwardDirection = camera1.getForwardRay().direction;
-
+        //debug
+        if (inputMap["KeyG"]) {
+            this.grow()
+        }
+        else if (inputMap["KeyV"]) {
+            this.shrink()
+        }
         //Inputs 
         if (actions["KeyP"]) {
             if (this.isSoundPlay) {
@@ -415,17 +422,57 @@ class Player {
         const rotZ = message.rotation._z;
         const rotW = message.rotation._w;
 
-
-        //const pos = this.gameObject.position.subtract(new Vector3(posX, posY, posZ));
         const currentVelocity = new Vector3(x, y, z);
-        //this.gameObject.position = pos;
-        //this.updateVisualPosition(message.position);
+        const currentPosition = new Vector3(posX, posY, posZ);
 
-        //Position update
-        this.capsuleAggregate.body.setLinearVelocity(currentVelocity);
+        // Check if the received position is significantly different from the current position
+        const dx = Math.abs(currentPosition.x - this.transform.position.x);
+        const dy = Math.abs(currentPosition.y - this.transform.position.y);
+        const dz = Math.abs(currentPosition.z - this.transform.position.z);
+        console.log(dx, " ", dy, " ", dz)
+        if (dx > POSITION_CORRECTION_THRESHOLD || dy > POSITION_CORRECTION_THRESHOLD || dz > POSITION_CORRECTION_THRESHOLD || dx < - POSITION_CORRECTION_THRESHOLD || dy < -POSITION_CORRECTION_THRESHOLD || dz < - POSITION_CORRECTION_THRESHOLD) {
+            console.log("poschange")
+            console.log(this.transform.position)
+            console.log(currentPosition)
+            this.transform.position = currentPosition;
+        }
+        else {
+            this.capsuleAggregate.body.setLinearVelocity(currentVelocity);
+
+        }
 
     }
+    grow() {
+        console.log("Début de la croissance...");
+        const scaleFactor = 2;
+        this.gameObject.scaling = new Vector3(scaleFactor, scaleFactor, scaleFactor);
+        const groundPosition = new Vector3(this.gameObject.position.x, 0, this.gameObject.position.z);
+        const spherePosition = this.gameObject.position;
+        const distanceToGround = spherePosition.y - groundPosition.y;
+        const newPosition = groundPosition.add(new Vector3(0, distanceToGround, 0));
+        this.gameObject.position = newPosition;
+        setTimeout(() => {
+            this.gameObject.scaling = new Vector3(1, 1, 1);
+            this.gameObject.position = spherePosition;
+            console.log("Objet a atteint sa taille maximale.");
+        }, 5000); // Attendre 5 secondes (5000 millisecondes)
+    }
 
+    shrink() {
+        console.log("Début du rétrécissement...");
+        const scaleFactor = 0.5;
+        this.gameObject.scaling = new Vector3(scaleFactor, scaleFactor, scaleFactor);
+        const groundPosition = new Vector3(this.gameObject.position.x, 0, this.gameObject.position.z);
+        const spherePosition = this.gameObject.position;
+        const distanceToGround = spherePosition.y - groundPosition.y;
+        const newPosition = groundPosition.add(new Vector3(0, distanceToGround, 0));
+        this.gameObject.position = newPosition;
+        setTimeout(() => {
+            this.gameObject.scaling = new Vector3(1, 1, 1);
+            this.gameObject.position = spherePosition;
+            console.log("Objet a atteint sa taille minimale.");
+        }, 5000); // Attendre 5 secondes (5000 millisecondes)
+    }
 
 
 }

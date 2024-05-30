@@ -152,8 +152,8 @@ class Football {
         this.initInput();
         this.ballFoot = new Ball(this.#gameScene, this.#room, this.#redScoreText, this.#blueScoreText);
         this.ballFoot.init();
-        this.ballFoot.createScoreText();
-        this.ballFoot.updateScoreText();
+        //this.ballFoot.createScoreText();
+        //this.ballFoot.updateScoreText();
 
 
 

@@ -124,7 +124,7 @@ class Ball {
         });
     }
 
-    createScoreText() {
+    /*createScoreText() {
         const advancedTexture = AdvancedDynamicTexture.CreateFullscreenUI("ScoreUI");
 
         this.scoreTextRed = new TextBlock();
@@ -147,7 +147,7 @@ class Ball {
 
         advancedTexture.addControl(this.scoreTextRed);
         advancedTexture.addControl(this.scoreTextBlue);
-    }
+    }*/
     updateScoreText() {
         this.scoreTextR.text = `Red: ${this.scoreRed}`;
         this.scoreTextB.text = `Blue: ${this.scoreBlue}`;
