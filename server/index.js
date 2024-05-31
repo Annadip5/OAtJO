@@ -229,5 +229,5 @@ const server = new Server();
 server.define('race_room', MyRoom).enableRealtimeListing(); // Salle pour le jeu de course
 server.define('combat_room', MyRoom).enableRealtimeListing(); // Salle pour le jeu de combat
 server.define('football_room', MyRoom).enableRealtimeListing(); // Salle pour le jeu de football
-server.listen(2567);
-console.log("Server started on port 2567");
+server.listen(3000);
+console.log("Server started on port 3000");
