@@ -1,0 +1,9 @@
+services:
+  - type: web
+    name: OAtJO
+    env: node
+    buildCommand: npm install --prefix server && npm install --prefix client
+    startCommand: npm run start:server
+    envVars:
+      - key: NODE_ENV
+        value: production
