@@ -38,11 +38,11 @@ Réalisé avec BabyloneJS, Colyseus (server), Blender.
 - "d" : tourner la caméra à droite
 - "p" : stopper / lancer la musique de fond
 #### Race
-- Course avec parcours obligatoire et bonus, malus. 2 à 6 joueurs.
+- Course avec parcours obligatoire et bonus, malus. 1 à 6 joueurs.
 #### Fight
-- Combat entre les spheres. Attention a ne pas tomber de la piste. 2 à 6 joueurs.
+- Combat entre les spheres. Attention a ne pas tomber de la piste qui diminue. 2 à 6 joueurs.
 #### Football
-- Marquer le plus de but possibles dans le camp adverse. 2 à 6 joueurs, 2 équipes Bleus VS Rouges. Temps maximale de jeu : 5 min 
+- Marquer le plus de but possibles dans le camp adverse. 1 à 6 joueurs, 2 équipes Bleus VS Rouges. Temps maximale de jeu : 5 min
 #### Monuments
 - Tour Eiffel
 - Notre Dame de Paris
